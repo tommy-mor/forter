@@ -14,19 +14,10 @@
 
 (defn itemview [item height]
   [:div.child
-   {:style {:margin-top (str (- height) "px")}}
+   {:style {:margin-top (str height "px")}}
    [:h1 {:style {:margin-bottom "4px"}}
     (:name item)]
    [:span {:style {:color "red"}} (:url item)]])
-
-(defn home-page []
-  [:div
-
-   [:div.container [:h2 "warstarst"]
-    [itemview {:name "A" :url "google.com"} 0]
-    [itemview {:name "B" :url "bing.com"} 0]
-    [slider :percent 50 0 100 nil ]]])
-
 
 ;; copied from reagent-project.github.io
 (defn slider [param value min max invalidates]
@@ -38,8 +29,21 @@
                                  (fn [data]
                                    (-> data
                                        (assoc param new-value)
-                                       (dissoc invalidates)
-                                       score)))))}])
+                                       (dissoc invalidates))))))}])
+
+(defn calc-heights [perc]
+  {:right (/ (min 0 (- 50 perc)) 2) 
+   :left (/ (min 0 (- perc 50)) 2)})
+
+
+(defn home-page []
+  (let [{ :keys [left right] } (calc-heights (:percent @score))]
+    [:div
+
+     [:div.container [:h2 "warstarst"]
+      [itemview {:name "A" :url "google.com"} left]
+      [itemview {:name "B" :url "bing.com"} right]
+      [slider :percent (:percent @score) 0 100 nil ]]]))
 
 ;; -------------------------
 ;; Initialize app
