@@ -1,13 +1,16 @@
 (ns frontsorter.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
     (:require
-      [reagent.core :as r]
-      [reagent.dom :as d]))
+     [cljs-http.client :as http]
+     [cljs.core.async :refer [<!]]
+     [reagent.core :as r]
+     [reagent.dom :as d]))
 
 
 ;; ------------------------ 
 ;; State
 
-(def score (r/atom {:percent 50}))
+(def score (r/atom {:percent 50 :left {:name "A" :url "google.com"} :right {:name "B" :url "google.com"}}))
 (def rank (r/atom [{:name "A" :url "google.com"}
                    {:name "B" :url "bing.com"}
                    {:name "C" :url "duckduckgo.com"}]))
@@ -44,30 +47,41 @@
 
 (defn ranklist [rank]
   [:table
-   [:tr [:th "name"] [:th "url"]]
-   (map (fn [i]
-          [:tr
-           [:td (:name i)]
-           [:td (:url i)]]) @rank )])
+   [:thead
+    [:tr [:th "name"] [:th "url"]]]
+   [:tbody
+    (map (fn [i]
+           [:tr
+            {:key (:url i)}
+            [:td (:name i)]
+            [:td (:url i)]]) @rank )]])
 
 
 
+(def apistr "localhost:8080/priv/api/vote/0/58830eb5-4d8e-4f4c-8294-91e7a0c02c68")
+(def apistr0 "google.com")
 (defn home-page []
-  (let [{ :keys [left right] } (calc-heights (:percent @score))]
-    [:div
-     [:h2 "sorter"]
-     [:code "category: web browsers"]
-     
+  (go
+    (let [response (<! (http/get apistr))]   
+      (js/console.log "epic")
+      (js/console.log response)))
+  
+  (fn []
+    (let [{ :keys [left right] } (calc-heights (:percent @score))]
+      [:div
+       [:h2 "sorter"]
+       [:code "category: web browsers"]
+       
 
-     [:div.container
+       [:div.container
 
-      [itemview {:name "A" :url "google.com"} left]
-      [itemview {:name "B" :url "bing.com"} right]
-      [slider :percent (:percent @score) 0 100 nil ]
-      [button "submit" ]
-      [:h3 "current ranking"]
-      
-      [ranklist rank]]]))
+        [itemview (:left @score) left]
+        [itemview (:right @score) right]
+        [slider :percent (:percent @score) 0 100 nil ]
+        [button "submit" ]
+        [:h3 "current ranking"]
+        
+        [ranklist rank]]])))
 
 ;; -------------------------
 ;; Initialize app
@@ -83,3 +97,7 @@
                                         ; display the votes
 					; links to rest of site real
 					; make bottom panels collapsible?
+                    ; make button only go pink (clickable) once you've changed the ranking at all
+
+                                        ; make it load the things straight from the html or the dom, to avoid road trip.
+; right now, just road trip.
