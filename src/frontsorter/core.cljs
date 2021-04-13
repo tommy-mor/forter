@@ -6,29 +6,50 @@
      [reagent.core :as r]
      [reagent.dom :as d]))
 
+(def tagid "58830eb5-4d8e-4f4c-8294-91e7a0c02c68")
+(def apistr (str "/priv/api/vote/0/" tagid))
+(defn sendstr [tag col left right mag]
+  (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
 
 ;; ------------------------ 
 ;; State
 
 (def score (r/atom {:percent 50
-                    :left {:name "A" :url "google.com"}
-                    :right {:name "B" :url "google.com"}}))
-(def rank (r/atom [{:name "A" :url "google.com"}
-                   {:name "B" :url "bing.com"}
-                   {:name "C" :url "duckduckgo.com"}]))
+                    :left nil
+                    :right nil}))
+(def rank (r/atom []))
+
+(defn handleresponse [response]
+  (swap! score assoc :left (-> response :body :left))
+  (swap! score assoc :right (-> response :body :right))
+  (reset! rank (-> response :body :sorted)))
+
+(defn initdata []
+  (go
+    (let [response (<! (http/get apistr))]
+      (handleresponse response))))
+
+(defn sendvote []
+  (go
+    (let [url (sendstr tagid 0
+                       (-> @score :left :id)
+                       (-> @score :right :id)
+                       (:percent @score))
+          response (<! (http/post url))]
+      (handleresponse response))))
 
 ;; -------------------------
 ;; Views
 
-(defn button [text]
-  [:div.button text ])
+(defn button [text fn]
+  [:div.button {:on-click fn} text])
 
 (defn itemview [item height]
   [:div.child
    {:style {:margin-top (str height "px")}}
    [:h1 {:style {:margin-bottom "4px"}}
     (:name item)]
-   [:span {:style {:color "red"}} (:url item)]])
+   [:span {:style {:color "red"}} (:url (:content item))]])
 
 ;; copied from reagent-project.github.io
 (defn slider [param value min max invalidates]
@@ -52,25 +73,22 @@
     [:tr [:th "name"] [:th "url"]]]
    [:tbody
     (map (fn [i]
-           [:tr
-            {:key (:url i)}
-            [:td (:name i)]
-            [:td (:url i)]]) @rank )]])
+           (let [i (get i 1)]
+             [:tr
+              {:key (:id i)}
+              [:td (:name i)]
+              [:td (:url (:content i))]])) @rank )]])
 
 
 
-(def apistr "localhost:8080/priv/api/vote/0/58830eb5-4d8e-4f4c-8294-91e7a0c02c68")
-(def apistr0 "google.com")
+
+
 (defn home-page []
-  (go
-    (let [response (<! (http/get apistr))]   
-      (js/console.log "epic")
-      (js/console.log response)))
-  
+  (initdata)
   (fn []
     (let [{ :keys [left right] } (calc-heights (:percent @score))]
       [:div
-       [:h2 "sorter"]
+       [:h2 " sorter "]
        [:code "category: web browsers"]
        
 
@@ -79,7 +97,7 @@
         [itemview (:left @score) left]
         [itemview (:right @score) right]
         [slider :percent (:percent @score) 0 100 nil ]
-        [button "submit" ]
+        [button "submit" sendvote]
         [:h3 "current ranking"]
         
         [ranklist rank]]])))
@@ -90,15 +108,16 @@
 (defn mount-root []
   (d/render [home-page] (.getElementById js/document "app")))
 
+
 (defn ^:export init! []
   (mount-root))
 
                                         ; TODO
                                         ; then connect with backend (make json api)
                                         ; display the votes
-					; links to rest of site real
-					; make bottom panels collapsible?
-                    ; make button only go pink (clickable) once you've changed the ranking at all
+                                        ; links to rest of site real
+                                        ; make bottom panels collapsible?
+                                        ; make button only go pink (clickable) once you've changed the ranking at all
 
                                         ; make it load the things straight from the html or the dom, to avoid road trip.
-; right now, just road trip.
+                                        ; right now, just road trip.
