@@ -10,7 +10,9 @@
 ;; ------------------------ 
 ;; State
 
-(def score (r/atom {:percent 50 :left {:name "A" :url "google.com"} :right {:name "B" :url "google.com"}}))
+(def score (r/atom {:percent 50
+                    :left {:name "A" :url "google.com"}
+                    :right {:name "B" :url "google.com"}}))
 (def rank (r/atom [{:name "A" :url "google.com"}
                    {:name "B" :url "bing.com"}
                    {:name "C" :url "duckduckgo.com"}]))
@@ -19,8 +21,7 @@
 ;; Views
 
 (defn button [text]
-  [:div.button
-   text ])
+  [:div.button text ])
 
 (defn itemview [item height]
   [:div.child
