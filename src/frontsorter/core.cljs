@@ -6,10 +6,14 @@
      [reagent.core :as r]
      [reagent.dom :as d]))
 
-(def tagid "58830eb5-4d8e-4f4c-8294-91e7a0c02c68")
-(def apistr (str "/priv/api/vote/0/" tagid))
+(def tagid (r/atom ""))
+(def col (r/atom 0))
+(defn apistr [col tagid] (str "/priv/api/vote/" col "/" tagid))
 (defn sendstr [tag col left right mag]
   (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
+
+(defn delstr [tag]
+  (apply str (interpose "/" ["/priv/api/tag/delvotes" tag])))
 
 ;; ------------------------ 
 ;; State
@@ -22,19 +26,26 @@
 (defn handleresponse [response]
   (swap! score assoc :left (-> response :body :left))
   (swap! score assoc :right (-> response :body :right))
+  (swap! score assoc :percent 50)
   (reset! rank (-> response :body :sorted)))
 
-(defn initdata []
+(defn initdata [col tag]
   (go
-    (let [response (<! (http/get apistr))]
+    (let [response (<! (http/get (apistr col tag)))]
       (handleresponse response))))
 
 (defn sendvote []
   (go
-    (let [url (sendstr tagid 0
+    (let [url (sendstr @tagid 0
                        (-> @score :left :id)
                        (-> @score :right :id)
                        (:percent @score))
+          response (<! (http/post url))]
+      (handleresponse response))))
+
+(defn delvotes []
+  (go
+    (let [url (delstr @tagid)
           response (<! (http/post url))]
       (handleresponse response))))
 
@@ -84,7 +95,6 @@
 
 
 (defn home-page []
-  (initdata)
   (fn []
     (let [{ :keys [left right] } (calc-heights (:percent @score))]
       [:div
@@ -99,8 +109,9 @@
         [slider :percent (:percent @score) 0 100 nil ]
         [button "submit" sendvote]
         [:h3 "current ranking"]
+        [ranklist rank]
         
-        [ranklist rank]]])))
+        [button "delete" delvotes]]])))
 
 ;; -------------------------
 ;; Initialize app
@@ -109,8 +120,14 @@
   (d/render [home-page] (.getElementById js/document "app")))
 
 
-(defn ^:export init! []
+(defn ^:export init! [ncol ntag]
+  (js/console.log "arst")
+  (js/console.log ntag)
+  (reset! col ncol)
+  (reset! tagid ntag)
+  (initdata ncol ntag)
   (mount-root))
+
 
                                         ; TODO
                                         ; then connect with backend (make json api)
@@ -121,3 +138,8 @@
 
                                         ; make it load the things straight from the html or the dom, to avoid road trip.
                                         ; right now, just road trip.
+                                        ; TODO add kanban
+                                        ; TODO set up hosted version, maybe way to deploy through gh actions
+                                        ; make slider easier to press (wider surface area to click)
+                                        ; make votes editable (many mini sliders, in collapsible panel (all panels are collapsible))
+                                        ; in 'current ranking', select items to 'pin' on left or right
