@@ -6,9 +6,7 @@
      [reagent.core :as r]
      [reagent.dom :as d]))
 
-(def tagid (r/atom ""))
-(def col (r/atom 0))
-(defn apistr [col tagid] (str "/priv/api/vote/" col "/" tagid))
+(defn apistr [c t] (str "/priv/api/vote/" js/col "/" js/tagid))
 (defn sendstr [tag col left right mag]
   (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
 
@@ -19,24 +17,26 @@
 ;; State
 
 (def score (r/atom {:percent 50
-                    :left nil
-                    :right nil}))
+                    :left nil :right nil}))
 (def rank (r/atom []))
 
 (defn handleresponse [response]
+  (js/console.log (-> response :body :sorted))
   (swap! score assoc :left (-> response :body :left))
   (swap! score assoc :right (-> response :body :right))
   (swap! score assoc :percent 50)
   (reset! rank (-> response :body :sorted)))
 
-(defn initdata [col tag]
-  (go
-    (let [response (<! (http/get (apistr col tag)))]
-      (handleresponse response))))
+(defn initdata []
+  (js/console.log (js->clj js/sorted))
+  (reset! rank (js->clj js/sorted :keywordize-keys true))
+  (swap! score assoc :left {:name js/left.name :content {:url  js/left.content.url} :id js/left.id})
+  (swap! score assoc :right {:name js/right.name :content {:url js/right.content.url} :id js/right.id}))
+
 
 (defn sendvote []
   (go
-    (let [url (sendstr @tagid 0
+    (let [url (sendstr js/tag js/col
                        (-> @score :left :id)
                        (-> @score :right :id)
                        (:percent @score))
@@ -45,7 +45,7 @@
 
 (defn delvotes []
   (go
-    (let [url (delstr @tagid)
+    (let [url (delstr js/tag)
           response (<! (http/post url))]
       (handleresponse response))))
 
@@ -79,12 +79,16 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 (defn ranklist [rank]
+  (js/console.log "rank")
+  (js/console.log (clj->js  @rank))
   [:table
    [:thead
     [:tr [:th "name"] [:th "url"]]]
    [:tbody
     (map (fn [i]
            (let [i (get i 1)]
+             (js/console.log i)
+             
              [:tr
               {:key (:id i)}
               [:td (:name i)]
@@ -95,6 +99,8 @@
 
 
 (defn home-page []
+  (initdata)
+  
   (fn []
     (let [{ :keys [left right] } (calc-heights (:percent @score))]
       [:div
@@ -113,6 +119,7 @@
         
         [button "delete" delvotes]]])))
 
+
 ;; -------------------------
 ;; Initialize app
 
@@ -120,12 +127,7 @@
   (d/render [home-page] (.getElementById js/document "app")))
 
 
-(defn ^:export init! [ncol ntag]
-  (js/console.log "arst")
-  (js/console.log ntag)
-  (reset! col ncol)
-  (reset! tagid ntag)
-  (initdata ncol ntag)
+(defn ^:export init! []
   (mount-root))
 
 
