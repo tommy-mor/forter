@@ -28,10 +28,7 @@
   (reset! rank (-> response :body :sorted)))
 
 (defn initdata []
-  (js/console.log (js->clj js/sorted))
-  (reset! rank (js->clj js/sorted :keywordize-keys true))
-  (swap! score assoc :left {:name js/left.name :content {:url  js/left.content.url} :id js/left.id})
-  (swap! score assoc :right {:name js/right.name :content {:url js/right.content.url} :id js/right.id}))
+  (handleresponse {:body (js->clj js/init :keywordize-keys true)}))
 
 
 (defn sendvote []
