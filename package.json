@@ -1,6 +1,7 @@
 {
   "devDependencies": {
-    "shadow-cljs": "^2.12.1"
+    "shadow-cljs": "^2.12.1",
+    "npx": "^10.2.2"
   },
   "dependencies": {
     "react": "17.0.1",

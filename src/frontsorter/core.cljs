@@ -6,7 +6,8 @@
      [reagent.core :as r]
      [reagent.dom :as d]))
 
-(defn apistr [c t] (str "/priv/api/vote/" js/col "/" js/tagid))
+(defn tagpage [tagid] (str "/priv/tag/disp/" tagid))
+
 (defn sendstr [tag col left right mag]
   (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
 
@@ -17,11 +18,15 @@
 ;; State
 
 (def score (r/atom {:percent 50
-                    :left nil :right nil}))
+                    :left nil :right nil
+                    :name ""}))
 (def rank (r/atom []))
 
+(def options (r/atom []))
+
 (defn handleresponse [response]
-  (js/console.log (-> response :body :sorted))
+  (js/console.log (-> response clj->js))
+  (swap! score assoc :tag (-> response :body :tag))
   (swap! score assoc :left (-> response :body :left))
   (swap! score assoc :right (-> response :body :right))
   (swap! score assoc :percent 50)
@@ -38,6 +43,11 @@
                        (-> @score :right :id)
                        (:percent @score))
           response (<! (http/post url))]
+      (handleresponse response))))
+
+(defn move []
+  (go
+    (let [url "" response (<! (http/post url))]
       (handleresponse response))))
 
 (defn delvotes []
@@ -70,7 +80,6 @@
                                    (-> data
                                        (assoc param new-value)
                                        (dissoc invalidates))))))}])
-
 (defn calc-heights [perc]
   {:right (/ (min 0 (- 50 perc)) 2) 
    :left (/ (min 0 (- perc 50)) 2)})
@@ -93,7 +102,12 @@
 
 
 
-
+(defn tagline []
+  (let [tag (:tag @score)]
+    [:code
+     "category:" [:a {:href (tagpage (:tag_id tag))} (:title tag)]
+     ";  " "public name: " [:b (:public_name tag)]
+     ";  " "description: " [:i (:description tag)]]))
 
 (defn home-page []
   (initdata)
@@ -102,9 +116,8 @@
     (let [{ :keys [left right] } (calc-heights (:percent @score))]
       [:div
        [:h2 " sorter "]
-       [:code "category: web browsers"]
+       [tagline]
        
-
        [:div.container
 
         [itemview (:left @score) left]
@@ -113,7 +126,6 @@
         [button "submit" sendvote]
         [:h3 "current ranking"]
         [ranklist rank]
-        
         [button "delete" delvotes]]])))
 
 
