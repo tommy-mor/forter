@@ -12,7 +12,8 @@
   (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
 
 (defn delstr [tag]
-  (apply str (interpose "/" ["/priv/api/tag/delvotes" tag])))
+  (if (js/confirm "delete all votes?")
+    (apply str (interpose "/" ["/priv/api/tag/delvotes" tag]))))
 
 ;; ------------------------ 
 ;; State
@@ -61,6 +62,8 @@
 
 (defn button [text fn]
   [:div.button {:on-click fn} text])
+(defn smallbutton [text fn]
+  [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
 (defn itemview [item height]
   [:div.child
@@ -89,7 +92,7 @@
   (js/console.log (clj->js  @rank))
   [:table
    [:thead
-    [:tr [:th "name"] [:th "url"]]]
+    [:tr [:th "name"] [:th "url"] [:th "score"]]]
    [:tbody
     (map (fn [i]
            (let [i (get i 1)]
@@ -98,7 +101,8 @@
              [:tr
               {:key (:id i)}
               [:td (:name i)]
-              [:td (:url (:content i))]])) @rank )]])
+              [:td (:url (:content i))]
+              [:td (:elo i)]])) @rank )]])
 
 
 
@@ -115,9 +119,6 @@
   (fn []
     (let [{ :keys [left right] } (calc-heights (:percent @score))]
       [:div
-       [:h2 " sorter "]
-       [tagline]
-       
        [:div.container
 
         [itemview (:left @score) left]
@@ -126,7 +127,8 @@
         [button "submit" sendvote]
         [:h3 "current ranking"]
         [ranklist rank]
-        [button "delete" delvotes]]])))
+        [:br]
+        [smallbutton "clearvotes" delvotes]]])))
 
 
 ;; -------------------------
