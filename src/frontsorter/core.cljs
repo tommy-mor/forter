@@ -77,11 +77,12 @@
   [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
 (defn itemview [item height]
-  [:div.child
-   {:style {:margin-top (str height "px")}}
-   [:h1 {:style {:margin-bottom "4px"}}
-    (:name item)]
-   [:span {:style {:color "red"}} (:url (:content item))]])
+  (let [url (:url (:content item))]
+    [:div.child
+     {:style {:margin-top (str height "px")}}
+     [:h1 {:style {:margin-bottom "4px"}}
+      (:name item)]
+     [:span {:style {:color "red"}} (if (= "" url) "no url" url)]]))
 
 ;; copied from reagent-project.github.io
 (defn slider [param value min max invalidates]
