@@ -8,12 +8,15 @@
 
 (defn tagpage [tagid] (str "/priv/tag/disp/" tagid))
 
-(defn sendstr [tag col left right mag]
-  (apply str (interpose "/" ["/priv/api/vote/send" tag col left right mag])))
+(defn sendstr [left right mag]
+  (apply str (interpose "/" ["/priv/api/vote/send" js/tag js/col left right mag])))
 
-(defn delstr [tag]
+(defn delstr []
   (if (js/confirm "delete all votes?")
-    (apply str (interpose "/" ["/priv/api/tag/delvotes" tag]))))
+    (apply str (interpose "/" ["/priv/api/tag/delvotes" js/col js/tag]))))
+
+(defn delvotestr [vid]
+  (apply str (interpose "/" ["/priv/api/vote/del" js/col js/tag vid])))
 
 ;; ------------------------ 
 ;; State
@@ -23,6 +26,8 @@
                     :name ""}))
 (def rank (r/atom []))
 
+(def votes (r/atom []))
+
 (def options (r/atom []))
 
 (defn handleresponse [response]
@@ -31,7 +36,8 @@
   (swap! score assoc :left (-> response :body :left))
   (swap! score assoc :right (-> response :body :right))
   (swap! score assoc :percent 50)
-  (reset! rank (-> response :body :sorted)))
+  (reset! rank (-> response :body :sorted))
+  (reset! votes (-> response :body :votes)))
 
 (defn initdata []
   (handleresponse {:body (js->clj js/init :keywordize-keys true)}))
@@ -39,8 +45,7 @@
 
 (defn sendvote []
   (go
-    (let [url (sendstr js/tag js/col
-                       (-> @score :left :id)
+    (let [url (sendstr (-> @score :left :id)
                        (-> @score :right :id)
                        (:percent @score))
           response (<! (http/post url))]
@@ -53,7 +58,13 @@
 
 (defn delvotes []
   (go
-    (let [url (delstr js/tag)
+    (let [url (delstr)
+          response (<! (http/post url))]
+      (handleresponse response))))
+
+(defn delvote [vid]
+  (go
+    (let [url (delvotestr vid)
           response (<! (http/post url))]
       (handleresponse response))))
 
@@ -103,6 +114,28 @@
               [:td (:name i)]
               [:td (:url (:content i))]
               [:td (:elo i)]])) @rank )]])
+(defn idtoname [itemid]
+  (js/console.log "itemid")
+  (js/console.log itemid)
+  (let [a (filter (fn [i]
+                    (let [i (get i 1)]
+                      
+                      (= (:id i) itemid))) @rank)]
+    (:name (get (first a) 1))))
+(defn votelist [votes]
+  (js/console.log "votes")
+  (js/console.log (clj->js  @votes))
+  [:table
+   [:thead
+    [:tr [:th "to"] [:th "from"] [:th "mag"]]]
+   [:tbody
+    (map (fn [i]
+           [:tr
+            {:key (:id i)}
+            [:td (idtoname (:item_a i))]
+            [:td (idtoname (:item_b i))]
+            [:td (:magnitude i)]
+            [:td (smallbutton "delete" #(delvote (:id i)))]]) @votes )]])
 
 
 
@@ -128,6 +161,7 @@
         [:h3 "current ranking"]
         [ranklist rank]
         [:br]
+        [votelist votes]
         [smallbutton "clearvotes" delvotes]]])))
 
 

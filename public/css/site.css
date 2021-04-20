@@ -57,7 +57,9 @@ a.sideeffect:hover {
 
 .buttonsmaller {
 	background: white;
-
+}
+.buttonsmaller:hover {
+	background: white;
 }
 
 .smallbutton {
