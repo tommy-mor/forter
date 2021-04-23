@@ -1,1 +1,1 @@
-yarn shadow-cljs watch app
+npx shadow-cljs watch app
