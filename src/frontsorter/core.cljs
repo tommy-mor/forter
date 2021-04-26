@@ -31,7 +31,7 @@
 (def options (r/atom []))
 
 (defn handleresponse [response]
-  (js/console.log (-> response clj->js))
+  ;; (js/console.log (-> response clj->js))
   (swap! score assoc :tag (-> response :body :tag))
   (swap! score assoc :left (-> response :body :left))
   (swap! score assoc :right (-> response :body :right))
@@ -100,40 +100,41 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 (defn ranklist [rank]
-  (js/console.log "rank")
-  (js/console.log (clj->js  @rank))
+  ;; (js/console.log "rank")
+  ;; (js/console.log (clj->js  @rank))
   [:table
    [:thead
     [:tr [:th "name"] [:th "url"] [:th "score"]]]
    [:tbody
-    (map (fn [i]
-           (let [i (get i 1)]
-             (js/console.log i)
-             
-             [:tr
-              {:key (:id i)}
-              [:td (:name i)]
-              [:td (:url (:content i))]
-              [:td (:elo i)]])) @rank )]])
+    (for [i (into (sorted-map) @rank)] (let [i (get i 1)]
+                                                ;; (js/console.log "i")
+                                                ;; (js/console.log i)
+                                                [:tr
+                                                 {:key (:id i)}
+                                                 [:td (:name i)]
+                                                 [:td (:url (:content i))]
+                                                 [:td (:elo i)]]))]])
 (defn idtoname [itemid]
-  (js/console.log "itemid")
-  (js/console.log itemid)
+  ;; (js/console.log "itemid")
+  ;; (js/console.log itemid)
   (let [a (filter (fn [i]
                     (let [i (get i 1)]
                       
                       (= (:id i) itemid))) @rank)]
     (:name (get (first a) 1))))
 (defn votelist [votes]
-  (js/console.log "votes")
-  (js/console.log (clj->js  @votes))
+   ;; (js/console.log "votes")
+   ;; (js/console.log (clj->js  @votes))
   [:table
    [:thead
-    [:tr [:th "to"] [:th "from"] [:th "mag"]]]
+    [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
    [:tbody
+    
     (map (fn [i]
            [:tr
             {:key (:id i)}
             [:td (idtoname (:item_a i))]
+            [:td (- 100 (:magnitude i))]
             [:td (idtoname (:item_b i))]
             [:td (:magnitude i)]
             [:td (smallbutton "delete" #(delvote (:id i)))]]) @votes )]])
