@@ -100,20 +100,21 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 (defn ranklist [rank]
-  ;; (js/console.log "rank")
-  ;; (js/console.log (clj->js  @rank))
+  (js/console.log "rank")
+  (js/console.log (clj->js  @rank))
   [:table
    [:thead
     [:tr [:th "name"] [:th "url"] [:th "score"]]]
    [:tbody
-    (for [i (into (sorted-map) @rank)] (let [i (get i 1)]
-                                                ;; (js/console.log "i")
-                                                ;; (js/console.log i)
+    (for [i (range (count @rank))] (let [n (get @rank (keyword (str i)))]
+                                     
+                                                 (js/console.log "i")
+                                                 (js/console.log n)
                                                 [:tr
-                                                 {:key (:id i)}
-                                                 [:td (:name i)]
-                                                 [:td (:url (:content i))]
-                                                 [:td (:elo i)]]))]])
+                                                 {:key (:id n)}
+                                                 [:td (:name n)]
+                                                 [:td (:url (:content n))]
+                                                 [:td (:elo n)]]))]])
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
   ;; (js/console.log itemid)
@@ -123,8 +124,9 @@
                       (= (:id i) itemid))) @rank)]
     (:name (get (first a) 1))))
 (defn votelist [votes]
-   ;; (js/console.log "votes")
-   ;; (js/console.log (clj->js  @votes))
+  
+   ;;(js/console.log "votes")
+   ;;(js/console.log (clj->js  @votes))
   [:table
    [:thead
     [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
