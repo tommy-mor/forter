@@ -76,10 +76,10 @@
 (defn smallbutton [text fn]
   [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
-(defn itemview [item height]
+(defn itemview [item height right]
   (let [url (:url (:content item))]
     [:div.child
-     {:style {:margin-top (str height "px")}}
+     {:style {:margin-top (str height "px") :text-align (if right "right" "inherit")}}
      [:h1 {:style {:margin-bottom "4px"}}
       (:name item)]
      [:span {:style {:color "red"}} (if (= "" url) "no url" url)]]))
@@ -158,8 +158,8 @@
       [:div
        [:div.container
 
-        [itemview (:left @score) left]
-        [itemview (:right @score) right]
+        [itemview (:left @score) left false]
+        [itemview (:right @score) right true]
         [slider :percent (:percent @score) 0 100 nil ]
         [button "submit" sendvote]
         [:h3 "current ranking"]
