@@ -4,7 +4,8 @@
      [cljs-http.client :as http]
      [cljs.core.async :refer [<!]]
      [reagent.core :as r]
-     [reagent.dom :as d]))
+     [reagent.dom :as d]
+     [goog.string :as gstring]))
 
 (defn tagpage [tagid] (str "/priv/tag/disp/" tagid))
 
@@ -102,19 +103,21 @@
 (defn ranklist [rank]
   (js/console.log "rank")
   (js/console.log (clj->js  @rank))
-  [:table
-   [:thead
-    [:tr [:th "name"] [:th "url"] [:th "score"]]]
-   [:tbody
-    (for [i (range (count @rank))] (let [n (get @rank (keyword (str i)))]
-                                     
-                                                 (js/console.log "i")
-                                                 (js/console.log n)
-                                                [:tr
-                                                 {:key (:id n)}
-                                                 [:td (:name n)]
-                                                 [:td (:url (:content n))]
-                                                 [:td (:elo n)]]))]])
+  
+  (let [size (count @rank)]
+    [:table
+     [:thead
+      [:tr [:th "name"] [:th "url"] [:th "score"]]]
+     [:tbody
+      (for [i (range size)] (let [n (get @rank (keyword (str i)))]
+                                       
+                                       (js/console.log "i")
+                                       (js/console.log (clj->js n))
+                                       [:tr
+                                        {:key (:id n)}
+                                        [:td (:name n)]
+                                        [:td (:url (:content n))]
+                                        [:td (gstring/format "%.2f" (* 10 size (:elo n)))]]))]]))
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
   ;; (js/console.log itemid)
