@@ -77,12 +77,21 @@
 (defn smallbutton [text fn]
   [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
+(defn spotify-player [id]
+  [:iframe {:src (str "https://open.spotify.com/embed/track/" id)
+    :width 300 :height 80 :frameborder true
+    :allowtransparency true :allow "encrypted-media"}])
+
 (defn itemview [item height right]
-  (let [url (:url (:content item))]
+  (let [url (:url (:content item))
+        spotify-id (-> item :content :spotify_id)]
+    (js/console.log (clj->js spotify-id))
     [:div.child
      {:style {:margin-top (str height "px") :text-align (if right "right" "inherit")}}
      [:h1 {:style {:margin-bottom "4px"}}
-      (:name item)]
+      (if spotify-id
+        (spotify-player spotify-id)
+        (:name item))]
      [:span {:style {:color "red"}} (if (= "" url) "no url" url)]]))
 
 ;; copied from reagent-project.github.io
