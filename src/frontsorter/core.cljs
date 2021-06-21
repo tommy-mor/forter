@@ -85,7 +85,6 @@
 (defn itemview [item height right]
   (let [url (:url (:content item))
         spotify-id (-> item :content :spotify_id)]
-    (js/console.log (clj->js spotify-id))
     [:div.child
      {:style {:margin-top (str height "px") :text-align (if right "right" "inherit")}}
      [:h1 {:style {:margin-bottom "4px"}}

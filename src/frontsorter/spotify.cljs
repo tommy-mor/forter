@@ -18,17 +18,29 @@
 (def playlists (r/atom []))
 
 (defn handleresponse [resp]
-  (js/console.log "api response")
-  (reset! playlists (-> resp :body :items))
-  (js/console.log (clj->js resp)))
+  (reset! playlists (-> resp :body :items)))
+
+(def testurl (r/atom ""))
+(def fr (r/atom ""))
+
+(defn collectsongs [songssofar url]
+  (go
+    (let [response (<! (http/get url (authreq)))
+          songs (concat songssofar (-> response :body :items))
+          next (-> response :body :next)]
+      (if next
+        (<! (collectsongs songs next))
+        songs))))
 
 (defn maketag [url name]
   (go
     (let [url url
           response (<! (http/get url (authreq)))
-          finalresponse (<! (http/post "http://localhost:8080/priv/spotify/data" {:json-params (assoc (:body response)
-                                                                                                      :name name)}))]
+          songs (<! (collectsongs [] url))
+          finalresponse (<! (http/post "http://localhost:8080/priv/spotify/data" {:json-params {:items songs :name name}}))
+          ]
       (js/window.location.replace (str "/priv/tag/disp/" (-> finalresponse :body :newtagid))))))
+
 
 
 (defn auth []
