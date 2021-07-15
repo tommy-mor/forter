@@ -4,8 +4,7 @@
      [cljs-http.client :as http]
      [cljs.core.async :refer [<!]]
      [reagent.core :as r]
-     [reagent.dom :as d]
-     [goog.string :as gstring]))
+     [reagent.dom :as d]))
 
 (defn tagpage [tagid] (str "/priv/tag/disp/" tagid))
 
@@ -156,7 +155,7 @@
          [:td (:url (:content n))]
          (if (:elo n)
            
-           [:td (gstring/format "%.2f" (* 10 size (:elo n)))])])]]))
+           [:td (.toFixed (* 10 size (:elo n)) 2)])])]]))
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
   ;; (js/console.log itemid)
