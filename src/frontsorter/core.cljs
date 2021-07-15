@@ -18,6 +18,8 @@
 (defn delvotestr [vid]
   (apply str (interpose "/" ["/priv/api/vote/del" js/tag vid])))
 
+(defn addstr [] (str "/priv/api/item/new/" js/tag))
+
 ;; ------------------------ 
 ;; State
 
@@ -34,16 +36,21 @@
 
 (defn handleresponse [response]
   (js/console.log (-> response clj->js))
-  (swap! score assoc :tag (-> response :body :tag))
-  (swap! score assoc :left (-> response :body :left))
-  (swap! score assoc :right (-> response :body :right))
-  (swap! score assoc :percent 50)
-  (reset! rank (-> response :body :sorted))
-  (reset! badlist (-> response :body :baditems))
-  (reset! votes (-> response :body :votes)))
+  
+  (if (:success response)
+    (do 
+      (swap! score assoc :tag (-> response :body :tag))
+      (swap! score assoc :left (-> response :body :left))
+      (swap! score assoc :right (-> response :body :right))
+      (swap! score assoc :percent 50)
+      (reset! rank (-> response :body :sorted))
+      (reset! badlist (-> response :body :baditems))
+      (reset! votes (-> response :body :votes)))))
+
 
 (defn initdata []
-  (handleresponse {:body (js->clj js/init :keywordize-keys true)}))
+  (handleresponse {:body (js->clj js/init :keywordize-keys true)
+                   :success true}))
 
 
 (defn sendvote []
@@ -71,8 +78,33 @@
           response (<! (http/post url))]
       (handleresponse response))))
 
+(defn add-item [name]
+  (if (> (count @name) 0)
+    (go
+      (let [url (addstr)
+            response (<! (http/post url {:form-params {:name @name :content "{}"}}))]
+        (handleresponse response)
+        ;; maybe open vote widget from here?
+        (reset! name "")))))
+
 ;; -------------------------
 ;; Views
+(defn addpanel []
+  (let [title (r/atom "")
+        on-key-down (fn [k title]
+                      (condp = (.-which k)
+                        13 (add-item title)
+                        nil))]
+    (fn [] 
+      [:div.addpanel
+       [:input.addinput {:type "text"
+                         :value @title
+                         :placeholder "new item name"
+                         :on-change #(reset! title (-> % .-target .-value))
+                         :on-key-down #(on-key-down % title)}]
+       [:button {:on-click #(add-item title)} "add item"]])))
+
+;; inspired by https://github.com/tastejs/todomvc/blob/gh-pages/examples/reagent/src/cljs/todomvc/components/todo_input.cljs
 (defn collapsible-cage [open title & children]
   (let [collapsed (r/atom (not open))]
     (fn [open title & children]
@@ -80,14 +112,13 @@
        [:div.cagetitle
         {:on-click (fn [e] (swap! collapsed not))}
         (if @collapsed
-          (str title ">>")
-          (str title "<<"))]
+          (str title " >>")
+          (str title " <<"))]
        (if @collapsed
          nil
          children)])))
 
 (defn info []
-  
   (let [tag (:tag @score)]
     [:div.cageparent [:div.cagetitle "TAG"]
      [:div {:style {:padding-left "10px"}} 
@@ -112,7 +143,6 @@
     :width 300 :height 80
     :allowtransparency "true" :allow "encrypted-media"}])
 
-;; copied from reagent-project.github.io
 (defn itemview [item height right]
   (let [url (:url (:content item))
         spotify-id (-> item :content :spotify_id)]
@@ -125,6 +155,7 @@
         (spotify-player spotify-id)
         (:name item))]
      [:span {:style {:color "red"}} url]]))
+
 (defn slider [param value min max invalidates]
   [:input.slider {:type "range" :value value :min min :max max
                   :on-change (fn [e]
@@ -193,6 +224,12 @@
       [:div
        
        [info]
+       
+       [collapsible-cage
+        true
+        "ADD"
+        [addpanel]]
+       
        
        [collapsible-cage
         false

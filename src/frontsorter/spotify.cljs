@@ -4,8 +4,7 @@
    [cljs-http.client :as http]
    [cljs.core.async :refer [<!]]
    [reagent.core :as r]
-   [reagent.dom :as d]
-   [goog.string :as gstring]))
+   [reagent.dom :as d]))
 
 (defn extract-key []
   (let [str (.-location.hash js/window)]
