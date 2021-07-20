@@ -4,21 +4,22 @@
      [cljs-http.client :as http]
      [cljs.core.async :refer [<!]]
      [reagent.core :as r]
-     [reagent.dom :as d]))
+     [reagent.dom :as d]
+     [frontsorter.common :as c]))
 
-(defn tagpage [tagid] (str "/priv/tag/disp/" tagid))
+(defn tagpage [tagid] (str "/tag/disp/" tagid))
 
 (defn sendstr [left right mag]
-  (apply str (interpose "/" ["/priv/api/vote/send" js/tag left right mag])))
+  (apply str (interpose "/" ["/api/vote/send" js/tag left right mag])))
 
 (defn delstr []
   (if (js/confirm "delete all votes?")
-    (apply str (interpose "/" ["/priv/api/tag/delvotes" js/tag]))))
+    (apply str (interpose "/" ["/api/tag/delvotes" js/tag]))))
 
 (defn delvotestr [vid]
-  (apply str (interpose "/" ["/priv/api/vote/del" js/tag vid])))
+  (apply str (interpose "/" ["/api/vote/del" js/tag vid])))
 
-(defn addstr [] (str "/priv/api/item/new/" js/tag))
+(defn addstr [] (str "/api/item/new/" js/tag))
 
 ;; ------------------------ 
 ;; State
@@ -104,19 +105,6 @@
                          :on-key-down #(on-key-down % title)}]
        [:button {:on-click #(add-item title)} "add item"]])))
 
-;; inspired by https://github.com/tastejs/todomvc/blob/gh-pages/examples/reagent/src/cljs/todomvc/components/todo_input.cljs
-(defn collapsible-cage [open title & children]
-  (let [collapsed (r/atom (not open))]
-    (fn [open title & children]
-      [:div.cageparent
-       [:div.cagetitle
-        {:on-click (fn [e] (swap! collapsed not))}
-        (if @collapsed
-          (str title " >>")
-          (str title " <<"))]
-       (if @collapsed
-         nil
-         children)])))
 
 (defn info []
   (let [tag (:tag @score)]
@@ -138,24 +126,6 @@
 (defn smallbutton [text fn]
   [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
-(defn spotify-player [id]
-  [:iframe {:src (str "https://open.spotify.com/embed/track/" id)
-    :width 300 :height 80
-    :allowtransparency "true" :allow "encrypted-media"}])
-
-(defn itemview [item height right]
-  (let [url (:url (:content item))
-        spotify-id (-> item :content :spotify_id)]
-    [:div
-     {:class (if right "rightitem" "leftitem")
-      :style {:margin-top (str height "px")}}
-     
-     [:h1 {:style {:margin-bottom "4px"}}
-      (if spotify-id
-        (spotify-player spotify-id)
-        (:name item))]
-     [:span {:style {:color "red"}} url]]))
-
 (defn slider [param value min max invalidates]
   [:input.slider {:type "range" :value value :min min :max max
                   :on-change (fn [e]
@@ -170,31 +140,13 @@
 (defn calc-heights [perc]
   {:right (/ (min 0 (- 50 perc)) 2) 
    :left (/ (min 0 (- perc 50)) 2)})
-(defn ranklist [rank]
-  ;; (js/console.log "rank")
-  ;; (js/console.log (clj->js  @rank))
-  
-  (let [size (count @rank)]
-    [:table
-     [:thead
-      [:tr [:th ""] [:th ""] [:th ""]]]
-     [:tbody
-      (for [n @rank]
-        [:tr
-         {:key (:id n)}
-         [:td (:name n)]
-         [:td (:url (:content n))]
-         (if (:elo n)
-           
-           [:td (.toFixed (* 10 size (:elo n)) 2)])])]]))
+
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
   ;; (js/console.log itemid)
   (let [a (filter (fn [i]
-                    (let [i (get i 1)]
-                      
-                      (= (:id i) itemid))) @rank)]
-    (:name (get (first a) 1))))
+                    (= (:id i) itemid)) @rank)]
+    (:name (first a))))
 
 
 
@@ -225,33 +177,35 @@
        
        [info]
        
-       [collapsible-cage
+       [c/collapsible-cage
         true
         "ADD"
         [addpanel]]
        
        
-       [collapsible-cage
-        false
-        "VOTE"
-        [:div.votearena
-         [itemview (:left @score) left false]
-         [itemview (:right @score) right true]
-         [slider :percent (:percent @score) 0 100 nil ]
-         [button "submit" sendvote]]]
+       (if (:left @score)
+         [c/collapsible-cage
+          false
+          "VOTE"
+          [:div.votearena
+           [c/itemview (:left @score) left false]
+           [c/itemview (:right @score) right true]
+           [slider :percent (:percent @score) 0 100 nil ]
+           [button "submit" sendvote]]])
        
-       [collapsible-cage
-        true
-        "RANKING"
-        [ranklist rank]]
+       (if (not-empty @rank)
+         [c/collapsible-cage
+          true
+          "RANKING"
+          [c/ranklist rank]])
        
-       (if (not (empty? @badlist)) [collapsible-cage
+       (if (not (empty? @badlist)) [c/collapsible-cage
                                     true
                                     "UNRANKED ITEMS"
-                                    [ranklist badlist]]
+                                    [c/ranklist badlist]]
            nil)
        
-       [collapsible-cage
+       [c/collapsible-cage
         false
         "MY VOTES"
         [votelist votes]]])))

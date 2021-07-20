@@ -7,9 +7,12 @@
                       :output-dir "public/js"
                       :asset-path "/js"
                       :module-loader true
-                      :modules    {:spotify {:entries [frontsorter.spotify] :depends-on #{:app}}
-                                   :app {:entries [frontsorter.core]}}
-                      :devtools   {:after-load frontsorter.core/mount-root}}}
+                      :modules    {:shared {:entries [frontsorter.common]}
+                                   :spotify {:entries [frontsorter.spotify] :depends-on #{:shared}}
+                                   :item {:entries [frontsorter.item] :depends-on #{:shared}}
+                                   
+                                   :app {:entries [frontsorter.core]  :depends-on #{:shared}}}
+                      :devtools   {:after-load frontsorter.item/mount-root}}}
 
  :dev-http     {3000 {:root    "public"
                       :handler user/app}}}
