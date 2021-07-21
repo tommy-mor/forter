@@ -34,17 +34,16 @@
         (:name item))]
      [:span {:style {:color "red"}} url]]))
 
-(defn item [item size]
+(defn item [item size & [ignoreitem]]
   (let [hovered (r/atom false)
-        url (str js/tag "/" (:id item) )
+        url (str "/t/" js/tag "/" (:id item) )
         row (fn [kw item]
               (if (kw item)
-                
-                [:td {:style {:background-color
-                              (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}
-                      }(.toFixed (kw item) 2)])
-              
-              )]
+                (if (and ignoreitem (= (:id @ignoreitem) (:id item)))
+                  [:td "--"]
+                  [:td {:style {:background-color
+                                (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}
+                   (.toFixed (kw item) 2)])))]
     (fn [item size] 
       [:tr
        {
@@ -70,7 +69,7 @@
        ;; do we show the number of votes involving this tag?
        ])))
 
-(defn ranklist [rank]
+(defn ranklist [rank & [ignoreitem]]
   ;; (js/console.log "rank")
   ;; (js/console.log (clj->js  @rank))
   
@@ -80,4 +79,4 @@
       [:tr [:th ""] [:th ""] [:th ""]]]
      [:tbody
       (for [n @rank]
-        [item n size])]]))
+        [item n size ignoreitem])]]))

@@ -45,7 +45,7 @@
       [tagbody @item]]
      [c/collapsible-cage true
       "MATCHUPS"
-      [c/ranklist sorted]]]))
+      [c/ranklist sorted item]]]))
 
 
 (defn mount-root []
