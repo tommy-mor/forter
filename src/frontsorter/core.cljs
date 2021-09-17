@@ -21,11 +21,14 @@
 
 (defn addstr [] (str "/api/item/new/" js/tag))
 
+(defn editstr [] (str "/api/tag/edit/" js/tag))
+
 ;; ------------------------ 
 ;; State
 
 (def score (r/atom {:percent 50
                     :left nil :right nil
+                    :editable false
                     :name ""}))
 (def rank (r/atom []))
 
@@ -88,8 +91,19 @@
         ;; maybe open vote widget from here?
         (reset! name "")))))
 
+(defn submit-edit [newinfo]
+  (go
+    (let [url (editstr)
+          response (<! (http/patch url {:form-params newinfo}))]
+      (js/console.log @score)
+      (if (:success response)
+        (swap! score assoc :tag (:body response))))))
+
 ;; -------------------------
 ;; Views
+(defn smallbutton [text fn]
+  [:a {:on-click fn :class "sideeffect" :href "#"} text])
+
 (defn addpanel []
   (let [title (r/atom "")
         on-key-down (fn [k title]
@@ -105,29 +119,51 @@
                          :on-key-down #(on-key-down % title)}]
        [:button {:on-click #(add-item title)} "add item"]])))
 
-
+(defn info-edit [show]
+  (let [tag (:tag @score)
+        newinfo (r/atom {:title (:title tag) :description (:description tag)})
+        submit (fn []
+                 (submit-edit @newinfo)
+                 (reset! show false))
+        inp (fn [attr] [:input.editinput {:type "text" :value (attr @newinfo)
+                                          :on-change #(swap! newinfo assoc attr (-> % .-target .-value))
+                                          :on-key-down #(condp = (.-which %)
+                                                          13 (submit)
+                                                          nil)}])]
+    ;; check that its valid, then submit to server
+    (js/console.log "submitting")
+    (js/console.log tag)
+    [:div.votearena 
+     [inp :title]
+     [inp :description]
+     [smallbutton "submit" submit]])
+  )
+;; TODO check if my user id matches tag user id
 (defn info []
   (let [edit (r/atom false)]
     (fn []
       
       (let [tag (:tag @score)]
-        [:div.cageparent [:div.cagetitle "TAG"]
-         [:div {:style {:padding-left "10px"}} 
-          [:h1 (:title tag)]
-          [:i (:description tag)]
-          [:br]
-          "created by user " ;;TODO
-          [:br]
-          [:b (+ (count @rank) (count @badlist))] " items "
-          [:b (+ (count @votes))] " votes"]
+        [:div.cageparent
+         [:div.cagetitle "TAG"]
+         (if @edit
+           [info-edit edit]
+           [:div {:style {:padding-left "10px"}}
+            (if (:editable score)
+              [:div.rightcorner {:on-click #(reset! edit true)} "edit"])
+            
+            [:h1 (:title tag)]
+            [:i (:description tag)]
+            [:br]
+            "created by user " ;;TODO
+            [:br]
+            [:b (+ (count @rank) (count @badlist))] " items "
+            [:b (+ (count @votes))] " votes"])
          ;; TODO get real user here
          ]))))
 
 (defn button [text fn]
   [:div.button {:on-click fn} text])
-
-(defn smallbutton [text fn]
-  [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
 (defn slider [param value min max invalidates]
   [:input.slider {:type "range" :value value :min min :max max
@@ -184,8 +220,7 @@
         true
         "ADD"
         [addpanel]]
-       
-       
+
        (if (:left @score)
          [c/collapsible-cage
           false
