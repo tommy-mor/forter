@@ -39,7 +39,9 @@
         url (str "/t/" js/tag "/" (:id item) )
         row (fn [kw item]
               (if (kw item)
-                (if (and ignoreitem (= (:id @ignoreitem) (:id item)))
+                (if (or
+                     (= 0.00 (kw item))
+                     (and ignoreitem (= (:id @ignoreitem) (:id item))))
                   [:td "--"]
                   [:td {:style {:background-color
                                 (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}

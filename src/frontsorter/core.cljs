@@ -107,18 +107,21 @@
 
 
 (defn info []
-  (let [tag (:tag @score)]
-    [:div.cageparent [:div.cagetitle "TAG"]
-     [:div {:style {:padding-left "10px"}} 
-      [:h1 (:title tag)]
-      [:i (:description tag)]
-      [:br]
-      "created by user " ;;TODO
-      [:br]
-      [:b (+ (count @rank) (count @badlist))] " items "
-      [:b (+ (count @votes))] " votes"]
-     ;; TODO get real user here
-     ]))
+  (let [edit (r/atom false)]
+    (fn []
+      
+      (let [tag (:tag @score)]
+        [:div.cageparent [:div.cagetitle "TAG"]
+         [:div {:style {:padding-left "10px"}} 
+          [:h1 (:title tag)]
+          [:i (:description tag)]
+          [:br]
+          "created by user " ;;TODO
+          [:br]
+          [:b (+ (count @rank) (count @badlist))] " items "
+          [:b (+ (count @votes))] " votes"]
+         ;; TODO get real user here
+         ]))))
 
 (defn button [text fn]
   [:div.button {:on-click fn} text])
