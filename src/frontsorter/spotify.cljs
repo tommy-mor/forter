@@ -17,6 +17,7 @@
 (def playlists (r/atom []))
 
 (defn handleresponse [resp]
+  (js/console.log  "meme")
   (reset! playlists (-> resp :body :items)))
 
 (def testurl (r/atom ""))
@@ -33,12 +34,15 @@
 
 (defn maketag [url name]
   (go
+    (js/console.log "big")
     (let [url url
           response (<! (http/get url (authreq)))
           songs (<! (collectsongs [] url))
+          ;; TODO make this url work?
           finalresponse (<! (http/post "http://localhost:8080/priv/spotify/data" {:json-params {:items songs :name name}}))
           ]
-      (js/window.location.replace (str "/priv/tag/disp/" (-> finalresponse :body :newtagid))))))
+      (js/window.location.replace (str "/t/" (-> finalresponse :body :newtagid)))
+      )))
 
 
 
