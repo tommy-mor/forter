@@ -28,7 +28,7 @@
 
 (def score (r/atom {:percent 50
                     :left nil :right nil
-                    :editable false
+                    :editable true
                     :name ""}))
 (def rank (r/atom []))
 
@@ -130,14 +130,13 @@
                                           :on-key-down #(condp = (.-which %)
                                                           13 (submit)
                                                           nil)}])]
-    ;; check that its valid, then submit to server
-    (js/console.log "submitting")
-    (js/console.log tag)
+    ;; TODO check that its valid, then submit to server
     [:div.votearena 
      [inp :title]
      [inp :description]
-     [smallbutton "submit" submit]])
-  )
+     [smallbutton "submit" submit]
+     [smallbutton "cancel" #(reset! show false)]]))
+
 ;; TODO check if my user id matches tag user id
 (defn info []
   (let [edit (r/atom false)]
@@ -145,13 +144,13 @@
       
       (let [tag (:tag @score)]
         [:div.cageparent
-         [:div.cagetitle "TAG"]
+         [:div.cagetitle "TAG"
+          (if (:editable @score)
+            [:div.rightcorner {:on-click #(reset! edit true)} "edit"])
+          ]
          (if @edit
            [info-edit edit]
            [:div {:style {:padding-left "10px"}}
-            (if (:editable score)
-              [:div.rightcorner {:on-click #(reset! edit true)} "edit"])
-            
             [:h1 (:title tag)]
             [:i (:description tag)]
             [:br]
