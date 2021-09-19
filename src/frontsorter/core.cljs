@@ -28,7 +28,6 @@
 
 (def score (r/atom {:percent 50
                     :left nil :right nil
-                    :editable true
                     :name ""}))
 (def rank (r/atom []))
 
@@ -42,14 +41,16 @@
   (js/console.log (-> response clj->js))
   
   (if (:success response)
-    (do 
-      (swap! score assoc :tag (-> response :body :tag))
-      (swap! score assoc :left (-> response :body :left))
-      (swap! score assoc :right (-> response :body :right))
-      (swap! score assoc :percent 50)
-      (reset! rank (-> response :body :sorted))
-      (reset! badlist (-> response :body :baditems))
-      (reset! votes (-> response :body :votes)))))
+    (let [body (:body response)]
+      (do 
+        (swap! score assoc :tag (:tag body))
+        (swap! score assoc :left (:left body))
+        (swap! score assoc :right (:right body))
+        (swap! score assoc :editable (:editable body))
+        (swap! score assoc :percent 50)
+        (reset! rank (:sorted body))
+        (reset! badlist (:baditems body))
+        (reset! votes (:votes body))))))
 
 
 (defn initdata []
