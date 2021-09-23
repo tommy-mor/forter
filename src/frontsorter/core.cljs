@@ -102,9 +102,6 @@
 
 ;; -------------------------
 ;; Views
-(defn smallbutton [text fn]
-  [:a {:on-click fn :class "sideeffect" :href "#"} text])
-
 (defn addpanel []
   (let [title (r/atom "")
         on-key-down (fn [k title]
@@ -135,8 +132,8 @@
     [:div.votearena 
      [inp :title]
      [inp :description]
-     [smallbutton "submit" submit]
-     [smallbutton "cancel" #(reset! show false)]]))
+     [c/smallbutton "submit" submit]
+     [c/smallbutton "cancel" #(reset! show false)]]))
 
 ;; TODO check if my user id matches tag user id
 (defn info []
@@ -161,24 +158,6 @@
             [:b (+ (count @votes))] " votes"])
          ;; TODO get real user here
          ]))))
-
-(defn button [text fn]
-  [:div.button {:on-click fn} text])
-
-(defn slider [param value min max invalidates]
-  [:input.slider {:type "range" :value value :min min :max max
-                  :on-change (fn [e]
-                               (let [new-value (js/parseInt (.. e -target -value))]
-                                 (swap! score
-                                        (fn [data]
-                                          (-> data
-                                              (assoc param new-value)
-                                              (dissoc invalidates))))))}])
-
-
-(defn calc-heights [perc]
-  {:right (/ (min 0 (- 50 perc)) 2) 
-   :left (/ (min 0 (- perc 50)) 2)})
 
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
@@ -205,48 +184,70 @@
             [:td (- 100 (:magnitude i))]
             [:td (idtoname (:item_b i))]
             [:td (:magnitude i)]
-            [:td (smallbutton "delete" #(delvote (:id i)))]]) @votes )]])
+            [:td [c/smallbutton "delete" #(delvote (:id i))]]]) @votes )]])
+
+(defn item [item size]
+  (let [url (str "/t/" js/tag "/" (:id item) )]
+    (fn [item size] 
+      [c/hoveritem :tr
+       {
+        :on-click (fn [] (set! js/window.location.href url))
+        :key (:id item)
+        }
+       
+       (if (:elo item)
+         
+         [:td (.toFixed (* 10 size (:elo item)) 2)])
+       ;; customize by type (display url for links?)
+       
+       [:td ""]
+       [:td (:name item)]
+       ])))
+
+(defn ranklist [rank & [ignoreitem votes]]
+  ;; (js/console.log "rank")
+  ;; (js/console.log (clj->js  @rank))
+  
+  (let [size (count @rank)]
+    [:table
+     [:thead
+      [:tr [:th ""] [:th ""] [:th ""]]]
+     [:tbody
+      (doall
+       (for [n @rank]
+         [item (assoc n :key (:id n)) size]))]]))
 
 (defn home-page []
   (initdata)
   
   (fn []
-    (let [{ :keys [left right] } (calc-heights (:percent @score))]
-      [:div
-       
-       [info]
-       
+    [:div
+     
+     [info]
+     
+     [c/collapsible-cage
+      true
+      "ADD"
+      [addpanel]]
+
+     [c/pairvoter score sendvote]
+     
+     (if (not-empty @rank)
        [c/collapsible-cage
         true
-        "ADD"
-        [addpanel]]
-
-       (if (:left @score)
-         [c/collapsible-cage
-          false
-          "VOTE"
-          [:div.votearena
-           [c/itemview (:left @score) left false]
-           [c/itemview (:right @score) right true]
-           [slider :percent (:percent @score) 0 100 nil ]
-           [button "submit" sendvote]]])
-       
-       (if (not-empty @rank)
-         [c/collapsible-cage
-          true
-          "RANKING"
-          [c/ranklist rank]])
-       
-       (if (not (empty? @badlist)) [c/collapsible-cage
-                                    true
-                                    "UNRANKED ITEMS"
-                                    [c/ranklist badlist]]
-           nil)
-       
-       [c/collapsible-cage
-        false
-        "MY VOTES"
-        [votelist votes]]])))
+        "RANKING"
+        [ranklist rank]])
+     
+     (if (not (empty? @badlist)) [c/collapsible-cage
+                                  true
+                                  "UNRANKED ITEMS"
+                                  [ranklist badlist]]
+         nil)
+     
+     [c/collapsible-cage
+      false
+      "MY VOTES"
+      [votelist votes]]]))
 
 
 ;; -------------------------

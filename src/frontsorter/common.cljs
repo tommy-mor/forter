@@ -34,51 +34,49 @@
         (:name item))]
      [:span {:style {:color "red"}} url]]))
 
-(defn item [item size & [ignoreitem]]
-  (let [hovered (r/atom false)
-        url (str "/t/" js/tag "/" (:id item) )
-        row (fn [kw item]
-              (if (kw item)
-                (if (or
-                     (= 0.00 (kw item))
-                     (and ignoreitem (= (:id @ignoreitem) (:id item))))
-                  [:td "--"]
-                  [:td {:style {:background-color
-                                (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}
-                   (.toFixed (kw item) 2)])))]
-    (fn [item size] 
-      [:tr
-       {
-        :on-mouse-over (fn [] (reset! hovered true))
-        :on-mouse-out (fn [] (reset! hovered false))
-        :on-click (fn [] (set! js/window.location.href url))
-        :key (:id item)
-        :class (if @hovered "item hovered" "item")
-        }
-       
-       
-       [:td (:name item)]
-       ;; customize by type (display url for links?)
-       
-       (if (:elo item)
-         
-         [:td (.toFixed (* 10 size (:elo item)) 2)])
-       
-       (row :matchup item)
-       (row :smoothmatchup item)
-       
-       
-       ;; do we show the number of votes involving this tag?
-       ])))
+(defn smallbutton [text fn]
+  [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
-(defn ranklist [rank & [ignoreitem]]
-  ;; (js/console.log "rank")
-  ;; (js/console.log (clj->js  @rank))
-  
-  (let [size (count @rank)]
-    [:table
-     [:thead
-      [:tr [:th ""] [:th ""] [:th ""]]]
-     [:tbody
-      (for [n @rank]
-        [item n size ignoreitem])]]))
+(defn hoveritem [itemkw keys & children]
+  (let [hovered (r/atom false)]
+    (fn [itemkw keys & children]
+      (into 
+       [itemkw
+        (merge keys 
+               {
+                :on-mouse-over (fn [] (reset! hovered true))
+                :on-mouse-out (fn [] (reset! hovered false))
+                ;; :key TODO
+                :class (if @hovered "item hovered" "item")
+                })] children))))
+
+
+;; slider stuff
+(defn slider [param value min max score]
+  [:input.slider {:type "range" :value value :min min :max max
+                  :on-change (fn [e]
+                               (let [new-value (js/parseInt (.. e -target -value))]
+                                 (swap! score
+                                        (fn [data]
+                                          (assoc data param new-value)))))}])
+
+
+(defn button [text fn]
+  [:div.button {:on-click fn} text])
+
+
+(defn calc-heights [perc]
+  {:right (/ (min 0 (- 50 perc)) 2) 
+   :left (/ (min 0 (- perc 50)) 2)})
+
+
+(defn pairvoter [score sendvote]
+  (let [{:keys [left right]} (calc-heights (:percent @score))]
+    
+    [collapsible-cage false "VOTE"
+     [:div.votearena
+      [itemview (:left @score) left false]
+      [itemview (:right @score) right true]
+      [slider :percent (:percent @score) 0 100 score]
+      [button "submit" sendvote]]]))
+
