@@ -70,10 +70,10 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
-(defn pairvoter [score sendvote]
+(defn pairvoter [score startopen sendvote]
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
-    [collapsible-cage false "VOTE"
+    [collapsible-cage startopen "VOTE"
      [:div.votearena
       [itemview (:left @score) left false]
       [itemview (:right @score) right true]

@@ -5,23 +5,9 @@
      [cljs.core.async :refer [<!]]
      [reagent.core :as r]
      [reagent.dom :as d]
-     [frontsorter.common :as c]))
+     [frontsorter.common :as c]
+     [frontsorter.urls :as url]))
 
-(defn tagpage [tagid] (str "/tag/disp/" tagid))
-
-(defn sendstr [left right mag]
-  (apply str (interpose "/" ["/api/vote/send" js/tag left right mag])))
-
-(defn delstr []
-  (if (js/confirm "delete all votes?")
-    (apply str (interpose "/" ["/api/tag/delvotes" js/tag]))))
-
-(defn delvotestr [vid]
-  (apply str (interpose "/" ["/api/vote/del" js/tag vid])))
-
-(defn addstr [] (str "/api/item/new/" js/tag))
-
-(defn editstr [] (str "/api/tag/edit/" js/tag))
 
 ;; ------------------------ 
 ;; State
@@ -58,11 +44,9 @@
                    :success true}))
 
 
-(defn sendvote []
+(defn sendvote [score]
   (go
-    (let [url (sendstr (-> @score :left :id)
-                       (-> @score :right :id)
-                       (:percent @score))
+    (let [url (url/sendstr @score)
           response (<! (http/post url))]
       (handleresponse response))))
 
@@ -73,20 +57,20 @@
 
 (defn delvotes []
   (go
-    (let [url (delstr)
+    (let [url (url/delstr)
           response (<! (http/post url))]
       (handleresponse response))))
 
 (defn delvote [vid]
   (go
-    (let [url (delvotestr vid)
+    (let [url (url/delvotestr vid)
           response (<! (http/post url))]
       (handleresponse response))))
 
 (defn add-item [name]
   (if (> (count @name) 0)
     (go
-      (let [url (addstr)
+      (let [url (url/addstr)
             response (<! (http/post url {:form-params {:name @name :content "{}"}}))]
         (handleresponse response)
         ;; maybe open vote widget from here?
@@ -94,7 +78,7 @@
 
 (defn submit-edit [newinfo]
   (go
-    (let [url (editstr)
+    (let [url (url/editstr)
           response (<! (http/patch url {:form-params newinfo}))]
       (js/console.log @score)
       (if (:success response)
@@ -230,7 +214,7 @@
       "ADD"
       [addpanel]]
 
-     [c/pairvoter score sendvote]
+     [c/pairvoter score false sendvote]
      
      (if (not-empty @rank)
        [c/collapsible-cage
