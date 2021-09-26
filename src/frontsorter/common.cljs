@@ -37,9 +37,9 @@
 (defn smallbutton [text fn]
   [:a {:on-click fn :class "sideeffect" :href "#"} text])
 
-(defn hoveritem [itemkw keys & children]
+(defn hoveritem [keys & children]
   (let [hovered (r/atom false)]
-    (fn [itemkw keys & children]
+    (fn [keys & children]
       [:tr
        (merge keys 
               {
@@ -47,7 +47,9 @@
                :on-mouse-out (fn [] (reset! hovered false))
                ;; :key TODO
                :class (if @hovered "item hovered" "item")
-               }) children])))
+               })
+       (for [c children]
+         c)])))
 
 
 ;; slider stuff

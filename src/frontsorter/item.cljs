@@ -12,7 +12,7 @@
 
 (def item (r/atom {}))
 
-(def sorted (r/atom {}))
+(def sorted (r/atom []))
 
 (def votes (r/atom {}))
 
@@ -36,12 +36,13 @@
 
 (defn sendvote []
   (go (let [url (url/sendstr @score)
-            response (<! (http/post url))]
+            response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
         (if (:success response)
           (do
             (js/console.log response)
             
-            (reset! sorted (:sorted (:body response)))))
+            (reset! sorted (:sorted (:body response)))
+            (reset! votes (:votes (:body response)))))
         (reset! score nil))))
 
 (defn back [tag]
@@ -59,11 +60,19 @@
               (:magnitude vote)
               (- 100 (:magnitude vote)))
         mag2 (- 100 mag)]
-    [:td [:p "" [:b mag] " vs " [:b mag2] "  " (:name item)]
+    [:<>
+     [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name item)]]
      [c/smallbutton "edit " editfn]]))
 
 (defn voteonpair [leftitem rightitem]
   (reset! score {:percent 50 :left leftitem :right rightitem}))
+
+(defn fixelo [elo size]
+  (js/console.log "fixelo")
+  (let [elo 
+        (.toFixed (* 10 size elo)  2)]
+    (js/console.log elo)
+    elo))
 
 (defn rowitem [rowitem size vote]
   (let [ignoreitem @item
@@ -82,22 +91,18 @@
                             (.stopPropagation e)
                             (voteonpair ignoreitem item)))]
     (fn [rowitem size vote] 
-      (console.log "rowitem")
-      (console.log rowitem)
-      [c/hoveritem :tr
-       {
-        :on-click (fn [] (set! js/window.location.href url))
-        :key (:id item)
-        }
-       
-       
-       (if (:elo item)
-         
-         [:td (.toFixed (* 10 size (:elo item)) 2)])
+      ;; [c/hoveritem {:on-click (fn [] (set! js/window.location.href url))
+      ;;               :key (:id item)}]
+      
+      
+      [:tr 
+       [:td (fixelo (:elo rowitem) size)]
        ;; customize by type (display url for links?)
        
        [:td ""]
        [:td (:name item)]
+       (js/console.log "rendering row")
+       (js/console.log item)
        
        
        ;; (row :matchup item) ;; TODO maybe make this hover text?
@@ -106,12 +111,12 @@
          [votepanel vote ignoreitem (editfn true)]
          (if (= (:id item) (:id ignoreitem))
            nil
-           [:td [c/smallbutton "vote" (editfn false)]]))
-       ;; (row :smoothmatchup item)
-       
-       
-       ;; do we show the number of votes involving this tag?
-       ])))
+           [:td [c/smallbutton "vote" (editfn false)]]))]
+      ;; (row :smoothmatchup item)
+      
+      
+      ;; do we show the number of votes involving this tag?
+      )))
 
 (defn ranklist []
   ;; (js/console.log "rank")
@@ -123,8 +128,7 @@
       [:tr [:th ""] [:th ""] [:th ""]]]
      [:tbody
       (for [n @sorted]
-        (let [vote nil;; (get @votes (keyword (:id n)))
-              ]
+        (let [vote (get @votes (keyword (:id n)))]
           [rowitem (assoc n :key (:id n)) size vote]))]]))
 
 (defn home-page []

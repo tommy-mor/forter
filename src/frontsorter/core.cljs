@@ -44,7 +44,7 @@
                    :success true}))
 
 
-(defn sendvote [score]
+(defn sendvote []
   (go
     (let [url (url/sendstr @score)
           response (<! (http/post url))]
@@ -173,11 +173,10 @@
 (defn item [item size]
   (let [url (str "/t/" js/tag "/" (:id item) )]
     (fn [item size] 
-      [c/hoveritem :tr
-       {
-        :on-click (fn [] (set! js/window.location.href url))
-        :key (:id item)
-        }
+      [c/hoveritem {
+                    :on-click (fn [] (set! js/window.location.href url))
+                    :key (:id item)
+                    }
        
        (if (:elo item)
          
