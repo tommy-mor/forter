@@ -38,7 +38,10 @@
   (go (let [url (url/sendstr @score)
             response (<! (http/post url))]
         (if (:success response)
-          (reset! sorted (:sorted (:body response))))
+          (do
+            (js/console.log response)
+            
+            (reset! sorted (:sorted (:body response)))))
         (reset! score nil))))
 
 (defn back [tag]
@@ -77,9 +80,10 @@
                    (.toFixed (kw item) 2)])))
         editfn (fn [edit] (fn [e]
                             (.stopPropagation e)
-                            (voteonpair ignoreitem item)
-                            ))]
+                            (voteonpair ignoreitem item)))]
     (fn [rowitem size vote] 
+      (console.log "rowitem")
+      (console.log rowitem)
       [c/hoveritem :tr
        {
         :on-click (fn [] (set! js/window.location.href url))
@@ -118,10 +122,10 @@
      [:thead
       [:tr [:th ""] [:th ""] [:th ""]]]
      [:tbody
-      (doall
-       (for [n @sorted]
-         (let [vote (get @votes (keyword (:id n)))]
-           [rowitem (assoc n :key (:id n)) size vote])))]]))
+      (for [n @sorted]
+        (let [vote nil;; (get @votes (keyword (:id n)))
+              ]
+          [rowitem (assoc n :key (:id n)) size vote]))]]))
 
 (defn home-page []
   (initdata)

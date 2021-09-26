@@ -40,15 +40,14 @@
 (defn hoveritem [itemkw keys & children]
   (let [hovered (r/atom false)]
     (fn [itemkw keys & children]
-      (into 
-       [itemkw
-        (merge keys 
-               {
-                :on-mouse-over (fn [] (reset! hovered true))
-                :on-mouse-out (fn [] (reset! hovered false))
-                ;; :key TODO
-                :class (if @hovered "item hovered" "item")
-                })] children))))
+      [:tr
+       (merge keys 
+              {
+               :on-mouse-over (fn [] (reset! hovered true))
+               :on-mouse-out (fn [] (reset! hovered false))
+               ;; :key TODO
+               :class (if @hovered "item hovered" "item")
+               }) children])))
 
 
 ;; slider stuff
