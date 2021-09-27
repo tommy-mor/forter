@@ -37,13 +37,13 @@
 (defn sendvote []
   (go (let [url (url/sendstr @score)
             response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
-        (if (:success response)
-          (do
-            (js/console.log response)
-            
-            (reset! sorted (:sorted (:body response)))
-            (reset! votes (:votes (:body response)))))
+        (handleresponse response)
         (reset! score nil))))
+
+(defn delvote [vid]
+  (go (let [url (url/delvotestr vid)
+            response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
+        (handleresponse response))))
 
 (defn back [tag]
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
@@ -55,23 +55,29 @@
 (defn matchupchart [tag]
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
-(defn votepanel [vote item editfn]
-  (let [mag (if (= (:item_a vote) (:id item))
+(defn calcmag [vote leftid]
+  (let [mag (if (= (:item_a vote) leftid)
               (:magnitude vote)
               (- 100 (:magnitude vote)))
         mag2 (- 100 mag)]
+    [mag mag2]))
+
+(defn votepanel [vote item editfn delfn]
+  (let [[mag mag2] (calcmag vote (:id item))]
     [:<>
      [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name item)]]
-     [c/smallbutton "edit " editfn]]))
+     [c/smallbutton "edit " editfn]
+     [:td]
+     [c/smallbutton " delete" delfn]]))
 
-(defn voteonpair [leftitem rightitem]
-  (reset! score {:percent 50 :left leftitem :right rightitem}))
+(defn voteonpair [vote leftitem rightitem]
+  ; TODO fix magnitude going wrong direction
+  (reset! score {:percent (first (calcmag vote (:id leftitem)))  :left leftitem :right rightitem}))
+
 
 (defn fixelo [elo size]
-  (js/console.log "fixelo")
   (let [elo 
         (.toFixed (* 10 size elo)  2)]
-    (js/console.log elo)
     elo))
 
 (defn rowitem [rowitem size vote]
@@ -87,9 +93,12 @@
                   [:td {:style {:background-color
                                 (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}
                    (.toFixed (kw item) 2)])))
-        editfn (fn [edit] (fn [e]
-                            (.stopPropagation e)
-                            (voteonpair ignoreitem item)))]
+        editfn (fn [e]
+                 (.stopPropagation e)
+                 (voteonpair vote ignoreitem item))
+        delfn (fn [e]
+                (.stopPropagation e)
+                (delvote (:id vote)))]
     (fn [rowitem size vote] 
       ;; [c/hoveritem {:on-click (fn [] (set! js/window.location.href url))
       ;;               :key (:id item)}]
@@ -108,10 +117,10 @@
        ;; (row :matchup item) ;; TODO maybe make this hover text?
 
        (if vote
-         [votepanel vote ignoreitem (editfn true)]
+         [votepanel vote ignoreitem editfn delfn]
          (if (= (:id item) (:id ignoreitem))
            nil
-           [:td [c/smallbutton "vote" (editfn false)]]))]
+           [:td [c/smallbutton "vote" editfn]]))]
       ;; (row :smoothmatchup item)
       
       
