@@ -63,19 +63,31 @@
       [mag mag2])
     [50 50]))
 
-(defn votepanel [vote item editfn delfn]
-  (let [[mag mag2] (calcmag vote (:id item))]
-    [:<>
-     [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name item)]]
-     [:td 
-      [c/smallbutton "edit " editfn]]
-     [:td]
-     [:td 
-      [c/smallbutton " delete" delfn]]]))
-
 (defn voteonpair [vote leftitem rightitem]
   ; TODO fix magnitude going wrong direction
   (reset! score {:percent (first (calcmag vote (:id leftitem)))  :left leftitem :right rightitem}))
+
+(defn votepanel [rowitem ignoreitem]
+  (let [vote (get @votes (keyword (:id rowitem)))
+        [mag mag2] (calcmag vote (:id rowitem))
+        editfn (fn [e]
+                 (.stopPropagation e)
+                 (voteonpair vote ignoreitem rowitem))
+        delfn (fn [e]
+                (.stopPropagation e)
+                (delvote (:id vote)))
+        ]
+    (if vote
+      [:<>
+       [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name item)]]
+       [:td 
+        [c/smallbutton "edit " editfn]]
+       [:td]
+       [:td 
+        [c/smallbutton " delete" delfn]]]
+      (if (= (:id item) (:id ignoreitem))
+        nil
+        [:td [c/smallbutton "vote" editfn]]))))
 
 
 (defn fixelo [elo size]
@@ -96,12 +108,7 @@
                   [:td {:style {:background-color
                                 (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}
                    (.toFixed (kw item) 2)])))
-        editfn (fn [vote] (fn [e]
-                            (.stopPropagation e)
-                            (voteonpair vote ignoreitem item)))
-        delfn (fn [vote] (fn [e]
-                           (.stopPropagation e)
-                           (delvote (:id vote))))]
+        ]
     (fn [rowitem size] 
       ;; [c/hoveritem {:on-click (fn [] (set! js/window.location.href url))
       ;;               :key (:id item)}]
@@ -113,14 +120,10 @@
        
        [:td ""]
        [:td (:name item)]
+       [votepanel item ignoreitem]
        ;; (row :matchup item) ;; TODO maybe make this hover text?
 
-       (let [vote (get @votes (keyword (:id rowitem)))]
-         (if vote
-           [votepanel vote ignoreitem (editfn vote) (delfn vote)]
-           (if (= (:id item) (:id ignoreitem))
-             nil
-             [:td [c/smallbutton "vote" (editfn vote)]])))]
+       ]
       ;; (row :smoothmatchup item)
       
       
