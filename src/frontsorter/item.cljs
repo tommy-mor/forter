@@ -85,8 +85,8 @@
        [:td]
        [:td 
         [c/smallbutton " delete" delfn]]]
-      (if (= (:id item) (:id ignoreitem))
-        nil
+      (if (= (:id rowitem) (:id ignoreitem))
+        [:td "--"]
         [:td [c/smallbutton "vote" editfn]]))))
 
 
@@ -97,8 +97,7 @@
 
 (defn rowitem [rowitem size]
   (let [ignoreitem @item
-        item rowitem
-        url (url/tagitem (:id item))
+        url (url/tagitem (:id rowitem))
         row (fn [kw item]
               (if (kw item)
                 (if (or
@@ -119,8 +118,11 @@
        ;; customize by type (display url for links?)
        
        [:td ""]
-       [:td (:name item)]
-       [votepanel item ignoreitem]
+       [:td (if (= (:id rowitem) (:id (:right @score)))
+              [:b (:name rowitem)]
+              (:name rowitem))]
+       
+       [votepanel rowitem ignoreitem]
        ;; (row :matchup item) ;; TODO maybe make this hover text?
 
        ]
