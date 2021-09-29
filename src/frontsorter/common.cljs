@@ -62,8 +62,8 @@
                                           (assoc data param new-value)))))}])
 
 
-(defn button [text fn]
-  [:div.button {:on-click fn} text])
+(defn button [text fn & {:keys [class] :or {class "button"}}]
+  [:div {:class (str "button " class) :on-click fn} text])
 
 
 (defn calc-heights [perc]
@@ -71,7 +71,9 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
-(defn pairvoter [score startopen sendvote]
+(defn pairvoter [score sendvote &
+                 {:keys [cancelfn startopen]
+                  :or {cancelfn nil startopen false}}]
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
     [collapsible-cage startopen "VOTE"
@@ -79,5 +81,7 @@
       [itemview (:left @score) left false]
       [itemview (:right @score) right true]
       [slider :percent (:percent @score) 0 100 score]
-      [button "submit" sendvote]]]))
+      [button "submit" sendvote]
+      (when cancelfn
+        [button "cancel" cancelfn :class "cancelbutton"])]]))
 

@@ -44,15 +44,14 @@
             response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
         (handleresponse response))))
 
+;; views --
+
 (defn back [tag]
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
 (defn tagbody [item]
   [:div
    [c/itemview item 10 false]])
-
-(defn matchupchart [tag]
-  [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
 (defn calcmag [vote leftid]
   (if vote
@@ -64,8 +63,9 @@
     [50 50]))
 
 (defn voteonpair [vote leftitem rightitem]
-  ; TODO fix magnitude going wrong direction
-  (reset! score {:percent (first (calcmag vote (:id leftitem)))  :left leftitem :right rightitem}))
+  (reset! score
+          {:percent (first (calcmag vote (:id leftitem)))
+           :left leftitem :right rightitem} ))
 
 (defn votepanel [rowitem ignoreitem]
   (let [vote (get @votes (keyword (:id rowitem)))
@@ -79,7 +79,7 @@
         ]
     (if vote
       [:<>
-       [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name item)]]
+       [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name ignoreitem)]]
        [:td 
         [c/smallbutton "edit " editfn]]
        [:td]
@@ -97,22 +97,10 @@
 
 (defn rowitem [rowitem size]
   (let [ignoreitem @item
-        url (url/tagitem (:id rowitem))
-        row (fn [kw item]
-              (if (kw item)
-                (if (or
-                     (= 0.00 (kw item))
-                     (= (:id item) (:id ignoreitem)))
-                  [:td "--"]
-                  [:td {:style {:background-color
-                                (str "hsl(" (* 100 (kw item)) ", 100%, 50%)")}}
-                   (.toFixed (kw item) 2)])))
+        ;; url
+        ;; (url/tagitem (:id rowitem))
         ]
     (fn [rowitem size] 
-      ;; [c/hoveritem {:on-click (fn [] (set! js/window.location.href url))
-      ;;               :key (:id item)}]
-      
-      
       [:tr 
        [:td (fixelo (:elo rowitem) size)]
        ;; customize by type (display url for links?)
@@ -122,15 +110,7 @@
               [:b (:name rowitem)]
               (:name rowitem))]
        
-       [votepanel rowitem ignoreitem]
-       ;; (row :matchup item) ;; TODO maybe make this hover text?
-
-       ]
-      ;; (row :smoothmatchup item)
-      
-      
-      ;; do we show the number of votes involving this tag?
-      )))
+       [votepanel rowitem ignoreitem]])))
 
 (defn ranklist []
   ;; (js/console.log "rank")
@@ -150,7 +130,7 @@
     [:div
      [back @tag]
      (if @score
-       [c/pairvoter score true sendvote]
+       [c/pairvoter score sendvote :startopen true :cancelfn #(reset! score nil)]
        [:div.cageparent [tagbody @item]])
      [c/collapsible-cage true
       "MATCHUPS"
