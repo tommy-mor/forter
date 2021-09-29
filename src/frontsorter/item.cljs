@@ -106,9 +106,14 @@
        ;; customize by type (display url for links?)
        
        [:td ""]
-       [:td (if (= (:id rowitem) (:id (:right @score)))
-              [:b (:name rowitem)]
-              (:name rowitem))]
+       [:td (let [name (:name rowitem)]
+              (if (:right @score) 
+                (if (= (:id rowitem) (:id (:right @score)))
+                  [:b name]
+                  name)
+                (if (= (:id rowitem) (:id ignoreitem))
+                  [:b name]
+                  name)))]
        
        [votepanel rowitem ignoreitem]])))
 
