@@ -136,7 +136,7 @@
             [:h1 (:title tag)]
             [:i (:description tag)]
             [:br]
-            "created by user " ;;TODO
+            "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
             [:br]
             [:b (+ (count @rank) (count @badlist))] " items "
             [:b (+ (count @votes))] " votes"])

@@ -35,13 +35,13 @@
 
 (defn sendvote []
   (go (let [url (url/sendstr @score)
-            response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
+            response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
         (handleresponse response)
         (reset! score nil))))
 
 (defn delvote [vid]
   (go (let [url (url/delvotestr vid)
-            response (<! (http/post url {:form-params {:voteritem (:id @item)}}))]
+            response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
         (handleresponse response))))
 
 ;; views --
@@ -49,9 +49,9 @@
 (defn back [tag]
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
-(defn tagbody [item]
+(defn tagbody []
   [:div
-   [c/itemview item 10 false]])
+   [c/itemview @item 10 false]])
 
 (defn calcmag [vote leftid]
   (if vote
@@ -131,7 +131,7 @@
      [back @tag]
      (if @score
        [c/pairvoter score sendvote :startopen true :cancelfn #(reset! score nil)]
-       [:div.cageparent [tagbody @item]])
+       [:div.cageparent [tagbody]])
      [c/collapsible-cage true
       "MATCHUPS"
       [ranklist]]]))
