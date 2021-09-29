@@ -213,7 +213,7 @@
       "ADD"
       [addpanel]]
 
-     [c/pairvoter score false sendvote]
+     [c/pairvoter score sendvote]
      
      (if (not-empty @rank)
        [c/collapsible-cage
