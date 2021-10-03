@@ -60,15 +60,15 @@
 (defn calcmag [vote leftid]
   (if vote
     (let [mag (if (= (:item_a vote) leftid)
-                (:magnitude vote)
-                (- 100 (:magnitude vote)))
+                (- 100 (:magnitude vote))
+                (:magnitude vote))
           mag2 (- 100 mag)]
       [mag mag2])
     [50 50]))
 
 (defn voteonpair [vote leftitem rightitem]
   (reset! score
-          {:percent (first (calcmag vote (:id leftitem)))
+          {:percent (second (calcmag vote (:id leftitem)))
            :left leftitem :right rightitem} ))
 
 (defn votepanel [rowitem ignoreitem]
