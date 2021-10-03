@@ -18,6 +18,9 @@
 
 (def score (r/atom nil))
 
+(def show (r/atom nil))
+
+
 (defn handleresponse [response]
   (if (:success response)
     (let [body (:body response)]
@@ -26,7 +29,8 @@
         (reset! tag (:tag body))
         (reset! item (:item body))
         (reset! sorted (:sorted body))
-        (reset! votes (:votes body))))))
+        (reset! votes (:votes body))
+        (reset! show (:show body))))))
 
 (defn initdata []
   (handleresponse {:body (js->clj js/init :keywordize-keys true)
@@ -115,7 +119,8 @@
                   [:b name]
                   name)))]
        
-       [votepanel rowitem ignoreitem]])))
+       (if (:vote_edit @show)
+         [votepanel rowitem ignoreitem])])))
 
 (defn ranklist []
   ;; (js/console.log "rank")

@@ -23,6 +23,8 @@
 
 (def options (r/atom []))
 
+(def show (r/atom {}))
+
 (defn handleresponse [response]
   (js/console.log (-> response clj->js))
   
@@ -35,8 +37,9 @@
         (swap! score assoc :editable (:editable body))
         (swap! score assoc :percent 50)
         (reset! rank (:sorted body))
-        (reset! badlist (:baditems body))
-        (reset! votes (:votes body))))))
+        (reset! badlist (:votelessitems body))
+        (reset! votes (:votes body))
+        (reset! show (:show body))))))
 
 
 (defn initdata []
@@ -71,7 +74,7 @@
   (if (> (count @name) 0)
     (go
       (let [url (url/addstr)
-            response (<! (http/post url {:form-params {:name @name :content "{}"}}))]
+            response (<! (http/post url {:json-params {:name @name :content {}}}))]
         (handleresponse response)
         ;; maybe open vote widget from here?
         (reset! name "")))))
@@ -81,8 +84,10 @@
     (let [url (url/editstr)
           response (<! (http/patch url {:form-params newinfo}))]
       (js/console.log @score)
+      (js/console.log response)
       (if (:success response)
-        (swap! score assoc :tag (:body response))))))
+        (swap! score update :tag merge (:body response))  )
+      (js/console.log @score) )))
 
 ;; -------------------------
 ;; Views
@@ -127,7 +132,7 @@
       (let [tag (:tag @score)]
         [:div.cageparent
          [:div.cagetitle "TAG"
-          (if (:editable @score)
+          (if (:edit_tag @show)
             [:div.rightcorner {:on-click #(reset! edit true)} "edit"])
           ]
          (if @edit
@@ -168,7 +173,8 @@
             [:td (- 100 (:magnitude i))]
             [:td (idtoname (:item_b i))]
             [:td (:magnitude i)]
-            [:td [c/smallbutton "delete" #(delvote (:id i))]]]) @votes )]])
+            (if (:vote_edit @show)
+              [:td [c/smallbutton "delete" #(delvote (:id i))]])]) @votes )]])
 
 (defn item [item size]
   (let [url (str "/t/" js/tag "/" (:id item) )]
@@ -208,12 +214,14 @@
      
      [info]
      
-     [c/collapsible-cage
-      true
-      "ADD"
-      [addpanel]]
+     (if (:add_items @show)
+       [c/collapsible-cage
+        true
+        "ADD"
+        [addpanel]])
 
-     [c/pairvoter score sendvote]
+     (if (:vote_panel @show)
+       [c/pairvoter score sendvote])
      
      (if (not-empty @rank)
        [c/collapsible-cage
@@ -227,10 +235,11 @@
                                   [ranklist badlist]]
          nil)
      
-     [c/collapsible-cage
-      false
-      "MY VOTES"
-      [votelist votes]]]))
+     (if (:vote_edit @show)
+       [c/collapsible-cage
+        false
+        "MY VOTES"
+        [votelist votes]])]))
 
 
 ;; -------------------------
