@@ -4,7 +4,8 @@
    [cljs-http.client :as http]
    [cljs.core.async :refer [<!]]
    [reagent.core :as r]
-   [reagent.dom :as d]))
+   [reagent.dom :as d]
+   [frontsorter.urls :as url]))
 
 (defn extract-key []
   (let [str (.-location.hash js/window)]
@@ -32,17 +33,19 @@
         (<! (collectsongs songs next))
         songs))))
 
-(defn maketag [url name]
+(defn maketag [url name userurl]
   (go
     (js/console.log "big")
     (let [url url
           response (<! (http/get url (authreq)))
           songs (<! (collectsongs [] url))
-          ;; TODO make this url work?
-          finalresponse (<! (http/post "http://localhost:8080/priv/spotify/data" {:json-params {:items songs :name name}}))
+          finalresponse (<! (http/post "/priv/spotify/data"
+                                       {:json-params {:items songs :name name :desc userurl}}))
           ]
-      (js/window.location.replace (str "/t/" (-> finalresponse :body :newtagid)))
-      )))
+      (js/console.log userurl)
+      (js/console.log finalresponse)
+      (if (and (:success finalresponse) (-> finalresponse :body :newtagid))
+        (js/window.location.replace (url/tag (-> finalresponse :body :newtagid)))))))
 
 
 
@@ -56,7 +59,9 @@
   [:div
    (for [list @playlists]
      [:div {:key (:id list)
-            :on-click #(maketag (-> list :tracks :href) (:name list))} (:name list)])])
+            :on-click #(maketag (-> list :tracks :href)
+                                (:name list)
+                                (-> list :external_urls :spotify))} (:name list)])])
 
 (defn mount-root []
   (auth)

@@ -21,3 +21,5 @@
 (defn editstr [] (str "/api/tag/edit/" js/tag))
 
 (defn tagitem [itemid] (str "/t/" js/tag "/" itemid))
+
+(defn tag [tagid] (str "/t/" tagid))
