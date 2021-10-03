@@ -34,8 +34,8 @@
         (:name item))]
      [:span {:style {:color "red"}} url]]))
 
-(defn smallbutton [text fn]
-  [:a {:on-click fn :class "sideeffect" :href "#"} text])
+(defn smallbutton [text fn & [style]]
+  [:a {:on-click fn :style style :class "sideeffect" :href "#"} text])
 
 (defn hoveritem [keys & children]
   (let [hovered (r/atom false)]

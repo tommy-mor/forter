@@ -10,6 +10,9 @@
   (if (js/confirm "delete all votes?")
     (apply str (interpose "/" ["/api/tag/delvotes" js/tag]))))
 
+(defn deltag []
+  (str "/api/tag/del/" js/tag))
+
 (defn delvotestr [vid]
   (apply str (interpose "/" ["/api/vote/del" js/tag vid])))
 

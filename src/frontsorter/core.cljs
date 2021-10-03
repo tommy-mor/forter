@@ -34,7 +34,6 @@
         (swap! score assoc :tag (:tag body))
         (swap! score assoc :left (:left body))
         (swap! score assoc :right (:right body))
-        (swap! score assoc :editable (:editable body))
         (swap! score assoc :percent 50)
         (reset! rank (:sorted body))
         (reset! badlist (:votelessitems body))
@@ -51,11 +50,6 @@
   (go
     (let [url (url/sendstr @score)
           response (<! (http/post url))]
-      (handleresponse response))))
-
-(defn move []
-  (go
-    (let [url "" response (<! (http/post url))]
       (handleresponse response))))
 
 (defn delvotes []
@@ -83,11 +77,12 @@
   (go
     (let [url (url/editstr)
           response (<! (http/patch url {:form-params newinfo}))]
-      (js/console.log @score)
-      (js/console.log response)
       (if (:success response)
-        (swap! score update :tag merge (:body response))  )
-      (js/console.log @score) )))
+        (swap! score update :tag merge (:body response))))))
+
+(defn delete-tag []
+  (if (js/confirm "do you really want to delete this tag?")
+    (set! js/window.location (url/deltag))))
 
 ;; -------------------------
 ;; Views
@@ -122,7 +117,8 @@
      [inp :title]
      [inp :description]
      [c/smallbutton "submit" submit]
-     [c/smallbutton "cancel" #(reset! show false)]]))
+     [c/smallbutton "cancel" #(reset! show false)]
+     [c/smallbutton "delete" delete-tag {:color "red"}]]))
 
 ;; TODO check if my user id matches tag user id
 (defn info []
