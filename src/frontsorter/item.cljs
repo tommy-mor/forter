@@ -58,13 +58,13 @@
    [c/itemview @item 10 false]])
 
 (defn calcmag [vote leftid]
-  (if vote
+  (if (not vote)
+    [50 50]
     (let [mag (if (= (:item_a vote) leftid)
                 (- 100 (:magnitude vote))
                 (:magnitude vote))
           mag2 (- 100 mag)]
-      [mag mag2])
-    [50 50]))
+      [mag mag2])))
 
 (defn voteonpair [vote leftitem rightitem]
   (reset! score
