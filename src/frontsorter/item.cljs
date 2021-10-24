@@ -53,8 +53,22 @@
 (defn back [tag]
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
-(defn tagbody []
-  [:div
+(defn item-edit [show]
+  (let [editstate (r/atom {:title (:name @item)})
+        submit (fn []
+                 (reset! show false))
+        deletfn identity]
+    [c/editpage
+     editstate
+     show
+     submit
+     deletfn]))
+
+(defn itemv []
+  [c/editable
+   nil
+   (:edit_item @show) ;; TODO
+   item-edit
    [c/itemview @item 10 false]])
 
 (defn calcmag [vote leftid]
@@ -141,7 +155,7 @@
      [back @tag]
      (if @score
        [c/pairvoter score sendvote :startopen true :cancelfn #(reset! score nil)]
-       [:div.cageparent [tagbody]])
+       [itemv])
      [c/collapsible-cage true
       "MATCHUPS"
       [ranklist]]]))

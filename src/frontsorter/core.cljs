@@ -103,46 +103,32 @@
 
 (defn info-edit [show]
   (let [tag (:tag @score)
-        newinfo (r/atom {:title (:title tag) :description (:description tag)})
-        submit (fn []
-                 (submit-edit @newinfo)
-                 (reset! show false))
-        inp (fn [attr] [:input.editinput {:type "text" :value (attr @newinfo)
-                                          :on-change #(swap! newinfo assoc attr (-> % .-target .-value))
-                                          :on-key-down #(condp = (.-which %)
-                                                          13 (submit)
-                                                          nil)}])]
-    ;; TODO check that its valid, then submit to server
-    [:div.votearena 
-     [inp :title]
-     [inp :description]
-     [c/smallbutton "submit" submit]
-     [c/smallbutton "cancel" #(reset! show false)]
-     [c/smallbutton "delete" delete-tag {:color "red"}]]))
+        form
+        (r/atom {:title (:title tag)
+                 :description (:description tag)})]
+    [c/editpage
+     form
+     show
+     (fn []
+       (submit-edit @form)
+       (reset! show false))
+     delete-tag]))
 
 ;; TODO check if my user id matches tag user id
-(defn info []
-  (let [edit (r/atom false)]
-    (fn []
-      
-      (let [tag (:tag @score)]
-        [:div.cageparent
-         [:div.cagetitle "TAG"
-          (if (:edit_tag @show)
-            [:div.rightcorner {:on-click #(reset! edit true)} "edit"])
-          ]
-         (if @edit
-           [info-edit edit]
-           [:div {:style {:padding-left "10px"}}
-            [:h1 (:title tag)]
-            [:i (:description tag)]
-            [:br]
-            "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
-            [:br]
-            [:b (+ (count @rank) (count @badlist))] " items "
-            [:b (+ (count @votes))] " votes"])
-         ;; TODO get real user here
-         ]))))
+(defn info [tag]
+  [c/editable
+   "TAG"
+   (:edit_tag @show)
+   info-edit
+   [:div {:style {:padding-left "10px"}}
+    
+    [:h1 (:title tag)]
+    [:i (:description tag)]
+    [:br]
+    "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
+    [:br]
+    [:b (+ (count @rank) (count @badlist))] " items "
+    [:b (+ (count @votes))] " votes"]])
 
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
@@ -208,7 +194,7 @@
   (fn []
     [:div
      
-     [info]
+     [info (:tag @score)]
      
      (if (:add_items @show)
        [c/collapsible-cage

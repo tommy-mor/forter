@@ -18,8 +18,8 @@
 
 (defn spotify-player [id]
   [:iframe {:src (str "https://open.spotify.com/embed/track/" id)
-    :width 300 :height 80
-    :allowtransparency "true" :allow "encrypted-media"}])
+            :width 300 :height 80
+            :allowtransparency "true" :allow "encrypted-media"}])
 
 (defn itemview [item height right]
   (let [url (:url (:content item))
@@ -50,6 +50,35 @@
                })
        (for [c children]
          c)])))
+
+(defn editable [title is-editable edit-body body]
+  (let [edit (r/atom false)]
+    (fn [title is-editable edit-body body]
+      [:div.cageparent
+       [:div.cagetitle title
+        (if is-editable
+          [:div.rightcorner {:on-click #(reset! edit true)} "edit"])]
+       (if @edit
+         [edit-body edit]
+         body)
+       ;; TODO get real user here
+       ])))
+
+(defn editpage [stateatom showatom submitfn deletefn]
+  
+  [:div.votearena
+   (into [:<>]
+         (for [[attr v] @stateatom]
+           ^{:key attr}
+           [:input.editinput {:type "text" :value v
+                              :on-change #(let [v (-> % .-target .-value)]
+                                            (swap! stateatom assoc attr v))
+                              :on-key-down #(condp = (.-which %)
+                                              13 (submitfn)
+                                              nil)}]))
+   [smallbutton "submit" submitfn]
+   [smallbutton "cancel" #(reset! showatom false)]
+   [smallbutton "delete" deletefn {:color "red"}]])
 
 
 ;; slider stuff
