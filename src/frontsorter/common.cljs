@@ -48,8 +48,7 @@
                ;; :key TODO
                :class (if @hovered "item hovered" "item")
                })
-       (for [c children]
-         c)])))
+       children])))
 
 (defn editable [title is-editable edit-body body]
   (let [edit (r/atom false)]

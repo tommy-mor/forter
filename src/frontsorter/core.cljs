@@ -161,18 +161,18 @@
 (defn item [item size]
   (let [url (str "/t/" js/tag "/" (:id item) )]
     (fn [item size] 
-      [c/hoveritem {
+      [c/hoveritem ^{:key (:id item)} {
                     :on-click (fn [] (set! js/window.location.href url))
                     :key (:id item)
                     }
        
        (if (:elo item)
          
-         [:td (.toFixed (* 10 size (:elo item)) 2)])
+         [:td {:key 1} (.toFixed (* 10 size (:elo item)) 2)])
        ;; customize by type (display url for links?)
        
-       [:td ""]
-       [:td (:name item)]
+       [:td {:key 2} ""]
+       [:td {:key 3} (:name item)]
        ])))
 
 (defn ranklist [rank & [ignoreitem votes]]
