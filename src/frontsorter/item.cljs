@@ -54,6 +54,10 @@
                                                        :content newstate}}))]
         (handleresponse response))))
 
+(defn delete-item []
+  (if (js/confirm "are you sure you want to delete this item")
+    (set! js/window.location (url/deleteitemstr (:id @item)))))
+
 ;; views --
 
 (defn back [tag]
@@ -64,7 +68,7 @@
         submit (fn []
                  (edit-item @editstate)
                  (reset! show false))
-        deletfn identity]
+        deletfn delete-item]
     [c/editpage
      editstate
      show

@@ -18,6 +18,7 @@
 
 (defn addstr [] (str "/api/item/new/" js/tag))
 (defn edititemstr [itemid] (str "/api/item/edit/" js/tag "/" itemid))
+(defn deleteitemstr [itemid] (str "/api/item/delete/" js/tag "/" itemid))
 
 (defn editstr [] (str "/api/tag/edit/" js/tag))
 (defn tagitem [itemid] (str "/t/" js/tag "/" itemid))
