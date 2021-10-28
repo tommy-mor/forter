@@ -48,6 +48,12 @@
             response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
         (handleresponse response))))
 
+(defn edit-item [newstate]
+  (go (let [url (url/edititemstr (:id @item))
+            response (<! (http/post url {:json-params {:itemid (:id @item)
+                                                       :content newstate}}))]
+        (handleresponse response))))
+
 ;; views --
 
 (defn back [tag]
@@ -56,6 +62,7 @@
 (defn item-edit [show]
   (let [editstate (r/atom {:title (:name @item)})
         submit (fn []
+                 (edit-item @editstate)
                  (reset! show false))
         deletfn identity]
     [c/editpage
@@ -114,27 +121,23 @@
     elo))
 
 (defn rowitem [rowitem size]
-  (let [ignoreitem @item
-        ;; url
-        ;; (url/tagitem (:id rowitem))
-        ]
-    (fn [rowitem size] 
-      [:tr 
-       [:td (fixelo (:elo rowitem) size)]
-       ;; customize by type (display url for links?)
-       
-       [:td ""]
-       [:td (let [name (:name rowitem)]
-              (if (:right @score) 
-                (if (= (:id rowitem) (:id (:right @score)))
-                  [:b name]
-                  name)
-                (if (= (:id rowitem) (:id ignoreitem))
-                  [:b name]
-                  name)))]
-       
-       (if (:vote_edit @show)
-         [votepanel rowitem ignoreitem])])))
+  (fn [rowitem size] 
+    [:tr 
+     [:td (fixelo (:elo rowitem) size)]
+     ;; customize by type (display url for links?)
+     
+     [:td ""]
+     [:td (let [name (:name rowitem)]
+            (if (:right @score) 
+              (if (= (:id rowitem) (:id (:right @score)))
+                [:b name]
+                name)
+              (if (= (:id rowitem) (:id @item))
+                [:b name]
+                name)))]
+     
+     (if (:vote_edit @show)
+       [votepanel rowitem @item])]))
 
 (defn ranklist []
   ;; (js/console.log "rank")
