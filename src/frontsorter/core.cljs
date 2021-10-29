@@ -32,6 +32,7 @@
     (let [body (:body response)]
       (do 
         (swap! score assoc :tag (:tag body))
+        (swap! score assoc :allvotes (:allvotes body))
         (swap! score assoc :left (:left body))
         (swap! score assoc :right (:right body))
         (swap! score assoc :percent 50)
@@ -128,7 +129,7 @@
     "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
     [:br]
     [:b (+ (count @rank) (count @badlist))] " items "
-    [:b (+ (count @votes))] " votes"]])
+    [:b (:allvotes @score)] " votes "]])
 
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
@@ -148,15 +149,15 @@
     [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
    [:tbody
     
-    (map (fn [i]
-           [:tr
-            {:key (:id i)}
-            [:td (idtoname (:item_a i))]
-            [:td (- 100 (:magnitude i))]
-            [:td (idtoname (:item_b i))]
-            [:td (:magnitude i)]
-            (if (:vote_edit @show)
-              [:td [c/smallbutton "delete" #(delvote (:id i))]])]) @votes )]])
+    (doall (map (fn [i]
+            [:tr
+             {:key (:id i)}
+             [:td (idtoname (:item_a i))]
+             [:td (- 100 (:magnitude i))]
+             [:td (idtoname (:item_b i))]
+             [:td (:magnitude i)]
+             (if (:vote_edit @show)
+               [:td [c/smallbutton "delete" #(delvote (:id i))]])]) @votes))]])
 
 (defn item [item size]
   (let [url (str "/t/" js/tag "/" (:id item) )]
@@ -220,7 +221,7 @@
      (if (:vote_edit @show)
        [c/collapsible-cage
         false
-        "MY VOTES"
+        (str "MY VOTES (" (count @votes) ")")
         [votelist votes]])]))
 
 
