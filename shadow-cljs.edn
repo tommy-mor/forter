@@ -1,4 +1,4 @@
-{:source-paths ["src"]
+{:source-paths ["src" "src/gen"]
  :dependencies [[binaryage/devtools "1.0.2"]
                 [nrepl "0.8.3"]
                 [cljs-http "0.1.46"]
@@ -11,7 +11,8 @@
                                    :spotify {:entries [frontsorter.spotify] :depends-on #{:shared}}
                                    :item {:entries [frontsorter.item] :depends-on #{:shared}}
                                    
-                                   :app {:entries [frontsorter.core]  :depends-on #{:shared}}}
+                                   :app {:entries [frontsorter.core]  :depends-on #{:shared}}
+                                   :tag {:entries [frontsorter.tag] :depends-on #{:shared}}}
                       :devtools   {:after-load frontsorter.item/mount-root}}}
 
  :dev-http     {3000 {:root    "public"
