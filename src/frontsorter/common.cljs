@@ -21,9 +21,11 @@
             :width 300 :height 80
             :allowtransparency "true" :allow "encrypted-media"}])
 
-(defn itemview [item height right]
+(defn itemview [item height right type]
   (let [url (:url (:content item))
         spotify-id (-> item :content :spotify_id)]
+    (js/console.log "type")
+    (js/console.log type)
     [:div
      {:class (if right "rightitem" "leftitem")
       :style {:margin-top (str height "px")}}
@@ -31,7 +33,10 @@
      [:h1 {:style {:margin-bottom "4px"}}
       (if spotify-id
         (spotify-player spotify-id)
-        (:name item))]
+        (if (= type "image")
+          [:img {:src (:name item)
+                 :style {:max-width "100%"}}]
+          (:name item)))]
      [:span {:style {:color "red"}} url]]))
 
 (defn smallbutton [text fn & [style]]
@@ -99,15 +104,15 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
-(defn pairvoter [score sendvote &
+(defn pairvoter [score sendvote type &
                  {:keys [cancelfn startopen]
                   :or {cancelfn nil startopen false}}]
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
     [collapsible-cage startopen "VOTE"
      [:div.votearena
-      [itemview (:left @score) left false]
-      [itemview (:right @score) right true]
+      [itemview (:left @score) left false type]
+      [itemview (:right @score) right true type]
       [slider :percent (:percent @score) 0 100 score]
       [button "submit" sendvote]
       (when cancelfn

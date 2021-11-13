@@ -24,6 +24,7 @@
 (def options (r/atom []))
 
 (def show (r/atom {}))
+
 (def users (r/atom {}))
 
 (defn handleresponse [response]
@@ -225,7 +226,7 @@
         [addpanel]])
 
      (if (:vote_panel @show)
-       [c/pairvoter score sendvote])
+       [c/pairvoter score sendvote (:type (:settings (:tag @score)))])
      
      (if (not-empty @rank)
        [c/collapsible-cage

@@ -80,7 +80,7 @@
    nil
    (:edit_item @show) ;; TODO
    item-edit
-   [c/itemview @item 10 false]])
+   [c/itemview @item 10 false (:type (:settings @tag))]])
 
 (defn calcmag [vote leftid]
   (if (not vote)
