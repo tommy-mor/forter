@@ -24,6 +24,7 @@
 (def options (r/atom []))
 
 (def show (r/atom {}))
+(def users (r/atom {}))
 
 (defn handleresponse [response]
   (js/console.log (-> response clj->js))
@@ -39,7 +40,8 @@
         (reset! rank (:sorted body))
         (reset! badlist (:votelessitems body))
         (reset! votes (:votes body))
-        (reset! show (:show body))))))
+        (reset! show (:show body))
+        (reset! users (:users body))))))
 
 
 (defn initdata []
@@ -52,6 +54,15 @@
     (let [url (url/sendstr @score)
           response (<! (http/post url))]
       (handleresponse response))))
+
+;; PROBLEM: the dropdown box won't stay in sync with the rest of the commands, because only the update command knows about it.
+;; if any other action happens, it will reset. maybe the answer is go to static page of specific user ranking?
+(defn only-users [username]
+  (go (let 
+          [url (url/tagstate)
+           response (<! (http/get url (if (not= "all users" username) {:query-params {"user" username}}
+                                          nil)))]
+        (handleresponse response))))
 
 (defn delvotes []
   (go
@@ -129,7 +140,10 @@
     "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
     [:br]
     [:b (+ (count @rank) (count @badlist))] " items "
-    [:b (:allvotes @score)] " votes "]])
+    [:b (:allvotes @score)] " votes by " [:b (count @users)]
+    " users"
+    ;; TODO make this use correct plurality/inflection
+    ]])
 
 (defn idtoname [itemid]
   ;; (js/console.log "itemid")
@@ -181,13 +195,20 @@
   ;; (js/console.log (clj->js  @rank))
   
   (let [size (count @rank)]
-    [:table
-     [:thead
-      [:tr [:th ""] [:th ""] [:th ""]]]
-     [:tbody
-      (doall
-       (for [n @rank]
-         [item (assoc n :key (:id n)) size]))]]))
+    [:div "by user "
+     [:select {:on-change #(only-users (.. % -target -value))}  
+      [:option {:value "all users"} "all users combined"]
+      (for [user @users]
+        [:option {:key (:id user) :value (:username user)} (:username user)])]
+
+     
+     [:table
+      [:thead
+       [:tr [:th ""] [:th ""] [:th ""]]]
+      [:tbody
+       (doall
+        (for [n @rank]
+          [item (assoc n :key (:id n)) size]))]]]))
 
 (defn home-page []
   (initdata)
