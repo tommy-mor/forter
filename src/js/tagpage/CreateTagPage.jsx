@@ -23,14 +23,14 @@ const UrlFormats = {
 };
 
 const Formats = {
-  title: true,
+  name: true,
   url: null,
   paragraph: false,
   img: false
 };
 
 const ExampleInputs = {
-  title: <input type="text" placeholder="rick" />,
+  name: <input type="text" placeholder="rick" />,
   url: (
     <input
       type="url"
@@ -58,7 +58,7 @@ function TagCreator() {
         () => console.log(urlFormat)
       );
       console.log(urlFormat);
-    } else {
+    } else if (!urlFormat["any website"]) {
       setUrlFormat({ ...urlFormat, [type]: !urlFormat[type] });
     }
   };
@@ -76,7 +76,7 @@ function TagCreator() {
     <div className="tag-creator">
       <ExampleItemCreator props={{ inputList: inputListFromFormat(format) }} />
       <form action="/action_page.php">
-        Title <br />
+        Name <br />
         <div onChange={() => handleChange("url")}>
           Url?:
           <input type="radio" name="url" value="Yes" checked={format["url"]} />
