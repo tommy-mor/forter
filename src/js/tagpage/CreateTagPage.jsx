@@ -6,8 +6,6 @@ import "./const.js";
 export default function App() {
   return (
     <div className="App">
-      <h1>nate waz here</h1>
-      <h2>Start editing to see some magic happen!</h2>
       <TagCreator />
     </div>
   );
@@ -21,6 +19,7 @@ const UrlFormats = {
   spotify: true,
   twitter: true
 };
+
 
 const Formats = {
   name: true,
