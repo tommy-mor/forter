@@ -6,6 +6,9 @@
         mag (:percent score)]
     (apply str (interpose "/" ["/api/vote/send" js/tag left right mag]))))
 
+(defn tagstate []
+  (apply str (interpose "/" ["/api/tag/pair" js/tag])))
+
 (defn delstr []
   (if (js/confirm "delete all votes?")
     (apply str (interpose "/" ["/api/tag/delvotes" js/tag]))))
