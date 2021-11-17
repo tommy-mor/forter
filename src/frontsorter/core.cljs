@@ -49,39 +49,47 @@
   (handleresponse {:body (js->clj js/init :keywordize-keys true)
                    :success true}))
 
+(defn common-params []
+  "params that are in every request"
+  (if-let [username (:user @users)]
+    {:user username}
+    {}))
+
 
 (defn sendvote []
   (go
     (let [url (url/sendstr @score)
-          response (<! (http/post url))]
+          response (<! (http/post url {:form-params (common-params)}))]
       (handleresponse response))))
 
 ;; PROBLEM: the dropdown box won't stay in sync with the rest of the commands, because only the update command knows about it.
 ;; if any other action happens, it will reset. maybe the answer is go to static page of specific user ranking?
 (defn only-users [username]
+  (swap! users assoc :user username)
   (go (let 
           [url (url/tagstate)
-           response (<! (http/get url (if (not= "all users" username) {:query-params {"user" username}}
+           response (<! (http/get url (if (not= "all users" username) {:query-params (common-params)}
                                           nil)))]
         (handleresponse response))))
 
 (defn delvotes []
   (go
     (let [url (url/delstr)
-          response (<! (http/post url))]
+          response (<! (http/post url (:query-params (common-params))))]
       (handleresponse response))))
 
 (defn delvote [vid]
   (go
     (let [url (url/delvotestr vid)
-          response (<! (http/post url))]
+          response (<! (http/post url {:query-params (common-params)}))]
       (handleresponse response))))
 
 (defn add-item [name]
   (if (> (count @name) 0)
     (go
       (let [url (url/addstr)
-            response (<! (http/post url {:json-params {:name @name :content {}}}))]
+            response (<! (http/post url {:json-params (merge (common-params)
+                                                       {:name @name :content {}})}))]
         (handleresponse response)
         ;; maybe open vote widget from here?
         (reset! name "")))))
@@ -89,7 +97,7 @@
 (defn submit-edit [newinfo]
   (go
     (let [url (url/editstr)
-          response (<! (http/patch url {:form-params newinfo}))]
+          response (<! (http/patch url {:form-params (merge (common-params) newinfo)}))]
       (if (:success response)
         (swap! score update :tag merge (:body response))))))
 
@@ -141,7 +149,7 @@
     "created by user " [:a {:href (-> tag :creator :url)} (-> tag :creator :name)]
     [:br]
     [:b (+ (count @rank) (count @badlist))] " items "
-    [:b (:allvotes @score)] " votes by " [:b (count @users)]
+    [:b (:allvotes @score)] " votes by " [:b (count (:users @users))]
     " users"
     ;; TODO make this use correct plurality/inflection
     ]])
@@ -197,10 +205,11 @@
   
   (let [size (count @rank)]
     [:div "by user "
-     [:select {:on-change #(only-users (.. % -target -value))}  
+     [:select {:on-change #(only-users (.. % -target -value))
+               :value (or (:user @users) "all users")}  
       [:option {:value "all users"} "all users combined"]
-      (for [user @users]
-        [:option {:key (:id user) :value (:username user)} (:username user)])]
+      (for [user (:users @users)]
+        [:option {:key user :value user} user])]
 
      
      [:table
