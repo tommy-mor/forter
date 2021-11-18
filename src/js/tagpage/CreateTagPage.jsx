@@ -1,7 +1,5 @@
 /* eslint-disable */
-import "./styles.css";
 import React, { useState, useEffect, Fragment } from "react";
-import "./const.js";
 
 API_URL = "dummy";
 
@@ -26,8 +24,6 @@ async function postData(url = "", data = {}) {
 export default function App() {
   return (
     <div className="App">
-      <h1>nate was here</h1>
-      <h2>Start editing to see some magic happen!</h2>
       <TagCreator />
     </div>
   );
@@ -142,14 +138,18 @@ function TagCreator() {
       />
       <br />
 
+      <label> Permissions: </label>
       <PermissionsPicker
         permissions={permissions}
         setPermissions={setPermissions}
         userNames={dummyUserNames}
       />
+
+      <label> What the Add Item form Will Look Like </label>
+
       <div className="tag-creator">
         <ExampleItemCreator inputList={inputListFromFormat(format)} />
-        <form action="/action_page.php">
+        <form className="permissionform">
           Name <br />
           <div onChange={() => handleChange("url")}>
             Url?:
@@ -214,8 +214,6 @@ function ExampleItemCreator(props) {
   // console.log(props);
   return (
     <form>
-      What the Add Item form Will Look Like
-      <br />
       {props["inputList"].map((inputName) => (
         <Fragment key={inputName}>
           {ExampleInputs[inputName]}
@@ -292,8 +290,9 @@ function PermissionsPicker({ permissions, setPermissions, userNames }) {
     return formState[permission + "-" + usertype];
   };
   return (
-    <form>
+    <form class="permissionform">
       Anyone on the Internet:
+	  <br/>
       <input
         type="checkbox"
         data-usertype="anybody"
@@ -303,8 +302,8 @@ function PermissionsPicker({ permissions, setPermissions, userNames }) {
       />
       <label>view tag</label>
       <br />
-      <br />
       Any Sorter User:
+	  <br/>
       <input
         type="checkbox"
         data-permission="view_tag"
@@ -329,7 +328,6 @@ function PermissionsPicker({ permissions, setPermissions, userNames }) {
         onChange={handleChange}
       />
       <label>vote</label>
-      <br />
       <br />
       Any User in this list: {listOfUsers.join(", ") + ", "}
       <select
@@ -377,3 +375,5 @@ function PermissionsPicker({ permissions, setPermissions, userNames }) {
     </form>
   );
 }
+
+export { App };

@@ -1,5 +1,5 @@
 (ns frontsorter.tag
-  (:require ["./../tagpage/page" :as foo]
+  (:require ["./../tagpage/CreateTagPage" :as foo]
             [reagent.dom :as d]
             [reagent.core :as r]))
 
