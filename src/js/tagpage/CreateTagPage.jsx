@@ -42,6 +42,7 @@ const UrlFormats = {
   twitter: true
 };
 
+
 const Formats = {
   name: true,
   url: null,
