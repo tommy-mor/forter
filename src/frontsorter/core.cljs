@@ -195,7 +195,7 @@
          [:td {:key 1} (.toFixed (* 10 size (:elo item)) 2)])
        ;; customize by type (display url for links?)
        
-       [:td {:key 2} ""]
+       [:td {:key 2} (:votecount item)]
        [:td {:key 3} (:name item)]
        ])))
 

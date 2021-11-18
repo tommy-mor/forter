@@ -24,8 +24,6 @@
 (defn itemview [item height right type]
   (let [url (:url (:content item))
         spotify-id (-> item :content :spotify_id)]
-    (js/console.log "type")
-    (js/console.log type)
     [:div
      {:class (if right "rightitem" "leftitem")
       :style {:margin-top (str height "px")}}
