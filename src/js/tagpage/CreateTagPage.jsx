@@ -4,7 +4,11 @@ import React, { useState, useEffect, Fragment } from "react";
 API_URL = "/priv/tags/new";
 
 async function postData(url = "", data = {}) {
-  // Default options are marked with *
+	// Default options are marked with *
+	console.log('form data')
+	console.log(data);
+	console.log('url')
+	console.log(url)
   const response = await fetch(url, {
     method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
@@ -19,32 +23,47 @@ async function postData(url = "", data = {}) {
     body: JSON.stringify(data) // body data type must match "Content-Type" header
   })
 	const json = await response.json()
+	console.log('response')
+	console.log(json)
 	window.location.href = json.new_tag_url
 }
 
 export default function App() {
-  return (
+	console.log('settings1')
+	console.log(settings)
+	if (typeof settings == 'undefined') {
+		settings = {
+			title: '', description: '',
+			perms: {perms: {}},
+			format: {...Formats, url: UrlFormats},
+			submiturl: API_URL,
+			editing: false
+	    }
+	}
+	console.log('settings2')
+	console.log(settings)
+
+	return (
     <div className="App">
-      <TagCreator />
+		<TagCreator initstate={settings}/>
     </div>
   );
 }
 
 const UrlFormats = {
   "any website": true,
-  "image link": true,
-  youtube: true,
-  "youtube with timestamp": true,
-  spotify: true,
-  twitter: true
+  "image link": false,
+  youtube: false,
+  "youtube with timestamp": false,
+  spotify: false,
+  twitter: false
 };
 
 
 const Formats = {
   name: true,
-  url: null,
   paragraph: false,
-  img: false
+  url: null,
 };
 
 // items can be "owner", "anybody", "users", or a user ID
@@ -69,43 +88,58 @@ const ExampleInputs = {
   paragraph: <textarea placeholder="best song ever" disabled />
 };
 
-function TagCreator() {
-  const [format, setFormat] = useState(Object.assign({}, Formats));
-  const [urlFormat, setUrlFormat] = useState(Object.assign({}, UrlFormats));
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+function TagCreator({initstate}) {
+  const [format, setFormat] = useState(Object.assign({}, initstate.format));
+  const [urlFormat, setUrlFormat] = useState(Object.assign({}, initstate.format.url));
+  const [title, setTitle] = useState(initstate.title);
+  const [description, setDescription] = useState(initstate.description);
   const [permissions, setPermissions] = useState(
-    JSON.parse(JSON.stringify(Permissions))
+    initstate.perms.perms
   );
+  const [listOfUsers, setListOfUsers] = useState([]);
+
+	console.log('initstate perms')
+	console.log(initstate.perms.perms)
 
   const handleChange = (field) => {
     setFormat({ ...format, [field]: !format[field] });
   };
 
   const handleUrlChange = (type) => {
-    if (type === "any website") {
-      setUrlFormat(
-        Object.keys(urlFormat).reduce(
-          (prev, type) => ({ ...prev, [type]: !urlFormat["any website"] }),
-          {}
-        ),
-        () => console.log(urlFormat)
-      );
-      console.log(urlFormat);
-    } else if (!urlFormat["any website"]) {
-      setUrlFormat({ ...urlFormat, [type]: !urlFormat[type] });
-    }
+    //if (type === "any website") {
+      //setUrlFormat(
+        //Object.keys(urlFormat).reduce(
+          //(prev, type) => ({ ...prev, [type]: !urlFormat["any website"] }),
+          //{}
+        //),
+        //() => console.log(urlFormat)
+      //);
+      //console.log(urlFormat);
+    //} else if (!urlFormat["any website"]) {
+	  setUrlFormat(
+		  {...
+		   Object.keys(urlFormat).reduce(
+			   (prev, type) => ({ ... prev, [type]: false}), {}
+		   ),
+		   [type]: true}
+	  );
+    //}
   };
 
   const handleSubmit = () => {
     data = {
       title: title,
       description: description,
-      permissions: permissions,
+		permissions: {perms: permissions,
+					  users: listOfUsers},
       format: { ...format, url: format.url ? UrlFormats : false }
     };
-    console.log(data);
-    confirm("Create this tag?") ? postData(API_URL, data) : null;
+    //confirm("Create this tag?") ? postData(API_URL, data) : null;
+	  if(initstate.editing) {
+		  // tagid is global set by server in <script> tag
+		  data.tag_id = tagid;
+	  }
+      postData(initstate.submiturl, data);
   };
 
   // this is weird IDK what else to do
@@ -139,18 +173,23 @@ function TagCreator() {
       />
       <br />
 
-      <label> Permissions: </label>
-      <PermissionsPicker
-        permissions={permissions}
-        setPermissions={setPermissions}
-        userNames={dummyUserNames}
-      />
+          <label> Permissions: </label>
+          <PermissionsPicker
+            permissions={permissions}
+            setPermissions={setPermissions}
+            userNames={dummyUserNames}
+		    listOfUsers={listOfUsers}
+			setListOfUsers={setListOfUsers}
+          />
 
+
+
+   {initstate.editing ? null :  //you can't edit format
+	<Fragment>
       <label> What the Add Item form Will Look Like </label>
-
       <div className="tag-creator">
         <ExampleItemCreator inputList={inputListFromFormat(format)} />
-        <form className="permissionform">
+        <form>
           Name <br />
           <div onChange={() => handleChange("url")}>
             Url?:
@@ -170,10 +209,10 @@ function TagCreator() {
             <label htmlFor="No">No</label>
           </div>
           {format["url"]
-            ? Object.keys(urlFormat).map((type) => (
+            ? Object.getOwnPropertyNames(urlFormat).map((type) => (
                 <Fragment key={type}>
                   <input
-                    type="checkbox"
+                    type="radio"
                     name={type}
                     value={type}
                     key={type}
@@ -204,7 +243,14 @@ function TagCreator() {
           </div>
         </form>
       </div>
-      <input type="submit" onClick={handleSubmit} />
+		</Fragment>
+   }
+		{initstate.editing ?
+		 <input type="submit" value="commit changes" onClick={handleSubmit} />
+		 :
+		 <input type="submit" value="create tag" onClick={handleSubmit} />
+		}
+      
     </div>
   );
 }
@@ -225,36 +271,37 @@ function ExampleItemCreator(props) {
   );
 }
 
-function PermissionsPicker({ permissions, setPermissions, userNames }) {
-  const [listOfUsers, setListOfUsers] = useState([]);
-  const [formState, setFormState] = useState({});
+function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOfUsers, userNames }) {
+	console.log('permissions')
+	console.log(permissions)
 
   //TODO: initialize form state from server
-  // const formStateFromPermissions = {
+  // const permissionsFromPermissions = {
   // }
 
   // refactor or no?
   const handleChange = ({ target }) => {
-    anybody = target.dataset.permission + "-anybody";
-    users = target.dataset.permission + "-users";
-    list = target.dataset.permission + "-list";
+    anybody = target.dataset.permission + "__anybody";
+    users = target.dataset.permission + "__users";
+    list = target.dataset.permission + "__list";
+
     if (target.dataset.usertype === "anybody") {
-      setFormState({
-        ...formState,
+      setPermissions({
+        ...permissions,
         [anybody]: target.checked,
         [users]: target.checked,
         [list]: target.checked
       });
     } else if (target.dataset.usertype === "users") {
-      setFormState({
-        ...formState,
-        [users]: target.checked || formState[anybody],
-        [list]: target.checked || formState[anybody]
+      setPermissions({
+        ...permissions,
+          [users]:  permissions[anybody] || target.checked,
+        [list]:  permissions[anybody] || target.checked
       });
     } else if (target.dataset.usertype === "list") {
-      setFormState({
-        ...formState,
-        [list]: target.checked || formState[anybody] || formState[users]
+      setPermissions({
+        ...permissions,
+        [list]: permissions[anybody] || permissions[users] || target.checked
       });
     }
   };
@@ -264,34 +311,12 @@ function PermissionsPicker({ permissions, setPermissions, userNames }) {
       ? setListOfUsers(listOfUsers.filter((user) => user !== target.value))
       : setListOfUsers(listOfUsers.concat([target.value]));
   };
-  // update permissions with form updates
-  useEffect(() => {
-    const newPermissions = {};
-    Object.keys(formState).forEach((formItem) => {
-      if (formState[formItem]) {
-        [permission, usertype] = formItem.split("-");
-        if (usertype === "list") {
-          !newPermissions[permission]
-            ? (newPermissions[permission] = listOfUsers)
-            : newPermissions[permission].push.apply(
-                newPermissions[permission],
-                listOfUsers
-              );
-        } else {
-          !newPermissions[permission]
-            ? (newPermissions[permission] = [usertype])
-            : newPermissions[permission].push(usertype);
-        }
-      }
-    });
-    setPermissions(newPermissions);
-  }, [formState, listOfUsers]);
 
   const isChecked = (usertype, permission) => {
-    return formState[permission + "-" + usertype];
+    return permissions[permission + "__" + usertype];
   };
   return (
-    <form class="permissionform">
+    <form className="permissionform">
       Anyone on the Internet:
 	  <br/>
       <input

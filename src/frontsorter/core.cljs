@@ -122,25 +122,27 @@
                          :on-key-down #(on-key-down % title)}]
        [:button {:on-click #(add-item title)} "add item"]])))
 
-(defn info-edit [show]
-  (let [tag (:tag @score)
-        form
-        (r/atom {:title (:title tag)
-                 :description (:description tag)})]
-    [c/editpage
-     form
-     show
-     (fn []
-       (submit-edit @form)
-       (reset! show false))
-     delete-tag]))
+(comment
+  "TODO replace with jsx version..."
+  (defn info-edit [show]
+   (let [tag (:tag @score)
+         form
+         (r/atom {:title (:title tag)
+                  :description (:description tag)})]
+     [c/editpage
+      form
+      show
+      (fn []
+        (submit-edit @form)
+        (reset! show false))
+      delete-tag])))
 
 ;; TODO check if my user id matches tag user id
 (defn info [tag]
-  [c/editable
+  [c/editable-link
    "TAG"
    (:edit_tag @show)
-   info-edit
+   (url/editstr)
    [:div {:style {:padding-left "10px"}}
     
     [:h1 (:title tag)]

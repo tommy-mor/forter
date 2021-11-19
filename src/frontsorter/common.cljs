@@ -66,6 +66,13 @@
        ;; TODO get real user here
        ])))
 
+(defn editable-link [title is-editable url body]
+  [:div.cageparent
+   [:div.cagetitle title
+    (if is-editable
+      [:div.rightcorner {:on-click #(set! js/window.location.href url)} "edit"])]
+   body])
+
 (defn editpage [stateatom showatom submitfn deletefn]
   
   [:div.votearena
