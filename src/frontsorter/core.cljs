@@ -6,7 +6,8 @@
      [reagent.core :as r]
      [reagent.dom :as d]
      [frontsorter.common :as c]
-     [frontsorter.urls :as url]))
+     [frontsorter.urls :as url]
+     ["./../tagpage/CreateTagPage" :as foo]))
 
 
 ;; ------------------------ 
@@ -84,15 +85,16 @@
           response (<! (http/post url {:query-params (common-params)}))]
       (handleresponse response))))
 
-(defn add-item [name]
-  (if (> (count @name) 0)
+
+(defn add-item [info]
+  (if (> (count name) 0)
     (go
       (let [url (url/addstr)
             response (<! (http/post url {:json-params (merge (common-params)
-                                                       {:name @name :content {}})}))]
+                                                             info)}))]
         (handleresponse response)
         ;; maybe open vote widget from here?
-        (reset! name "")))))
+        ))))
 
 (defn submit-edit [newinfo]
   (go
@@ -107,20 +109,22 @@
 
 ;; -------------------------
 ;; Views
+(comment (defn addpanel []
+   (let [title (r/atom "")
+         on-key-down (fn [k title]
+                       (condp = (.-which k)
+                         13 (add-item title)
+                         nil))]
+     (fn [] 
+       [:div.addpanel
+        [:input.addinput {:type "text"
+                          :value @title
+                          :placeholder "new item name"
+                          :on-change #(reset! title (-> % .-target .-value))
+                          :on-key-down #(on-key-down % title)}]
+        [:button {:on-click #(add-item title)} "add item"]]))))
 (defn addpanel []
-  (let [title (r/atom "")
-        on-key-down (fn [k title]
-                      (condp = (.-which k)
-                        13 (add-item title)
-                        nil))]
-    (fn [] 
-      [:div.addpanel
-       [:input.addinput {:type "text"
-                         :value @title
-                         :placeholder "new item name"
-                         :on-change #(reset! title (-> % .-target .-value))
-                         :on-key-down #(on-key-down % title)}]
-       [:button {:on-click #(add-item title)} "add item"]])))
+  [:> foo/ItemCreator {:inputList ["name" "url"]}] )
 
 (comment
   "TODO replace with jsx version..."

@@ -74,17 +74,6 @@ const Permissions = {
 
 dummyUserNames = ["tommy", "nate", "blobbed", "bobathan"];
 
-const ExampleInputs = {
-  name: <input type="text" placeholder="song" disabled />,
-  url: (
-    <input
-      type="url"
-      placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-      disabled
-    />
-  ),
-  paragraph: <textarea placeholder="best song ever" disabled />
-};
 
 function TagCreator({initstate}) {
   const [format, setFormat] = useState(Object.assign({}, initstate.format));
@@ -250,7 +239,55 @@ function TagCreator({initstate}) {
   );
 }
 
-function ItemCreator(props) {}
+
+
+function ItemCreator(props) {
+	const [form, setForm] = useState({});
+	const handleChange = (event, name) => setForm({...form, [name]: event.target.value})
+	const value = (name) => form[name] ?? ''
+
+	const handleSubmitItem = (event) => {
+		event.preventDefault()
+		console.log(form)
+		console.log(frontsorter.core.add_item(form))
+	}
+   const RealInputs = {
+       name: <input className="addinput" type="text" placeholder="item title"
+					value={value("name")}
+					onChange={(event) => handleChange(event, "name")}/>,
+     // TODO put example url in placeholder
+       url: <input className="addinput" type="url" placeholder="item url"
+					value={value("url")}
+					onChange={(event) => handleChange(event, "url")}/>,
+
+       paragraph: <textarea className="addinput" placeholder="best song ever"
+					value={value("paragraph")}
+					onChange={(event) => handleChange(event, "paragraph")}/>,
+  };
+  return (
+    <form>
+      {props["inputList"].map((inputName) => (
+        <Fragment key={inputName}>
+          {RealInputs[inputName]}
+          <br />
+        </Fragment>
+      ))}
+		 <input type="submit" value="add item" onClick={handleSubmitItem} />
+    </form>
+  );
+}
+
+const ExampleInputs = {
+  name: <input type="text" placeholder="song" disabled />,
+  url: (
+    <input
+      type="url"
+      placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+      disabled
+    />
+  ),
+  paragraph: <textarea placeholder="best song ever" disabled />
+};
 
 function ExampleItemCreator(props) {
   // console.log(props);
@@ -395,4 +432,4 @@ function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOf
   );
 }
 
-export { App };
+export { App, ItemCreator };
