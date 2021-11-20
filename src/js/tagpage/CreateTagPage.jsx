@@ -29,8 +29,6 @@ async function postData(url = "", data = {}) {
 }
 
 export default function App() {
-	console.log('settings1')
-	console.log(settings)
 	if (typeof settings == 'undefined') {
 		settings = {
 			title: '', description: '',
@@ -97,9 +95,6 @@ function TagCreator({initstate}) {
     initstate.perms.perms
   );
   const [listOfUsers, setListOfUsers] = useState([]);
-
-	console.log('initstate perms')
-	console.log(initstate.perms.perms)
 
   const handleChange = (field) => {
     setFormat({ ...format, [field]: !format[field] });
@@ -272,8 +267,6 @@ function ExampleItemCreator(props) {
 }
 
 function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOfUsers, userNames }) {
-	console.log('permissions')
-	console.log(permissions)
 
   //TODO: initialize form state from server
   // const permissionsFromPermissions = {
