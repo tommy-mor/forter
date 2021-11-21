@@ -29,8 +29,8 @@ async function postData(url = "", data = {}) {
 }
 
 const UrlFormats = {
-  "any website": true,
-  "image link": false,
+  "any website": false,
+  "image link": true,
   youtube: false,
   "youtube with timestamp": false,
   spotify: false,
@@ -68,7 +68,6 @@ dummyUserNames = ["tommy", "nate", "blobbed", "bobathan"];
 
 function TagCreator({initstate}) {
   // const [tagState, setState] = useState(initstate)
-
   const [format, setFormat] = useState(Object.assign({}, initstate.format));
   const [urlFormat, setUrlFormat] = useState(Object.assign({}, initstate.format.url));
   const [title, setTitle] = useState(initstate.title);
@@ -111,11 +110,8 @@ function TagCreator({initstate}) {
 
   // this is weird IDK what else to do
   const inputListFromFormat = (format) => {
-    return Object.keys(format).reduce(
-      (list, field) => (format[field] ? [...list, field] : list),
-      // start object, makes sure returns list
-      []
-    );
+    // list contains format fields with value true
+    return Object.keys(format).filter(field => format[field]);
   };
 
   return (
@@ -214,7 +210,7 @@ function FormatPicker({inputList, handleFormatChange, handleUrlChange, editing, 
 
   const ToggleButton = ({inputType}) => (
     <div onChange={() => handleFormatChange(inputType)}>
-      {inputType}?:
+      Should items have {inputType}s ?:
       <input type="radio" name={inputType} value="Yes" checked={format[inputType]} />
       <label htmlFor="Yes">Yes</label>
       <input type="radio" name={inputType} value="No" checked={!format[inputType]} />
