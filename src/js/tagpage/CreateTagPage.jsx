@@ -31,7 +31,8 @@ async function postData(url = "", data = {}) {
 export default function App() {
 	if (typeof settings == 'undefined') {
 		settings = {
-			title: '', description: '',
+			title: '',
+      description: '',
 			perms: {perms: {}},
 			format: {...Formats, url: UrlFormats},
 			submiturl: API_URL,
@@ -76,6 +77,8 @@ dummyUserNames = ["tommy", "nate", "blobbed", "bobathan"];
 
 
 function TagCreator({initstate}) {
+  // const [tagState, setState] = useState(initstate)
+
   const [format, setFormat] = useState(Object.assign({}, initstate.format));
   const [urlFormat, setUrlFormat] = useState(Object.assign({}, initstate.format.url));
   const [title, setTitle] = useState(initstate.title);
@@ -85,21 +88,13 @@ function TagCreator({initstate}) {
   );
   const [listOfUsers, setListOfUsers] = useState([]);
 
-  const handleChange = (field) => {
+  // const handleChange = ()
+
+  const handleFormatChange = (field) => {
     setFormat({ ...format, [field]: !format[field] });
   };
 
   const handleUrlChange = (type) => {
-    //if (type === "any website") {
-      //setUrlFormat(
-        //Object.keys(urlFormat).reduce(
-          //(prev, type) => ({ ...prev, [type]: !urlFormat["any website"] }),
-          //{}
-        //),
-        //() => console.log(urlFormat)
-      //);
-      //console.log(urlFormat);
-    //} else if (!urlFormat["any website"]) {
 	  setUrlFormat(
 		  {...
 		   Object.keys(urlFormat).reduce(
@@ -107,15 +102,13 @@ function TagCreator({initstate}) {
 		   ),
 		   [type]: true}
 	  );
-    //}
   };
 
   const handleSubmit = () => {
     data = {
       title: title,
       description: description,
-		permissions: {perms: permissions,
-					  users: listOfUsers},
+		  permissions: {perms: permissions, users: listOfUsers},
       format: { ...format, url: format.url ? UrlFormats : false }
     };
     //confirm("Create this tag?") ? postData(API_URL, data) : null;
@@ -156,26 +149,39 @@ function TagCreator({initstate}) {
         onChange={(event) => setDescription(event.target.value)}
       />
       <br />
+      <label> Permissions: </label>
+      <PermissionsPicker
+        permissions={permissions}
+        setPermissions={setPermissions}
+        userNames={dummyUserNames}
+        listOfUsers={listOfUsers}
+        setListOfUsers={setListOfUsers}
+      />
+      <FormatPicker
+        inputList={inputListFromFormat(format)}
+        handleFormatChange={handleFormatChange}
+        handleUrlChange={handleUrlChange}
+        editing={initstate.editing}
+        format={format}
+        urlFormat={urlFormat}
+      />
+      <input type="submit" value={initstate.editing ? "commit changes" : "create tag"} onClick={handleSubmit} />
+    </div>
+  );
+}
 
-          <label> Permissions: </label>
-          <PermissionsPicker
-            permissions={permissions}
-            setPermissions={setPermissions}
-            userNames={dummyUserNames}
-		    listOfUsers={listOfUsers}
-			setListOfUsers={setListOfUsers}
-          />
-
-
-
-   {initstate.editing ? null :  //you can't edit format
-	<Fragment>
+function FormatPicker({inputList, handleFormatChange, handleUrlChange, editing, format, urlFormat}) {
+  if(editing){
+    return null
+  }
+  return (
+    <Fragment>
       <label> What the Add Item form Will Look Like </label>
       <div className="tag-creator">
-        <ExampleItemCreator inputList={inputListFromFormat(format)} />
+        <ExampleItemCreator inputList={inputList} />
         <form>
           Name <br />
-          <div onChange={() => handleChange("url")}>
+          <div onChange={() => handleFormatChange("url")}>
             Url?:
             <input
               type="radio"
@@ -208,7 +214,7 @@ function TagCreator({initstate}) {
                 </Fragment>
               ))
             : null}
-          <div onChange={() => handleChange("paragraph")}>
+          <div onChange={() => handleFormatChange("paragraph")}>
             paragraph?:
             <input
               type="radio"
@@ -227,18 +233,9 @@ function TagCreator({initstate}) {
           </div>
         </form>
       </div>
-		</Fragment>
-   }
-		{initstate.editing ?
-		 <input type="submit" value="commit changes" onClick={handleSubmit} />
-		 :
-		 <input type="submit" value="create tag" onClick={handleSubmit} />
-		}
-      
-    </div>
-  );
+    </Fragment>
+  )
 }
-
 
 
 function ItemCreator(props) {
@@ -345,46 +342,32 @@ function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOf
   const isChecked = (usertype, permission) => {
     return permissions[permission + "__" + usertype];
   };
+
+  const PermissionsCheckbox = ({usertype, permission}) => {
+    return (
+      <Fragment>
+        <input
+          type="checkbox"
+          data-usertype={usertype}
+          data-permission={permission}
+          checked={isChecked([usertype], permission)}
+          onChange={handleChange}
+        />
+        <label>{permission.replace("_", " ")}</label>
+      </Fragment>
+    )
+  }
   return (
     <form className="permissionform">
       Anyone on the Internet:
-	  <br/>
-      <input
-        type="checkbox"
-        data-usertype="anybody"
-        data-permission="view_tag"
-        checked={isChecked(["anybody"], "view_tag")}
-        onChange={handleChange}
-      />
-      <label>view tag</label>
-      <br />
+      <br/>
+      <PermissionsCheckbox usertype="anybody" permission="view_tag"/>
       Any Sorter User:
-	  <br/>
-      <input
-        type="checkbox"
-        data-permission="view_tag"
-        data-usertype="users"
-        checked={isChecked(["users"], "view_tag")}
-        onChange={handleChange}
-      />
-      <label>view tag</label>
-      <input
-        type="checkbox"
-        data-permission="add_items"
-        data-usertype="users"
-        checked={isChecked(["users"], "add_items")}
-        onChange={handleChange}
-      />
-      <label>add items</label>
-      <input
-        type="checkbox"
-        data-permission="vote"
-        data-usertype="users"
-        checked={isChecked(["users"], "vote")}
-        onChange={handleChange}
-      />
-      <label>vote</label>
-      <br />
+      <br/>
+      <PermissionsCheckbox usertype="users" permission="view_tag"/>
+      <PermissionsCheckbox usertype="users" permission="add_items"/>
+      <PermissionsCheckbox usertype="users" permission="vote"/>
+      <br/>
       Any User in this list: {listOfUsers.join(", ") + ", "}
       <select
         name="userName"
@@ -397,37 +380,12 @@ function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOf
           <option value={user} key={user}>
             {user}
           </option>
-        ))}
+        ))} 
       </select>
       <br />
-      <input
-        type="checkbox"
-        data-permission="view_tag"
-        data-usertype="list"
-        checked={isChecked(["list"], "view_tag")}
-        onChange={handleChange}
-        disabled={!listOfUsers.length}
-      />
-      <label>view tag</label>
-      <input
-        type="checkbox"
-        data-permission="add_items"
-        data-usertype="list"
-        checked={isChecked(["list"], "add_items")}
-        onChange={handleChange}
-        disabled={!listOfUsers.length}
-      />
-      <label>add items</label>
-      <input
-        type="checkbox"
-        data-permission="vote"
-        data-usertype="list"
-        checked={isChecked(["list"], "vote")}
-        onChange={handleChange}
-        disabled={!listOfUsers.length}
-      />
-      <label>vote</label>
-      <br />
+      <PermissionsCheckbox usertype="list" permission="view_tag"/>
+      <PermissionsCheckbox usertype="list" permission="add_items"/>
+      <PermissionsCheckbox usertype="list" permission="vote"/>
     </form>
   );
 }
