@@ -247,9 +247,8 @@ function ItemCreator(props) {
 	const value = (name) => form[name] ?? ''
 
 	const handleSubmitItem = (event) => {
-		event.preventDefault()
-		console.log(form)
-		console.log(frontsorter.core.add_item(form))
+		event.preventDefault() //otherwise it refreshes page?
+		frontsorter.core.add_item(form, ()=>setForm({}))
 	}
    const RealInputs = {
        name: <input className="addinput" type="text" placeholder="item title"

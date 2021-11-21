@@ -86,15 +86,18 @@
       (handleresponse response))))
 
 
-(defn add-item [info]
-  (if (> (count name) 0)
-    (go
-      (let [url (url/addstr)
-            response (<! (http/post url {:json-params (merge (common-params)
-                                                             info)}))]
-        (handleresponse response)
-        ;; maybe open vote widget from here?
-        ))))
+;; only called from js file, not cljs
+(defn add-item [info callback]
+  (let [info (js->clj info :keywordize-keys true)]
+    (if (> (count (:name info)) 0)
+      (go
+        (let [url (url/addstr)
+              response (<! (http/post url {:json-params (merge (common-params)
+                                                               info)}))]
+          (if (:success response)
+            (do
+              (handleresponse response)
+              (callback))))))))
 
 (defn submit-edit [newinfo]
   (go
@@ -124,7 +127,16 @@
                           :on-key-down #(on-key-down % title)}]
         [:button {:on-click #(add-item title)} "add item"]]))))
 (defn addpanel []
-  [:> foo/ItemCreator {:inputList ["name" "url"]}] )
+  (js/console.log "tag")
+  (let [field2bool (-> @score
+                       :tag
+                       :settings
+                       :format)
+        fields (vec (filter identity
+                            (for [k ["name" "url" "paragraph"]]
+                              (if ((keyword k) field2bool)
+                                k))))]
+    [:> foo/ItemCreator {:inputList fields}]))
 
 (comment
   "TODO replace with jsx version..."
