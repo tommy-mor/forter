@@ -27,17 +27,34 @@
                     :style {:max-width "100%"}}]
              (:name item))))
 
-(defn url-displayer [url format]
-  (js/console.log format)
+(defn url-displayer [[url embedurl] format]
+  (js/console.log "descon")
+  (js/console.log embedurl)
   (cond
     ((keyword "any website") format) [:a {:href url
                                           :target "_blank"} url]
+    ((keyword "image link") format)  [:img {:src url
+                                            :style {:max-width "100%"}}]
+    (or ((keyword "youtube") format)
+        ((keyword "youtube with timestamp") format))
+    [:div {:style {:padding-bottom "56.25%"
+                   :position "relative"
+                   :width "100%"
+                   :height 0}}[:iframe {:src embedurl :style {:height "100%"
+                                                              :width "100%"
+                                                              :position "absolute"
+                                                              :top 0
+                                                              :left 0
+                                                              }
+                                        :allow-full-screen true}]]
+    
     true [:span "unknown format"]))
 (defn itemview [tag item height right]
   (let [format (-> tag :settings :format)
-        url (-> item :content :url) 
+        url ((juxt :url :embedurl) (:content item)) 
         spotify-id  (-> item :content :spotify_id) ;; TODO GET RID OF THIS, MATCH ON URL
         paragraph (-> item :content :paragraph)]
+    
     [:div
      {:class (if right "rightitem" "leftitem")
       :style {:margin-top (str height "px")}}
@@ -45,7 +62,9 @@
      (if (:name format)
        [:h1 {:style {:margin-bottom "4px"}} (:name item)])
      (if (:url format)
-       [url-displayer url (:url format)])
+       (do
+         (js/console.log "")
+         [url-displayer url (:url format)]))
      (if (:paragraph format)
        [:fragment 
         [:br]
