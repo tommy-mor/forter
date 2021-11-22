@@ -20,22 +20,37 @@
   [:iframe {:src (str "https://open.spotify.com/embed/track/" id)
             :width 300 :height 80
             :allowtransparency "true" :allow "encrypted-media"}])
+(comment (if spotify-id
+           (spotify-player spotify-id)
+           (if (= type "image")
+             [:img {:src (:name item)
+                    :style {:max-width "100%"}}]
+             (:name item))))
 
-(defn itemview [item height right type]
-  (let [url (:url (:content item))
-        spotify-id (-> item :content :spotify_id)]
+(defn url-displayer [url format]
+  (js/console.log format)
+  (cond
+    ((keyword "any website") format) [:a {:href url
+                                          :target "_blank"} url]
+    true [:span "unknown format"]))
+(defn itemview [tag item height right]
+  (let [format (-> tag :settings :format)
+        url (-> item :content :url) 
+        spotify-id  (-> item :content :spotify_id) ;; TODO GET RID OF THIS, MATCH ON URL
+        paragraph (-> item :content :paragraph)]
     [:div
      {:class (if right "rightitem" "leftitem")
       :style {:margin-top (str height "px")}}
      
-     [:h1 {:style {:margin-bottom "4px"}}
-      (if spotify-id
-        (spotify-player spotify-id)
-        (if (= type "image")
-          [:img {:src (:name item)
-                 :style {:max-width "100%"}}]
-          (:name item)))]
-     [:span {:style {:color "red"}} url]]))
+     (if (:name format)
+       [:h1 {:style {:margin-bottom "4px"}} (:name item)])
+     (if (:url format)
+       [url-displayer url (:url format)])
+     (if (:paragraph format)
+       [:fragment 
+        [:br]
+        [:pre {:style {:color "red"
+                       :white-space "pre-line"}} paragraph]])]))
 
 (defn smallbutton [text fn & [style]]
   [:a {:on-click fn :style style :class "sideeffect" :href "#"} text])
@@ -109,15 +124,16 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
-(defn pairvoter [score sendvote type &
+(defn pairvoter [score sendvote &
                  {:keys [cancelfn startopen]
                   :or {cancelfn nil startopen false}}]
+  (js/console.log (:tag @score))
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
     [collapsible-cage startopen "VOTE"
      [:div.votearena
-      [itemview (:left @score) left false type]
-      [itemview (:right @score) right true type]
+      [itemview (:tag @score) (:left @score) left false type]
+      [itemview (:tag @score) (:right @score) right true type]
       [slider :percent (:percent @score) 0 100 score]
       [button "submit" sendvote]
       (when cancelfn
