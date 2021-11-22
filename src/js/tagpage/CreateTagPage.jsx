@@ -1,8 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect, Fragment } from "react";
 
-API_URL = "/priv/tags/new";
-
 async function postData(url = "", data = {}) {
 	// Default options are marked with *
 	console.log('form data')
@@ -28,32 +26,7 @@ async function postData(url = "", data = {}) {
 	window.location.href = json.new_tag_url
 }
 
-const UrlFormats = {
-  "any website": false,
-  "image link": true,
-  youtube: false,
-  "youtube with timestamp": false,
-  spotify: false,
-  twitter: false
-};
-
-const Formats = {
-  name: true,
-  paragraph: false,
-  url: null,
-};
-
 export default function App() {
-	if (typeof settings == 'undefined') {
-		settings = {
-			title: '',
-      description: '',
-			perms: {perms: {}},
-			format: {...Formats, url: UrlFormats},
-			submiturl: API_URL,
-			editing: false
-	    }
-	}
 	console.log('settings2')
 	console.log(settings)
 
@@ -64,7 +37,6 @@ export default function App() {
   );
 }
 
-dummyUserNames = ["tommy", "nate", "blobbed", "bobathan"];
 
 function TagCreator({initstate}) {
   // const [tagState, setState] = useState(initstate)
@@ -98,9 +70,8 @@ function TagCreator({initstate}) {
       title: title,
       description: description,
 		  permissions: {perms: permissions, users: listOfUsers},
-      format: { ...format, url: format.url ? UrlFormats : false }
+      format: { ...format, url: format.url ? urlFormat : false }
     };
-    //confirm("Create this tag?") ? postData(API_URL, data) : null;
 	  if(initstate.editing) {
 		  // tagid is global set by server in <script> tag
 		  data.tag_id = tagid;
@@ -136,7 +107,7 @@ function TagCreator({initstate}) {
       <PermissionsPicker
         permissions={permissions}
         setPermissions={setPermissions}
-        userNames={dummyUserNames}
+        userNames={usernames /* this comes from the backend in a <srcipt>var*/}
         listOfUsers={listOfUsers}
         setListOfUsers={setListOfUsers}
       />
@@ -327,15 +298,15 @@ function PermissionsPicker({ permissions, setPermissions, listOfUsers, setListOf
       Any Sorter User:
       <br/>
       <PermissionsCheckbox usertype="users" permission="view_tag"/>
-      <PermissionsCheckbox usertype="users" permission="add_items"/>
       <PermissionsCheckbox usertype="users" permission="vote"/>
+      <PermissionsCheckbox usertype="users" permission="add_items"/>
       <br/>
       Any User in this list: 
       <UserList />
       <br/>
       <PermissionsCheckbox usertype="list" permission="view_tag" disabled={!listOfUsers.length}/>
-      <PermissionsCheckbox usertype="list" permission="add_items" disabled={!listOfUsers.length}/>
       <PermissionsCheckbox usertype="list" permission="vote" disabled={!listOfUsers.length}/>
+      <PermissionsCheckbox usertype="list" permission="add_items" disabled={!listOfUsers.length}/>
     </form>
   );
 }

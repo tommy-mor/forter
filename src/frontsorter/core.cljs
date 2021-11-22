@@ -223,11 +223,13 @@
   
   (let [size (count @rank)]
     [:div "by user "
-     [:select {:on-change #(only-users (.. % -target -value))
-               :value (or (:user @users) "all users")}  
-      [:option {:value "all users"} "all users combined"]
-      (for [user (:users @users)]
-        [:option {:key user :value user} user])]
+     [:form {:autoComplete "off"}
+      [:select {:on-change #(only-users (.. % -target -value))
+                :value (or (:user @users) "all users")
+                :autoComplete "nope"}  
+       [:option {:value "all users"} "all users combined"]
+       (for [user (:users @users)]
+         [:option {:key user :value user} user])]]
 
      
      [:table
