@@ -37,7 +37,6 @@ export default function App() {
   );
 }
 
-dummyUserNames = ["tommy", "nate", "blobbed", "bobathan"];
 
 function TagCreator({initstate}) {
   // const [tagState, setState] = useState(initstate)
@@ -108,7 +107,7 @@ function TagCreator({initstate}) {
       <PermissionsPicker
         permissions={permissions}
         setPermissions={setPermissions}
-        userNames={dummyUserNames}
+        userNames={usernames /* this comes from the backend in a <srcipt>var*/}
         listOfUsers={listOfUsers}
         setListOfUsers={setListOfUsers}
       />
