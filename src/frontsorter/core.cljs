@@ -128,6 +128,7 @@
         [:button {:on-click #(add-item title)} "add item"]]))))
 (defn addpanel []
   (js/console.log "tag")
+  (js/console.log @score)
   (let [field2bool (-> @score
                        :tag
                        :settings
@@ -136,7 +137,8 @@
                             (for [k ["name" "url" "paragraph"]]
                               (if ((keyword k) field2bool)
                                 k))))]
-    [:> foo/ItemCreator {:inputList fields}]))
+    (js/console.log "ttt" )
+    [:> foo/ItemCreator {^js :inputList ["name" "url"]}]))
 
 (comment
   "TODO replace with jsx version..."
