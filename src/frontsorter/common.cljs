@@ -16,20 +16,12 @@
          nil
          children)])))
 
-(defn spotify-player [id]
-  [:iframe {:src (str "https://open.spotify.com/embed/track/" id)
+(defn spotify-player [url]
+  [:iframe {:src url
             :width 300 :height 80
             :allowtransparency "true" :allow "encrypted-media"}])
-(comment (if spotify-id
-           (spotify-player spotify-id)
-           (if (= type "image")
-             [:img {:src (:name item)
-                    :style {:max-width "100%"}}]
-             (:name item))))
 
 (defn url-displayer [[url embedurl] format]
-  (js/console.log "descon")
-  (js/console.log embedurl)
   (cond
     ((keyword "any website") format) [:a {:href url
                                           :target "_blank"} url]
@@ -47,6 +39,7 @@
                                                               :left 0
                                                               }
                                         :allow-full-screen true}]]
+    ((keyword "spotify") format) [spotify-player embedurl]
     
     true [:span "unknown format"]))
 (defn itemview [tag item height right]
