@@ -138,7 +138,7 @@
                               (if ((keyword k) field2bool)
                                 k))))]
     (js/console.log "ttt" )
-    [:> foo/ItemCreator {^js :inputList ["name" "url"]}]))
+    [:> foo/ItemCreator {:inputList fields}]))
 
 (comment
   "TODO replace with jsx version..."
