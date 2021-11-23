@@ -132,6 +132,7 @@ function ItemCreator({inputList, isDummy}) {
 
 	const handleSubmitItem = (event) => {
 		event.preventDefault() //otherwise it refreshes page?
+		console.log(event)
 		frontsorter.core.add_item(form, ()=>setForm({}))
 	}
   const inputElements = {
@@ -161,7 +162,7 @@ function ItemCreator({inputList, isDummy}) {
     ),
   };
   return (
-    <form>
+    <div>
       {inputList.map((inputName) => (
         <Fragment key={inputName}>
           {inputElements[inputName]}
@@ -169,7 +170,7 @@ function ItemCreator({inputList, isDummy}) {
         </Fragment>
       ))}
 		 {isDummy ? null : <input type="submit" value="add item" onClick={handleSubmitItem} />}
-    </form>
+    </div>
   );
 }
 
