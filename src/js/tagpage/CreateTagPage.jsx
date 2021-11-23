@@ -40,12 +40,12 @@ export default function App() {
 
 function TagCreator({initstate}) {
   // const [tagState, setState] = useState(initstate)
-  const [format, setFormat] = useState(Object.assign({}, initstate.format));
-  const [urlFormat, setUrlFormat] = useState(Object.assign({}, initstate.format.url));
-  const [title, setTitle] = useState(initstate.title);
-  const [description, setDescription] = useState(initstate.description);
+  const [format, setFormat] = useState(Object.assign({}, initstate["format"]));
+	const [urlFormat, setUrlFormat] = useState(Object.assign({}, initstate["format"]["url"]));
+  const [title, setTitle] = useState(initstate["title"]);
+  const [description, setDescription] = useState(initstate["description"]);
   const [permissions, setPermissions] = useState(
-    initstate.perms.perms
+    initstate["perms"]["perms"]
   );
   const [listOfUsers, setListOfUsers] = useState([]);
 
@@ -72,11 +72,11 @@ function TagCreator({initstate}) {
 		  permissions: {perms: permissions, users: listOfUsers},
       format: { ...format, url: format.url ? urlFormat : false }
     };
-	  if(initstate.editing) {
+	  if(initstate["editing"]) {
 		  // tagid is global set by server in <script> tag
 		  data.tag_id = tagid;
 	  }
-      postData(initstate.submiturl, data);
+      postData(initstate["submiturl"], data);
   };
 
   // this is weird IDK what else to do
@@ -115,11 +115,11 @@ function TagCreator({initstate}) {
         inputList={inputListFromFormat(format)}
         handleFormatChange={handleFormatChange}
         handleUrlChange={handleUrlChange}
-        editing={initstate.editing}
+        editing={initstate["editing"]}
         format={format}
         urlFormat={urlFormat}
       />
-      <input type="submit" value={initstate.editing ? "commit changes" : "create tag"} onClick={handleSubmit} />
+		<input type="submit" value={initstate["editing"] ? "commit changes" : "create tag"} onClick={handleSubmit} />
     </div>
   );
 }
