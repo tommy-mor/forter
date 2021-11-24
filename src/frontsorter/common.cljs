@@ -42,9 +42,9 @@
     ((keyword "spotify") format) [spotify-player embedurl]
     
     true [:span "unknown format"]))
-(defn itemview [tag item height right]
-  (let [format (-> tag :settings :format)
-        url ((juxt :url :embedurl) (:content item)) 
+
+(defn itemview [format item height right]
+  (let [url ((juxt :url :embedurl) (:content item)) 
         spotify-id  (-> item :content :spotify_id) ;; TODO GET RID OF THIS, MATCH ON URL
         paragraph (-> item :content :paragraph)]
     
@@ -136,16 +136,15 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
-(defn pairvoter [score sendvote &
+(defn pairvoter [score format sendvote &
                  {:keys [cancelfn startopen]
                   :or {cancelfn nil startopen false}}]
-  (js/console.log (:tag @score))
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
     [collapsible-cage startopen "VOTE"
      [:div.votearena
-      [itemview (:tag @score) (:left @score) left false type]
-      [itemview (:tag @score) (:right @score) right true type]
+      [itemview format (:left @score) left false type]
+      [itemview format (:right @score) right true type]
       [slider :percent (:percent @score) 0 100 score]
       [button "submit" sendvote]
       (when cancelfn

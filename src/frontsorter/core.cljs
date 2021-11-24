@@ -257,7 +257,7 @@
         [addpanel]])
 
      (if (:vote_panel @show)
-       [c/pairvoter score sendvote])
+       [c/pairvoter score (:format (:settings (:tag @score))) sendvote])
      
      (if (not-empty @rank)
        [c/collapsible-cage

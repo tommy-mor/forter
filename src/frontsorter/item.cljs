@@ -80,7 +80,7 @@
    nil
    (:edit_item @show) ;; TODO
    item-edit
-   [c/itemview @tag @item 10 false (:type (:settings @tag))]])
+   [c/itemview (:format (:settings @tag)) @item 10 false (:type (:settings @tag))]])
 
 (defn calcmag [vote leftid]
   (if (not vote)
@@ -161,7 +161,7 @@
     [:div
      [back @tag]
      (if @score
-       [c/pairvoter score sendvote :startopen true :cancelfn #(reset! score nil)]
+       [c/pairvoter score (:format (:settings @tag)) sendvote :startopen true :cancelfn #(reset! score nil)]
        [itemv])
      [c/collapsible-cage true
       "MATCHUPS"
