@@ -1,3 +1,7 @@
 inputList
 preventDefault
 onClick
+tag_id
+perms
+users
+new_tag_url
