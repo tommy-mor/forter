@@ -65,6 +65,13 @@ function TagCreator({initstate}) {
 	  );
   };
 
+  const handleDelete = () => {
+	  if(confirm('delete this tag?')) {
+		  window.location.href = initstate["deleteurl"]
+		  //postData(initstate["deleteurl"], tagid);
+	  }
+  };
+
   const handleSubmit = () => {
     data = {
       title: title,
@@ -119,6 +126,10 @@ function TagCreator({initstate}) {
         format={format}
         urlFormat={urlFormat}
       />
+
+		{!initstate["editing"] ? nil
+		 : <input type="submit" value="delete this tag" onClick={handleDelete} />
+	    }
 		<input type="submit" value={initstate["editing"] ? "commit changes" : "create tag"} onClick={handleSubmit} />
     </div>
   );
