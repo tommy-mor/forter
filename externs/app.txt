@@ -5,3 +5,6 @@ tag_id
 perms
 users
 new_tag_url
+paragraph
+name
+url

@@ -82,7 +82,7 @@ function TagCreator({initstate}) {
   // this is weird IDK what else to do
   const inputListFromFormat = (format) => {
     // list contains format fields with value true
-    return Object.keys(format).filter(field => format[field]);
+    return ["name", "url", "paragraph"].filter(field => format[field]);
   };
 
   return (
@@ -163,7 +163,7 @@ function ItemCreator({inputList, isDummy}) {
   };
   return (
     <div>
-      {inputList.map((inputName) => (
+		{inputList.map((inputName) => (
         <Fragment key={inputName}>
           {inputElements[inputName]}
           <br/>
@@ -191,7 +191,12 @@ function FormatPicker({inputList, handleFormatChange, handleUrlChange, editing, 
 
   const UrlFormatPicker = () => (
     <Fragment>
-    {Object.getOwnPropertyNames(urlFormat).map((type) => (
+		{["any website",
+		  "image link",
+		  "twitter",
+		  "youtube",
+		  "youtube with timestamp",
+		  "spotify"].map((type) => (
       <Fragment key={type}>
         <input
           type="radio"
