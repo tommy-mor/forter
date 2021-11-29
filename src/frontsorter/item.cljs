@@ -129,15 +129,17 @@
      [:td (fixelo (:elo rowitem) size)]
      ;; customize by type (display url for links?)
      
-     [:td ""]
-     [:td (let [name (:name rowitem)]
-            (if (:right @score) 
-              (if (= (:id rowitem) (:id (:right @score)))
-                [:b name]
-                name)
-              (if (= (:id rowitem) (:id @item))
-                [:b name]
-                name)))]
+     [:td (:votecount rowitem)]
+     [:td (let [url (str "/t/" js/tag "/" (:id rowitem))
+                name [:div
+                      {:onClick (fn [] (set! js/window.location.href url))}
+                      (:name rowitem)]
+                id (:id rowitem)]
+            (cond
+              (and (:right @score)
+                   (= id (:id (:right @score)))) [:b name]
+              (= id (:id @item)) [:b name]
+              true name))]
      
      (if (:vote_edit @show)
        [votepanel rowitem @item])]))
