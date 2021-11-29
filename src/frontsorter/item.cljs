@@ -6,7 +6,8 @@
    [reagent.core :as r]
    [reagent.dom :as d]
    [frontsorter.common :as c]
-   [frontsorter.urls :as url]))
+   [frontsorter.urls :as url]
+   ["./../tagpage/CreateTagPage" :as foo]))
 
 (def tag (r/atom {}))
 
@@ -48,11 +49,14 @@
             response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
         (handleresponse response))))
 
-(defn edit-item [newstate]
-  (go (let [url (url/edititemstr (:id @item))
-            response (<! (http/post url {:json-params {:itemid (:id @item)
-                                                       :content newstate}}))]
-        (handleresponse response))))
+;; only called from js
+(defn edit-item [newstate callback]
+  (let [newstate (js->clj newstate :keywordize-keys true)]
+    (go (let [url (url/edititemstr (:id @item))
+              response (<! (http/post url {:json-params {:itemid (:id @item)
+                                                         :content newstate}}))]
+          (if (handleresponse response)
+            (callback))))))
 
 (defn delete-item []
   (if (js/confirm "are you sure you want to delete this item")
@@ -64,16 +68,11 @@
   [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
 
 (defn item-edit [show]
-  (let [editstate (r/atom {:title (:name @item)})
-        submit (fn []
-                 (edit-item @editstate)
-                 (reset! show false))
-        deletfn delete-item]
-    [c/editpage
-     editstate
-     show
-     submit
-     deletfn]))
+  (let [callback (fn []
+                   (reset! show false))]
+    [:> foo/ItemCreator {:inputList (c/fields-from-format (-> @tag :settings :format))
+                         :editItem @item
+                         :editCallback callback}]))
 
 (defn itemv []
   [c/editable

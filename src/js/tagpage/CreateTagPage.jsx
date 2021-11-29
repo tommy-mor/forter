@@ -127,7 +127,7 @@ function TagCreator({initstate}) {
         urlFormat={urlFormat}
       />
 
-		{!initstate["editing"] ? nil
+		{!initstate["editing"] ? null
 		 : <input type="submit" value="delete this tag" onClick={handleDelete} />
 	    }
 		<input type="submit" value={initstate["editing"] ? "commit changes" : "create tag"} onClick={handleSubmit} />
@@ -136,16 +136,40 @@ function TagCreator({initstate}) {
 }
 
 
-function ItemCreator({inputList, isDummy}) {
-	const [form, setForm] = useState({});
+function ItemCreator({inputList, isDummy, editItem, editCallback}) {
+
+	const [form, setForm] = useState(editItem ?
+									 ["name", "url", "paragraph"].reduce(
+										 (prev, type) => {
+											 var thing = editItem[type] || editItem["content"][type]
+											 if(thing) {
+												 return  {...prev, [type]: thing};
+											 } else {
+												 return prev;
+											 }
+										 },
+										 {}) 
+									 : {})
+
+
 	const handleChange = (event, name) => setForm({...form, [name]: event.target.value})
 	const value = (name) => form[name] ?? ''
 
 	const handleSubmitItem = (event) => {
 		event.preventDefault() //otherwise it refreshes page?
-		console.log(event)
 		frontsorter.core.add_item(form, ()=>setForm({}))
 	}
+
+	const handleEditItem = (event) => {
+		event.preventDefault(); //otherwise it refreshes page?
+		frontsorter.item.edit_item(form, editCallback);
+	}
+
+	const handleDeleteItem = (event) => {
+		event.preventDefault(); //otherwise it refreshes page?
+		frontsorter.item.delete_item();
+	}
+
   const inputElements = {
     name: (
       <input 
@@ -180,7 +204,12 @@ function ItemCreator({inputList, isDummy}) {
           <br/>
         </Fragment>
       ))}
-		 {isDummy ? null : <input type="submit" value="add item" onClick={handleSubmitItem} />}
+		{(isDummy || editItem) ? null : <input type="submit" value="add item" onClick={handleSubmitItem} />}
+		{editItem ? <Fragment>
+						<input type="submit" value="edit item" onClick={handleEditItem} />
+						<input type="submit" value="delete item" onClick={handleDeleteItem} />
+				    </Fragment>
+		 : null}
     </div>
   );
 }
@@ -190,12 +219,15 @@ function FormatPicker({inputList, handleFormatChange, handleUrlChange, editing, 
     return null
   }
 
+	// the null function onChange is to silence react error
   const ToggleButton = ({inputType}) => (
     <div onChange={() => handleFormatChange(inputType)}>
       Should items have {inputType}s ?:
-      <input type="radio" name={inputType} value="Yes" checked={format[inputType]} />
+		<input type="radio" name={inputType} value="Yes" checked={format[inputType]}
+			   onChange={() => null} />
       <label htmlFor="Yes">Yes</label>
-      <input type="radio" name={inputType} value="No" checked={!format[inputType]} />
+		<input type="radio" name={inputType} value="No" checked={!format[inputType]}
+			   onChange={() => null}/>
       <label htmlFor="No">No</label>
     </div>
   )

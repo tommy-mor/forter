@@ -100,6 +100,7 @@
               (callback))))))))
 
 (defn submit-edit [newinfo]
+  "submit an edit to a tag"
   (go
     (let [url (url/editstr)
           response (<! (http/patch url {:form-params (merge (common-params) newinfo)}))]
@@ -112,48 +113,15 @@
 
 ;; -------------------------
 ;; Views
-(comment (defn addpanel []
-   (let [title (r/atom "")
-         on-key-down (fn [k title]
-                       (condp = (.-which k)
-                         13 (add-item title)
-                         nil))]
-     (fn [] 
-       [:div.addpanel
-        [:input.addinput {:type "text"
-                          :value @title
-                          :placeholder "new item name"
-                          :on-change #(reset! title (-> % .-target .-value))
-                          :on-key-down #(on-key-down % title)}]
-        [:button {:on-click #(add-item title)} "add item"]]))))
-(defn addpanel []
-  (js/console.log "tag")
-  (js/console.log @score)
-  (let [field2bool (-> @score
-                       :tag
-                       :settings
-                       :format)
-        fields (vec (filter identity
-                            (for [k ["name" "url" "paragraph"]]
-                              (if ((keyword k) field2bool)
-                                k))))]
-    (js/console.log "ttt" )
-    [:> foo/ItemCreator {:inputList fields}]))
 
-(comment
-  "TODO replace with jsx version..."
-  (defn info-edit [show]
-   (let [tag (:tag @score)
-         form
-         (r/atom {:title (:title tag)
-                  :description (:description tag)})]
-     [c/editpage
-      form
-      show
-      (fn []
-        (submit-edit @form)
-        (reset! show false))
-      delete-tag])))
+
+(defn addpanel []
+  (let [fields (c/fields-from-format
+                (-> @score
+                    :tag
+                    :settings
+                    :format))]
+    [:> foo/ItemCreator {:inputList fields}]))
 
 ;; TODO check if my user id matches tag user id
 (defn info [tag]

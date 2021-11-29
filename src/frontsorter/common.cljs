@@ -21,6 +21,12 @@
             :width 300 :height 80
             :allowtransparency "true" :allow "encrypted-media"}])
 
+(defn fields-from-format [format]
+  (vec (filter identity
+               (for [k ["name" "url" "paragraph"]]
+                 (if ((keyword k) format)
+                   k)))))
+
 (defn url-displayer [[url embedurl] format]
   (cond
     ((keyword "any website") format) [:a {:href url

@@ -8,3 +8,5 @@ new_tag_url
 paragraph
 name
 url
+editItem
+editCallback
