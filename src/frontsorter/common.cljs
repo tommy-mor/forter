@@ -61,9 +61,7 @@
      (if (:name format)
        [:h1 {:style {:margin-bottom "4px"}} (:name item)])
      (if (:url format)
-       (do
-         (js/console.log "")
-         [url-displayer url (:url format)]))
+       [url-displayer url (:url format)])
      (if (:paragraph format)
        [:fragment 
         [:br]
@@ -142,13 +140,23 @@
    :left (/ (min 0 (- perc 50)) 2)})
 
 
+(defn styles-format [format]
+  (js/console.log "format" format)
+  (if (or (-> format :url :youtube)
+          (-> format :url ((keyword "youtube with timestamp"))))
+    {:width "150%"
+     :transform "translate(-16.6%, 0)"}
+    {}))
+
 (defn pairvoter [score format sendvote &
                  {:keys [cancelfn startopen]
                   :or {cancelfn nil startopen false}}]
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
+    (js/console.log format)
     [collapsible-cage startopen "VOTE"
      [:div.votearena
+      {:style (styles-format format)}
       [itemview format (:left @score) left false type]
       [itemview format (:right @score) right true type]
       [slider :percent (:percent @score) 0 100 score]
