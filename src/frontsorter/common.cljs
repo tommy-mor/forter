@@ -154,7 +154,7 @@
   (let [{:keys [left right]} (calc-heights (:percent @score))]
     
     (js/console.log format)
-    [collapsible-cage startopen "VOTE"
+    [collapsible-cage true "VOTE"
      [:div.votearena
       {:style (styles-format format)}
       [itemview format (:left @score) left false type]
