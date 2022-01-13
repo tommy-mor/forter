@@ -1,7 +1,7 @@
 import { Home, Users, Login, Register } from './pages'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-function AppWrapper() {
+function Main() {
 
 }
 
@@ -9,7 +9,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AppWrapper/>}>
+        <Route path="/" element={<Main/>}>
           <Route index element={<Home/>} />
           <Route path="users" element={<Users/>} >
             <Route path=":username" element={<User/>} />
