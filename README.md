@@ -1,6 +1,12 @@
-# Getting Started with Create React App
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# TODO
+- Add style
+  - introduce material ui
+  - use those layout components when possible
+  - create a material ui theme that looks just like the old sorter
+- add ui functionality from sorter
+  - need all of the diff menus etc
+- add api
+- again but with typescript??
 
 ## Available Scripts
 
