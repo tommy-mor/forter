@@ -1,23 +1,51 @@
-import logo from './logo.svg';
+import { Home, Users, Login, Register } from './pages'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+function AppWrapper() {
+
+}
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppWrapper/>}>
+          <Route index element={<Home/>} />
+          <Route path="users" element={<Users/>} >
+            <Route path=":username" element={<User/>} />
+            <Route
+              index
+              element={
+                <main style={{ padding: "1rem" }}>
+                  <p>Select a user</p>
+                </main>
+              }
+            />
+          </Route>
+          <Route path="tags" element={<Tags/>}>
+            <Route path=":tag_id" element={<Tag/>} />
+            <Route
+              index
+              element={
+                <main style={{ padding: "1rem" }}>
+                  <p>Select a tag</p>
+                </main>
+              }
+            />
+          </Route>
+          <Route path="login" element={<Login/>} />
+          <Route path="register" element={<Register/>} />
+          <Route
+            path="*"
+            element={
+              <main style={{ padding: "1rem" }}>
+                <p>Oops! Wrong page. Look elsewhere.</p>
+              </main>
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
