@@ -15,7 +15,7 @@ function App() {
             <Route index element={<Users/>} />
           </Route>
           <Route path="tags" element={<TagPage/>}>
-            <Route path=":tag_id" element={<Tag/>} />
+            <Route path=":tagId" element={<Tag/>} />
             <Route index element={<Tags />} />
           </Route>
           <Route path="login" element={<Login/>} />
