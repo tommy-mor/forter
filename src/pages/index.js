@@ -1,11 +1,11 @@
 import Home from './Home'
-import Users from './Users'
 import Login from './Login'
 import Register from './Register'
+import DefaultPage from './DefaultPage'
 
 export {
   Home,
-  Users,
   Login,
   Register,
+  DefaultPage,
 }

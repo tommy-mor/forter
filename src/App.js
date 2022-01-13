@@ -1,48 +1,26 @@
-import { Home, Users, Login, Register } from './pages'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-function Main() {
-
-}
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import MainPage from './pages/MainPage.js'
+import { Home, Login, Register, DefaultPage } from './pages'
+import { UserPage, Users, User } from './pages/users'
+import { TagPage, Tags, Tag } from './pages/tags'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Main/>}>
+        <Route path="/" element={<MainPage/>}>
           <Route index element={<Home/>} />
-          <Route path="users" element={<Users/>} >
+          <Route path="users" element={<UserPage/>} >
             <Route path=":username" element={<User/>} />
-            <Route
-              index
-              element={
-                <main style={{ padding: "1rem" }}>
-                  <p>Select a user</p>
-                </main>
-              }
-            />
+            <Route index element={<Users/>} />
           </Route>
-          <Route path="tags" element={<Tags/>}>
+          <Route path="tags" element={<TagPage/>}>
             <Route path=":tag_id" element={<Tag/>} />
-            <Route
-              index
-              element={
-                <main style={{ padding: "1rem" }}>
-                  <p>Select a tag</p>
-                </main>
-              }
-            />
+            <Route index element={<Tags />} />
           </Route>
           <Route path="login" element={<Login/>} />
           <Route path="register" element={<Register/>} />
-          <Route
-            path="*"
-            element={
-              <main style={{ padding: "1rem" }}>
-                <p>Oops! Wrong page. Look elsewhere.</p>
-              </main>
-            }
-          />
+          <Route path="*" element={<DefaultPage/>} />
         </Route>
       </Routes>
     </BrowserRouter>
