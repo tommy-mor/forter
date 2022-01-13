@@ -10,7 +10,7 @@ function AppRoutes() {
         <Route path="/" element={<MainPage />}>
           <Route index element={<Home />} />
           <Route path="users" element={<UserPage />} >
-            <Route path=":username" element={<User />} />
+            <Route path=":userId" element={<User />} />
             <Route index element={<Users />} />
           </Route>
           <Route path="tags" element={<TagPage />}>

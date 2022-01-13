@@ -4,26 +4,10 @@ export default function Main() {
   return (
     <main>
       <nav>
-        <NavLink
-          to="/users"
-        >
-          Users
-        </NavLink>
-        <NavLink
-          to="/tags"
-        >
-          Tags
-        </NavLink>
-        <NavLink
-          to="/login"
-        >
-          Login
-        </NavLink>
-        <NavLink
-          to="/register"
-        >
-          register
-        </NavLink>
+        <NavLink to="/users" > Users </NavLink>
+        <NavLink to="/tags" > Tags </NavLink>
+        <NavLink to="/login" > Login </NavLink>
+        <NavLink to="/register" > Register </NavLink>
       </nav>
       <Outlet />
     </main>

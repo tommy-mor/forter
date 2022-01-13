@@ -3,9 +3,9 @@ import { getUserById } from '../../api/users'
 
 // main user page
 export default function User() {
-  const { userId } = useParams();
-  const user = getUserById(userId);
+  const params = useParams();
+  const user = getUserById(params.userId);
   return (
-    <div>{user.name}</div>
+    <div>Viewing user {user.name}</div>
   )
 }

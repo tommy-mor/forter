@@ -3,15 +3,18 @@ function getTags() {
   return [
     {
       id: "a",
+      name: "a"
     },
     {
-      id: "b"
+      id: "b",
+      name: "b"
     }
   ]
 }
 
 function getTagById(tagId) {
   return {
+    id: tagId,
     name: tagId
   }
 }

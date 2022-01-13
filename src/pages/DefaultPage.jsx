@@ -1,5 +1,7 @@
 export default function DefaultPage() {
-  <main style={{ padding: "1rem" }}>
-    <p>Oops! Wrong page. Look elsewhere.</p>
-  </main>
+  return (
+    <main style={{ padding: "1rem" }}>
+      <p>Oops! Wrong page. Look elsewhere.</p>
+    </main>
+  )
 }
