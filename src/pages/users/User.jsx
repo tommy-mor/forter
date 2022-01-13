@@ -6,6 +6,6 @@ export default function User() {
   const { userId } = useParams();
   const user = getUserById(userId);
   return (
-    <div>{user}</div>
+    <div>{user.name}</div>
   )
 }
