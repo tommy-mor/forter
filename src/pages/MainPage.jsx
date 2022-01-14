@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import Link from '@mui/material/Link';
 
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -10,23 +11,23 @@ export default function Main() {
   return (
     <main>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
+        <AppBar color="secondary" position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Sorter
             </Typography>
-            <NavLink to="/users" >
+            <Link component={NavLink} to="/users" >
               <Button color="inherit">Users</Button>
-            </NavLink>
-            <NavLink to="/Tags" >
+            </Link>
+            <Link component={NavLink} to="/tags" >
               <Button color="inherit">Tags</Button>
-            </NavLink>
-            <NavLink to="/login" >
+            </Link>
+            <Link component={NavLink} to="/login" >
               <Button color="inherit">Login</Button>
-            </NavLink>
-            <NavLink to="/register" >
+            </Link>
+            <Link component={NavLink} to="/register" >
               <Button color="inherit">Register</Button>
-            </NavLink>
+            </Link>
           </Toolbar>
         </AppBar>
       </Box>
