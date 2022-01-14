@@ -1,11 +1,15 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom'
+
+import Box from '@mui/material/Box'
+import Paper from '@mui/material/Paper'
 
 export default function UserPage() {
   return (
-    <main>
-      <nav>you have used the users sub url
-      </nav>
-      <Outlet />
-    </main>
+    <Box>
+      <Paper sx={{ padding: '1em' }}>
+        Users
+        <Outlet />
+      </Paper>
+    </Box>
   )
 }
