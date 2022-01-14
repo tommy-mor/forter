@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link as LocalLink, NavLink, Outlet } from 'react-router-dom';
 import Link from '@mui/material/Link';
 
 import AppBar from '@mui/material/AppBar';
@@ -14,7 +14,9 @@ export default function Main() {
         <AppBar color="secondary" position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Sorter
+              <Link component={LocalLink} to="/" >
+                Sorter
+              </Link>
             </Typography>
             <Link component={NavLink} to="/users" >
               <Button color="inherit">Users</Button>
