@@ -1,6 +1,11 @@
+
+async function fakePromise(data) {
+  return new Promise(res => setTimeout(() => res(data), 100))
+}
+
 // get all the tags
-async function getTags() {
-  return new Promise(resolve => [{
+function getTags() {
+  return fakePromise([{
     id: "a",
     name: "a"
   },
@@ -8,11 +13,11 @@ async function getTags() {
     id: "b",
     name: "b"
   }
-  ]).then(res => res)
+  ])
 }
 
 function getTagById(tagId) {
-  return new Promise(resolve => ({
+  return fakePromise({
     id: tagId,
     name: tagId,
     items: [
@@ -22,7 +27,7 @@ function getTagById(tagId) {
         name: "arst"
       },
     ],
-  })).then(res => res)
+  })
 }
 
 export { getTags, getTagById }
