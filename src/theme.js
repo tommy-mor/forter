@@ -9,4 +9,4 @@ export default createTheme({
       main: '#ffc0cb',
     },
   },
-});
+})

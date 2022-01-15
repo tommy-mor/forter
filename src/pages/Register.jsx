@@ -7,7 +7,7 @@ import Stack from '@mui/material/Stack'
 
 export default function Register() {
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const onSubmit = data => console.log(data);
+  const onSubmit = data => console.log(data)
 
   return <Box
     component="form"
