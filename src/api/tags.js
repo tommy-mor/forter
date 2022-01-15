@@ -1,9 +1,5 @@
+import { fakePromise } from './utils'
 
-async function fakePromise(data) {
-  return new Promise(res => setTimeout(() => res(data), 100))
-}
-
-// get all the tags
 function getTags() {
   return fakePromise([{
     id: "a",

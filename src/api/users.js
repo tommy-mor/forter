@@ -1,21 +1,21 @@
-// get all the users
+import { fakePromise } from './utils'
+
 function getUsers() {
-  return [
+  return fakePromise([
     {
       name: "a"
 
     },
     {
       name: "b"
-
     }
-  ]
+  ])
 }
 
 function getUserById(userId) {
-  return {
+  return fakePromise({
     name: userId
-  }
+  })
 }
 
 export { getUsers, getUserById }
