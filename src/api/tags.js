@@ -15,7 +15,14 @@ function getTags() {
 function getTagById(tagId) {
   return {
     id: tagId,
-    name: tagId
+    name: tagId,
+    items: [
+      {
+        score: 1,
+        votes: 3,
+        name: "arst"
+      },
+    ],
   }
 }
 
