@@ -1,19 +1,18 @@
 // get all the tags
-function getTags() {
-  return [
-    {
-      id: "a",
-      name: "a"
-    },
-    {
-      id: "b",
-      name: "b"
-    }
-  ]
+async function getTags() {
+  return new Promise(resolve => [{
+    id: "a",
+    name: "a"
+  },
+  {
+    id: "b",
+    name: "b"
+  }
+  ]).then(res => res)
 }
 
 function getTagById(tagId) {
-  return {
+  return new Promise(resolve => ({
     id: tagId,
     name: tagId,
     items: [
@@ -23,7 +22,7 @@ function getTagById(tagId) {
         name: "arst"
       },
     ],
-  }
+  })).then(res => res)
 }
 
 export { getTags, getTagById }
