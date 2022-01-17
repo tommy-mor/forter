@@ -16,6 +16,16 @@ function getTagById(tagId) {
   return fakePromise({
     id: tagId,
     name: tagId,
+    description: "some tag description",
+    votes: [
+      {
+        voter: "a",
+        item: "arst",
+        vs: "asdf",
+        score: 1,
+      }
+    ],
+    contributors: ["a", "b"],
     items: [
       {
         score: 1,
