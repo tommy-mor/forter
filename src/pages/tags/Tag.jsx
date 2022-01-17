@@ -48,12 +48,13 @@ function PairwiseVote() {
   function onSlide(name) {
     return (e, value) => setLevel(e.target.value)
   }
+
   return<Card sx={{ padding: '1rem', margin: '1rem' }}>
           <Stack direction="row" justifyContent="space-between" spacing={2}>
             <Item>item1</Item>
             <Item>item2</Item>
           </Stack>
-          <Slider defaultValue={level} onChange={onSlide} />
+          <Slider defaultValue={level} step={10} marks min={0} max={100} onChange={onSlide} />
         </Card>
 }
 
