@@ -17,6 +17,7 @@ function getTagById(tagId) {
     id: tagId,
     name: tagId,
     description: "some tag description",
+    creator: "a",
     votes: [
       {
         voter: "a",

@@ -1,9 +1,15 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { useTag } from '../../hooks/tags'
 
-import Slider from '@mui/material/Slider'
+
+import { useParams, Link as LocalLink, NavLink, Outlet } from 'react-router-dom'
+
+import Link from '@mui/material/Link'
+import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import Button from '@mui/material/Button'
+import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -11,9 +17,15 @@ import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
-function TagTitle( {name, description, numItems, numVotes, numUsers } ) {
+function TagTitle( {name, description, numItems, numVotes, numUsers, creator } ) {
   return <Box>
-           <Typography>Showing tag {name}: {numItems} items with {numVotes} votes from {numUsers} users</Typography>
+           <Typography>Showing tag "{name}": {numItems} items with {numVotes} votes from {numUsers} users</Typography>
+           <Typography component="div">
+             Created by{' '}
+             <Link component={LocalLink} to={`/users/${creator}`} >
+               {creator}
+             </Link>
+           </Typography>
          </Box>
 }
 
@@ -26,11 +38,11 @@ function PairwiseVote() {
   }
 
   return<Box><Stack direction="row" spacing={2}>
-                 <div>rast</div>
-                 <div>dndn</div>
-               </Stack>
-            <Slider defaultValue={level} onChange={onSlide} />
-          </Box>
+              <div>rast</div>
+              <div>dndn</div>
+            </Stack>
+         <Slider defaultValue={level} onChange={onSlide} />
+       </Box>
 
 }
 
@@ -41,7 +53,7 @@ export default function Tag() {
 
   if (isLoading) return <div>loading</div>
 
-  const { name, description, contributors, votes, items } = tag
+  const { name, description, contributors, votes, items, creator } = tag
 
   return (
     <Box>
@@ -51,6 +63,7 @@ export default function Tag() {
         numItems={items.length}
         numVotes={votes.length}
         numUsers={contributors.length}
+        creator={creator}
       />
       {/* only show if can vote */}
       <PairwiseVote/>
