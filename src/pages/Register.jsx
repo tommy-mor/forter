@@ -12,7 +12,7 @@ import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 
 export default function Register() {
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register: registerUser, handleSubmit, formState: { errors } } = useForm()
   const { user, loggedOut, mutate } = useLogin()
   const navigate = useNavigate()
 
@@ -21,7 +21,7 @@ export default function Register() {
   }, [ user, loggedOut, navigate ])
 
   function onSubmit({username, password}) {
-      register(username, password)
+      registerUser(username, password)
       mutate()
   }
 

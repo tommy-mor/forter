@@ -11,10 +11,12 @@ import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 
 export default function Main() {
-    const { user, loggedOut } = useLogin()
-    console.log("from main bar")
-    console.log(user)
-    console.log(loggedOut)
+    const { user, loggedOut, mutate } = useLogin()
+
+    function onLogout() {
+        logout()
+        mutate()
+    }
 
     return (
         <Box sx={{ flexGrow: 1 }}>
@@ -44,7 +46,7 @@ export default function Main() {
                         <Link component={NavLink} to={`/tags/${user.name}`} >
                             <Button color="inherit">My tags</Button>
                         </Link>
-                        <Button color="inherit" onClick={logout}>Logout</Button>
+                        <Button color="inherit" onClick={onLogout}>Logout</Button>
                         </>)}
                 </Toolbar>
             </AppBar>
