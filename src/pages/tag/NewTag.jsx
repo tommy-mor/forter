@@ -1,5 +1,7 @@
+import AddItemAccordion from './AddItemAccordion.jsx'
+
 function NewTag() {
-    return <div>new tag</div>
+    return <AddItemAccordion />
 }
 
 export default NewTag

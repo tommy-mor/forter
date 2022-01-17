@@ -16,17 +16,17 @@ function ItemForm({ settings, onSubmit }) {
         <Stack alignItems="center" spacing={1}>
             <TextField
                 required
-                error={!!errors.username}
+                error={!!errors.title}
                 id="outlined-required"
-                label="Username"
-                {...register("username", { required: true })}
+                label="Title"
+                {...register("title", { required: true })}
                 />
             <TextField
                 required
-                error={!!errors.password}
+                error={!!errors.body}
                 id="outlined-required"
-                label="Password"
-                {...register("password", { required: true })}
+                label="Body"
+                {...register("body", { required: true })}
                 />
             { onSubmit && <Button variant="contained" type="submit" onClick={handleSubmit(onSubmit)}>
             Add

@@ -1,7 +1,7 @@
 import Tags from './Tags'
 import Tag from './Tag'
 import TagPage from './TagPage'
-import NewTag from './Tag'
+import NewTag from './NewTag'
 
 export {
   Tags,
