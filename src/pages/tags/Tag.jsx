@@ -29,7 +29,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import { styled } from '@mui/material/styles'
 
-function TagTitle( {name, description, numItems, numVotes, numUsers, creator } ) {
+function TagTitle({ name, description, numItems, numVotes, numUsers, creator  }) {
   return <Card sx={{ padding: '1rem', margin: '1rem' }}>
            <Typography>{name}</Typography>
            <Typography>{numItems} items with {numVotes} vote{numVotes === 1 ? '' : 's'} from {numUsers} users</Typography>
@@ -59,8 +59,8 @@ function PairwiseVote({ tagId }) {
   const { items, isLoading, submitVote, skipVote } = useNextVote(tagId)
   const [rating, setRating] = useState(DEFAULT_RATING) // state of the bar
 
-  function onSlide(name) {
-    return (e, value) => setRating(e.target.value)
+  function onSlide(e, value) {
+    setRating(e.target.value)
   }
 
   const submit = useCallback(() => {
@@ -73,13 +73,13 @@ function PairwiseVote({ tagId }) {
       setRating(DEFAULT_RATING)
   }, [ skipVote ])
 
-  if (isLoading) return <div>loading..</div>
+  if (isLoading) return <div>Loading..</div>
 
   return <Card sx={{ padding: '1rem', margin: '1rem' }}>
           <Stack direction="row" justifyContent="space-between" spacing={2}>
             {items.map((item, i) => <Item key={i} {...item}/>)}
           </Stack>
-          <Slider defaultValue={rating} step={10} marks min={0} max={100} onChange={onSlide} />
+          <Slider value={rating} step={10} marks min={0} max={100} onChange={onSlide} />
           <Stack direction="row" justifyContent="space-between" spacing={2}>
             <Button onClick={submit}>Vote</Button>
             <Button onClick={skip}>Skip</Button>
@@ -168,7 +168,7 @@ export default function Tag() {
         creator={creator}
       />
 
-      {/* only show if can vote */}
+      {/* TODO: only show if user can vote */}
       {!loggedOut && <PairwiseVote />}
       <TagAccordion
           title="Ranked Items"
