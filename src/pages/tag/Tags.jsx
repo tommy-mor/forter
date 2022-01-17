@@ -37,7 +37,7 @@ export default function Tags() {
                         <TableCell>{votes}</TableCell>
                         <TableCell>{items}</TableCell>
                         <TableCell>
-                            <Link to={`/tags/${id}`} >
+                            <Link to={`/tags/view/${id}`} >
                               <Typography>{name}</Typography>
                             </Link>
                         </TableCell>

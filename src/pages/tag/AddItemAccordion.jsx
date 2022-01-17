@@ -36,7 +36,6 @@ function ItemForm({ settings, onSubmit }) {
 }
 
 function AddItemAccordion({ settings }) {
-
     return <Accordion sx={{ margin: '1rem' }}>
         <AccordionSummary
             expandIcon={<ExpandMoreIcon/>}
