@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { getUser } from '../api/login'
 
 function useLogin() {
-  const { data, mutate, error } = useSWR("get_user", getUser)
+  const { data, mutate, error } = useSWR("/get_user", getUser)
 
   const loading = !data && !error
   const loggedOut = error && error.status === 403

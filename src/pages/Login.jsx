@@ -1,5 +1,9 @@
+import { useEffect } from 'react'
+import { useNavigate } from "react-router-dom"
 import { useForm } from 'react-hook-form'
-import { useLogin } from '../hooks/login.js'
+
+import { login } from '../api/login'
+import { useLogin } from '../hooks/login'
 
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
@@ -10,8 +14,14 @@ import Stack from '@mui/material/Stack'
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm()
   const { user, loading, loggedOut, mutate } = useLogin()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+      if (user && !loggedOut) navigate("/")
+  }, [ user, loggedOut, navigate ])
 
   function onSubmit({username, password}) {
+      console.log("logging in")
       login(username, password)
       mutate()
   }
