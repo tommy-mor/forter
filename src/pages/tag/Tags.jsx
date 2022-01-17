@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom'
-import { useLogin } from '../../hooks/login'
 import { useTags } from '../../hooks/tags'
 
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Paper from '@mui/material/Paper'
 
 export default function Tags() {
   const { tags, isLoading } = useTags()
@@ -12,15 +19,38 @@ export default function Tags() {
 
   return (
     <Box>
-      {tags.map((tag) => (
-        <Link
-          style={{ display: "block", margin: "1rem 0" }}
-          to={`/tags/${tag.id}`}
-          key={tag.id}
-        >
-          <Typography>{tag.name}</Typography>
-        </Link>
-      ))}
+        <TableContainer component={Paper}>
+            <Table>
+            <TableHead>
+                <TableRow>
+                    <TableCell>Votes</TableCell>
+                    <TableCell>Items</TableCell>
+                    <TableCell>Name</TableCell>
+                    <TableCell>Creator</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {tags.map(({id, name, votes, items, creator}) => (
+                    <TableRow
+                        key={id}
+                        >
+                        <TableCell>{votes}</TableCell>
+                        <TableCell>{items}</TableCell>
+                        <TableCell>
+                            <Link to={`/tags/${id}`} >
+                              <Typography>{name}</Typography>
+                            </Link>
+                        </TableCell>
+                        <TableCell>
+                            <Link to={`/users/${creator}`} >
+                              <Typography>{creator}</Typography>
+                            </Link>
+                        </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
     </Box>
   )
 }

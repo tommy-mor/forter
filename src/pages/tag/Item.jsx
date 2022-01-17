@@ -13,7 +13,7 @@ function YoutubeEmbed({ title, embedId }) {
       title="Embedded youtube"
     />
   </div>
-};
+}
 
 function Image({ title, link }) {
     <img
