@@ -13,7 +13,7 @@ import Stack from '@mui/material/Stack'
 
 export default function Login() {
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const { user, loading, loggedOut, mutate } = useLogin()
+  const { user, loggedOut, mutate } = useLogin()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -21,7 +21,6 @@ export default function Login() {
   }, [ user, loggedOut, navigate ])
 
   function onSubmit({username, password}) {
-      console.log("logging in")
       login(username, password)
       mutate()
   }

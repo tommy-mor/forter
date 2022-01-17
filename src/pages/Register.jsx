@@ -1,4 +1,10 @@
+import { useEffect } from 'react'
+import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
+
+import { register } from '../api/login'
+import { useLogin } from '../hooks/login'
+
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import TextField from '@mui/material/TextField'
@@ -7,7 +13,17 @@ import Stack from '@mui/material/Stack'
 
 export default function Register() {
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const onSubmit = data => console.log(data)
+  const { user, loggedOut, mutate } = useLogin()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+      if (user && !loggedOut) navigate("/")
+  }, [ user, loggedOut, navigate ])
+
+  function onSubmit({username, password}) {
+      register(username, password)
+      mutate()
+  }
 
   return <Box
     component="form"

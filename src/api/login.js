@@ -5,16 +5,19 @@ const SORTER_LOGIN_TOKEN = 'sorter-login-token'
 
 // add session cookie
 function login(username, password) {
+  console.log("logging in")
   document.cookie = `${SORTER_LOGIN_TOKEN}=${sessionToken};`
 }
 
 // expire session cookie
 function logout() {
+  console.log("logging out")
   document.cookie = `${SORTER_LOGIN_TOKEN}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
 }
 
 // add session cookie with username and password
 function register(username, password) {
+  console.log("registering and logging in")
   document.cookie = `${SORTER_LOGIN_TOKEN}=${sessionToken};`
 }
 
