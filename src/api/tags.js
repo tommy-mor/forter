@@ -27,20 +27,29 @@ function getTagById(tagId) {
       }
     ],
     contributors: ["a", "b"],
-    items: [
+    items: {
+      ranked: [
+        {
+          score: 1,
+          votes: 3,
+          name: "arst",
+          creator: "a"
+        },
+        {
+          score: 1,
+          votes: 3,
+          name: "asdf",
+          creator: "b"
+        },
+      ],
+    unranked: [
       {
         score: 1,
         votes: 3,
-        name: "arst",
-        creator: "a"
-      },
-      {
-        score: 1,
-        votes: 3,
-        name: "asdf",
+        name: "poo",
         creator: "b"
       },
-    ],
+    ]}
   })
 }
 

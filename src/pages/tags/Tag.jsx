@@ -35,12 +35,14 @@ export default function Tag() {
 
   const { name, description, contributors, votes, items, creator } = tag
 
+  const numItems = items.ranked.length + items.unranked.length
+
   return (
     <Box>
       <TagTitle
         name={name}
         description={description}
-        numItems={items.length}
+        numItems={numItems}
         numVotes={votes.length}
         numUsers={contributors.length}
         creator={creator}
@@ -48,14 +50,14 @@ export default function Tag() {
 
       {/* TODO: only show if user can vote */}
       {!loggedOut && <PairwiseVote />}
-      <TagAccordion
+        {items.ranked && <TagAccordion
           title="Ranked Items"
-          items={items}
+          items={items.ranked}
           users={contributors}
-        />
-        {items && <TagAccordion
+        />}
+        {items.unranked && <TagAccordion
           title="Unranked Items"
-          items={items}
+          items={items.unranked}
           users={contributors}
         />}
     </Box>
