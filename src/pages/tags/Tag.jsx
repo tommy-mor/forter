@@ -54,6 +54,7 @@ function Item({ type, name }) {
 
 
 const DEFAULT_RATING = 50
+
 function PairwiseVote({ tagId }) {
   const { items, isLoading, submitVote, skipVote } = useNextVote(tagId)
   const [rating, setRating] = useState(DEFAULT_RATING) // state of the bar
@@ -76,7 +77,7 @@ function PairwiseVote({ tagId }) {
 
   return <Card sx={{ padding: '1rem', margin: '1rem' }}>
           <Stack direction="row" justifyContent="space-between" spacing={2}>
-            {items.map((item) => <Item {...item}/>)}
+            {items.map((item, i) => <Item key={i} {...item}/>)}
           </Stack>
           <Slider defaultValue={rating} step={10} marks min={0} max={100} onChange={onSlide} />
           <Stack direction="row" justifyContent="space-between" spacing={2}>
