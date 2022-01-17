@@ -17,7 +17,7 @@ export default function Login() {
   const navigate = useNavigate()
 
   useEffect(() => {
-      if (user && !loggedOut) navigate("/")
+      if (user && !loggedOut) navigate(-1)
   }, [ user, loggedOut, navigate ])
 
   function onSubmit({username, password}) {
