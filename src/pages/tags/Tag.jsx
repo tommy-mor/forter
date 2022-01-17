@@ -74,6 +74,7 @@ function PairwiseVote() {
 function TagItemTable({ items }) {
     return (
         <TableContainer component={Paper}>
+            <Table>
             <TableHead>
                 <TableCell>Score</TableCell>
                 <TableCell>Votes</TableCell>
@@ -87,6 +88,7 @@ function TagItemTable({ items }) {
                     <TableCell> {name} </TableCell>
                 </TableRow>)}
             </TableBody>
+            </Table>
         </TableContainer>
     )
 }
@@ -153,11 +155,11 @@ export default function Tag() {
           items={items}
           users={contributors}
         />
-      <TagAccordion
+        {items && <TagAccordion
           title="Unranked Items"
           items={items}
           users={contributors}
-        />
+        />}
     </Box>
   )
 }
