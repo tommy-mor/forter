@@ -1,16 +1,13 @@
 import { useState } from 'react'
 import { useTag } from '../../hooks/tags'
 
-
-import { useParams, Link as LocalLink, NavLink, Outlet } from 'react-router-dom'
+import { useParams, Link as LocalLink } from 'react-router-dom'
 
 import Paper from '@mui/material/Paper'
 import Button from '@mui/material/Button'
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
-import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import Accordion from '@mui/material/Accordion'
@@ -39,7 +36,7 @@ const Item = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(1),
   textAlign: 'center',
   color: theme.palette.text.secondary,
-}));
+}))
 
 
 function PairwiseVote() {
