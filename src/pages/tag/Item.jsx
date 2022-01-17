@@ -15,6 +15,13 @@ function YoutubeEmbed({ title, embedId }) {
   </div>
 };
 
+function Image({ title, link }) {
+    <img
+      src={link}
+      alt={title}
+    />
+}
+
 function Text({name}) {
     return <Typography sx={{
         padding: '1rem',
@@ -24,12 +31,16 @@ function Text({name}) {
     >{name}</Typography>
 }
 
+function Default() {
+    return <div>None</div>
+}
+
 function Item(props) {
    switch(props.type) {
         case 'text': return <Text {...props}/>
         case 'youtube': return <YoutubeEmbed {...props}/>
-
-        default: return <div>None</div>
+        case 'image': return <Image {...props}/>
+        default: return  <Default {...props} />
     }
 }
 
