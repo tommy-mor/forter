@@ -64,6 +64,7 @@ function TagAccordion( { title, items, users }) {
               <FormControl fullWidth>
                 <InputLabel>User</InputLabel>
                 <Select
+                  defaultValue={''}
                   value={curUser}
                   label="By user"
                   onChange={onUserSelect}
