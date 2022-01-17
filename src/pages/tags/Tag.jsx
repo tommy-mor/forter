@@ -4,6 +4,7 @@ import { useTag } from '../../hooks/tags'
 
 import { useParams, Link as LocalLink, NavLink, Outlet } from 'react-router-dom'
 
+import Paper from '@mui/material/Paper'
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
 import AppBar from '@mui/material/AppBar'
@@ -17,6 +18,7 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { styled } from '@mui/material/styles'
 
 function TagTitle( {name, description, numItems, numVotes, numUsers, creator } ) {
   return <Card sx={{ padding: '1rem', margin: '1rem' }}>
@@ -32,6 +34,14 @@ function TagTitle( {name, description, numItems, numVotes, numUsers, creator } )
          </Card>
 }
 
+const Item = styled(Paper)(({ theme }) => ({
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+}));
+
+
 function PairwiseVote() {
   const [level, setLevel] = useState(50) // state of the bar
 
@@ -39,9 +49,9 @@ function PairwiseVote() {
     return (e, value) => setLevel(e.target.value)
   }
   return<Card sx={{ padding: '1rem', margin: '1rem' }}>
-          <Stack direction="row" spacing={2}>
-            <div>rast</div>
-            <div>dndn</div>
+          <Stack direction="row" justifyContent="space-between" spacing={2}>
+            <Item>item1</Item>
+            <Item>item2</Item>
           </Stack>
           <Slider defaultValue={level} onChange={onSlide} />
         </Card>
