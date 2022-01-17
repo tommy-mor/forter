@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { useTag } from '../../hooks/tags'
+import { useCallback, useState } from 'react'
+
+import { useTag, useNextVote } from '../../hooks/tags'
+import { useLogin } from '../../hooks/login'
 
 import { useParams, Link as LocalLink } from 'react-router-dom'
 
@@ -41,32 +43,45 @@ function TagTitle( {name, description, numItems, numVotes, numUsers, creator } )
          </Card>
 }
 
-const Item = styled(Paper)(({ theme }) => ({
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-}))
+function Item({ type, name }) {
+   return <Typography sx={{
+        padding: '1rem',
+        textAlign: 'center',
+        textColor: "black",
+    }}
+    >{name}</Typography>
+}
 
 
-function PairwiseVote() {
-  // useVote hook: gives you the next vote depending on who you are,
-  // also lets you submit or pass on a vote with two buttons
-  const [level, setLevel] = useState(50) // state of the bar
+const DEFAULT_RATING = 50
+function PairwiseVote({ tagId }) {
+  const { items, isLoading, submitVote, skipVote } = useNextVote(tagId)
+  const [rating, setRating] = useState(DEFAULT_RATING) // state of the bar
 
   function onSlide(name) {
-    return (e, value) => setLevel(e.target.value)
+    return (e, value) => setRating(e.target.value)
   }
 
-  return<Card sx={{ padding: '1rem', margin: '1rem' }}>
+  const submit = useCallback(() => {
+    submitVote(rating)
+    setRating(DEFAULT_RATING)
+  }, [ rating, submitVote ])
+
+  const skip = useCallback(() => {
+      skipVote()
+      setRating(DEFAULT_RATING)
+  }, [ skipVote ])
+
+  if (isLoading) return <div>loading..</div>
+
+  return <Card sx={{ padding: '1rem', margin: '1rem' }}>
           <Stack direction="row" justifyContent="space-between" spacing={2}>
-            <Item>item1</Item>
-            <Item>item2</Item>
+            {items.map((item) => <Item {...item}/>)}
           </Stack>
-          <Slider defaultValue={level} step={10} marks min={0} max={100} onChange={onSlide} />
+          <Slider defaultValue={rating} step={10} marks min={0} max={100} onChange={onSlide} />
           <Stack direction="row" justifyContent="space-between" spacing={2}>
-            <Button>Vote</Button>
-            <Button>Pass</Button>
+            <Button onClick={submit}>Vote</Button>
+            <Button onClick={skip}>Skip</Button>
           </Stack>
         </Card>
 }
@@ -75,19 +90,21 @@ function TagItemTable({ items }) {
     return (
         <TableContainer component={Paper}>
             <Table>
-            <TableHead>
-                <TableCell>Score</TableCell>
-                <TableCell>Votes</TableCell>
-                <TableCell>Name</TableCell>
-            </TableHead>
-            <TableBody>
-            {items.map(({ score, votes, name }) =>
-                <TableRow key={name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell> {score} </TableCell>
-                    <TableCell> {votes} </TableCell>
-                    <TableCell> {name} </TableCell>
-                </TableRow>)}
-            </TableBody>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>Score</TableCell>
+                        <TableCell>Votes</TableCell>
+                        <TableCell>Name</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                {items.map(({ score, votes, name }) =>
+                    <TableRow key={name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                        <TableCell> {score} </TableCell>
+                        <TableCell> {votes} </TableCell>
+                        <TableCell> {name} </TableCell>
+                    </TableRow>)}
+                </TableBody>
             </Table>
         </TableContainer>
     )
@@ -131,6 +148,8 @@ function TagAccordion( { title, items, users }) {
 // main tag page
 export default function Tag() {
   const { tagId } = useParams()
+
+  const { user, loggedOut } = useLogin()
   const { tag, isLoading } = useTag(tagId)
 
   if (isLoading) return <div>loading</div>
@@ -149,7 +168,7 @@ export default function Tag() {
       />
 
       {/* only show if can vote */}
-      <PairwiseVote />
+      {!loggedOut && <PairwiseVote />}
       <TagAccordion
           title="Ranked Items"
           items={items}

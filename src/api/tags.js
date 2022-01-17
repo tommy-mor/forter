@@ -44,4 +44,18 @@ function getTagById(tagId) {
   })
 }
 
-export { getTags, getTagById }
+// get the two things to vote on next
+function getNextVote(tagId) {
+  return fakePromise([
+    {
+      type: "text",
+      name: "item1"
+    },
+    {
+      type: "text",
+      name: "item2"
+    }
+  ])
+}
+
+export { getTags, getTagById, getNextVote }
