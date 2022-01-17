@@ -31,7 +31,14 @@ function getTagById(tagId) {
       {
         score: 1,
         votes: 3,
-        name: "arst"
+        name: "arst",
+        creator: "a"
+      },
+      {
+        score: 1,
+        votes: 3,
+        name: "asdf",
+        creator: "b"
       },
     ],
   })

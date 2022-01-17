@@ -4,7 +4,11 @@ import { useTag } from '../../hooks/tags'
 import { useParams, Link as LocalLink } from 'react-router-dom'
 
 import Paper from '@mui/material/Paper'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
+import InputLabel from '@mui/material/InputLabel'
 import Button from '@mui/material/Button'
+import MenuItem from '@mui/material/MenuItem'
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
 import Box from '@mui/material/Box'
@@ -61,6 +65,40 @@ function PairwiseVote() {
         </Card>
 }
 
+function TagAccordion( { name, items, users }) {
+    const [curUser, setCurUser] = useState('')
+
+    function onUserSelect(e) {
+        setCurUser(e.target.value)
+    }
+
+     return <Accordion sx={{ margin: '1rem' }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon/>}
+        >
+          <Typography>Ranking</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+
+      <FormControl fullWidth>
+        <InputLabel>User</InputLabel>
+        <Select
+          value={curUser}
+          label="By user"
+          onChange={onUserSelect}
+        > {users.map((user, i) =>
+            (<MenuItem value={user} key={i}>{user}</MenuItem>))}
+        </Select>
+      </FormControl>
+          {(curUser === '' ? items : items
+            .filter(({ creator }) => creator === curUser))
+            .map(({ score, votes, name }) =>
+            <div key={name}>{score} {votes} {name}</div>
+          )}
+        </AccordionDetails>
+      </Accordion>
+}
+
 // main tag page
 export default function Tag() {
   const { tagId } = useParams()
@@ -83,32 +121,16 @@ export default function Tag() {
 
       {/* only show if can vote */}
       <PairwiseVote />
-
-      <Accordion sx={{ margin: '1rem' }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon/>}
-        >
-          <Typography>Ranking</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {items.map(({ score, votes, name }) =>
-            <div key={name}>{score} {votes} {name}</div>
-          )}
-        </AccordionDetails>
-      </Accordion>
-
-      <Accordion sx={{ margin: '1rem' }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon/>}
-        >
-          <Typography>Unranked Items</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {items.map(({ score, votes, name }) =>
-            <div key={name}>{score} {votes} {name}</div>
-          )}
-        </AccordionDetails>
-      </Accordion>
+      <TagAccordion
+          title="Ranked Items"
+          items={items}
+          users={contributors}
+        />
+      <TagAccordion
+          title="Unranked Items"
+          items={items}
+          users={contributors}
+        />
     </Box>
   )
 }
