@@ -1,5 +1,6 @@
 import useSWR from 'swr'
 import { getTagById, getTags, getNextVote } from '../api/tags'
+import { useLogin } from './login'
 
 function useTag(tagId) {
   const { data, error } = useSWR(`tag/${tagId}`, () => getTagById(tagId))
@@ -11,8 +12,8 @@ function useTag(tagId) {
   }
 }
 
-function useTags() {
-  const { data, error } = useSWR(`tags`, getTags)
+function useTags(user) {
+  const { data, error } = useSWR(`tags`, () => getTags(user))
 
   return {
     tags: data,

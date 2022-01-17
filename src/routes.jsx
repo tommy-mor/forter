@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MainPage, Login, Register, DefaultPage } from './pages'
-import { UserPage, Users, User } from './pages/users'
-import { TagPage, Tags, Tag } from './pages/tags'
+import { UserPage, Users, User } from './pages/user'
+import { TagPage, Tags, Tag } from './pages/tag'
 
 function AppRoutes() {
   return (

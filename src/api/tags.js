@@ -1,13 +1,45 @@
 import { fakePromise } from './utils'
 
-function getTags() {
+
+function getTags(user) {
+  // if the user is logged in, get their secret tags
+  if (user) {
+    return fakePromise([{
+      id: "a",
+      name: "a",
+      votes: 100,
+      items: 200,
+      creator: "tommy",
+    },
+    {
+      id: "b",
+      name: "b",
+      votes: 3,
+      items: 50,
+      creator: "jake"
+    },
+    {
+      id: "c",
+      name: "secret",
+      votes: 3,
+      items: 50,
+      creator: "jake"
+    }
+    ])
+  }
   return fakePromise([{
     id: "a",
-    name: "a"
+    name: "a",
+    votes: 100,
+    items: 200,
+    creator: "tommy",
   },
   {
     id: "b",
-    name: "b"
+    name: "b",
+    votes: 3,
+    items: 50,
+    creator: "jake"
   }
   ])
 }
