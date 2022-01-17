@@ -5,11 +5,13 @@ import { useLogin } from '../../hooks/login'
 
 import PairwiseVote from './PairwiseVote'
 import TagAccordion from './TagAccordion'
+import AddItemAccordion from './AddItemAccordion'
 
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
+
 
 function TagTitle({ name, description, numItems, numVotes, numUsers, creator  }) {
   return <Card sx={{ padding: '1rem', margin: '1rem' }}>
@@ -47,6 +49,8 @@ export default function Tag() {
         numUsers={contributors.length}
         creator={creator}
       />
+
+      <AddItemAccordion settings={{}}/>
 
       {/* TODO: only show if user can vote */}
       {!loggedOut && <PairwiseVote />}
