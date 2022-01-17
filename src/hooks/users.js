@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import { getUserById, getUsers } from '../api/users'
 
 function useUser(userId) {
-  const { data, error } = useSWR(`user/${userId}`, () => getUserById(userId))
+  const { data, error } = useSWR(`user/${userId}`, () => getUserById(userId), { suspense: true })
 
   return {
     user: data,
@@ -13,7 +13,7 @@ function useUser(userId) {
 
 
 function useUsers() {
-  const { data, error } = useSWR(`users`, getUsers)
+  const { data, error } = useSWR(`users`, getUsers, { suspense: true })
 
   return {
     users: data,

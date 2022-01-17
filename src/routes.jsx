@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { MainPage, Login, Register, DefaultPage } from './pages'
 import { UserPage, Users, User } from './pages/user'
@@ -5,8 +6,9 @@ import { TagPage, Tags, Tag } from './pages/tag'
 
 function AppRoutes() {
   return (
-    <BrowserRouter>
-      <Routes>
+      <Suspense fallback={<div>Loading...</div>}>
+        <BrowserRouter>
+        <Routes>
         <Route path="/" element={<MainPage />}>
           <Route index element={<Tags />} />
           <Route path="users" element={<UserPage />} >
@@ -23,6 +25,7 @@ function AppRoutes() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </Suspense>
   )
 }
 

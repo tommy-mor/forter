@@ -5,7 +5,7 @@ import useSWR from 'swr'
 import { getTagById, getTags, getNextVote } from '../api/tags'
 
 function useTag(tagId) {
-  const { data, error } = useSWR(`tag/${tagId}`, () => getTagById(tagId))
+  const { data, error } = useSWR(`tag/${tagId}`, () => getTagById(tagId), { suspense: true })
 
   return {
     tag: data,
@@ -16,7 +16,7 @@ function useTag(tagId) {
 
 function useTags() {
   const { user } = useLogin()
-  const { data, error, mutate } = useSWR(['tags', user], (_, tags) => getTags(user))
+  const { data, error, mutate } = useSWR(['tags', user], (_, tags) => getTags(user), { suspense: true })
 
   useEffect(mutate, [ user, mutate ])
 
@@ -28,7 +28,7 @@ function useTags() {
 }
 
 function useNextVote(tagId) {
-  const { data, error, mutate } = useSWR(`nextVote`, () => getNextVote(tagId))
+  const { data, error, mutate } = useSWR(`nextVote`, () => getNextVote(tagId), { suspense: true })
 
   function submitVote(val) {
     console.log(`submitting vote with val ${val}`)
