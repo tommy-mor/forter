@@ -5,12 +5,12 @@ import { useTag } from '../../hooks/tags'
 import { useParams, Link as LocalLink, NavLink, Outlet } from 'react-router-dom'
 
 import Paper from '@mui/material/Paper'
+import Button from '@mui/material/Button'
 import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
-import Button from '@mui/material/Button'
 import Slider from '@mui/material/Slider'
 import Stack from '@mui/material/Stack'
 import Accordion from '@mui/material/Accordion'
@@ -43,6 +43,8 @@ const Item = styled(Paper)(({ theme }) => ({
 
 
 function PairwiseVote() {
+  // useVote hook: gives you the next vote depending on who you are,
+  // also lets you submit or pass on a vote with two buttons
   const [level, setLevel] = useState(50) // state of the bar
 
   function onSlide(name) {
@@ -55,6 +57,10 @@ function PairwiseVote() {
             <Item>item2</Item>
           </Stack>
           <Slider defaultValue={level} step={10} marks min={0} max={100} onChange={onSlide} />
+          <Stack direction="row" justifyContent="space-between" spacing={2}>
+            <Button>Vote</Button>
+            <Button>Pass</Button>
+          </Stack>
         </Card>
 }
 
