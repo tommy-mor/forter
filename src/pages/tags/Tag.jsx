@@ -19,6 +19,12 @@ import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
 import { styled } from '@mui/material/styles'
 
 function TagTitle( {name, description, numItems, numVotes, numUsers, creator } ) {
@@ -65,40 +71,59 @@ function PairwiseVote() {
         </Card>
 }
 
-function TagAccordion( { name, items, users }) {
+function TagItemTable({ items }) {
+    return (
+        <TableContainer component={Paper}>
+            <TableHead>
+                <TableCell>Score</TableCell>
+                <TableCell>Votes</TableCell>
+                <TableCell>Name</TableCell>
+            </TableHead>
+            <TableBody>
+            {items.map(({ score, votes, name }) =>
+                <TableRow key={name} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <TableCell> {score} </TableCell>
+                    <TableCell> {votes} </TableCell>
+                    <TableCell> {name} </TableCell>
+                </TableRow>)}
+            </TableBody>
+        </TableContainer>
+    )
+}
+
+function TagAccordion( { title, items, users }) {
     const [curUser, setCurUser] = useState('')
 
     function onUserSelect(e) {
         setCurUser(e.target.value)
     }
 
-     return <Accordion sx={{ margin: '1rem' }}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon/>}
-        >
-          <Typography>Ranking</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
+    const curItems = curUser === '' ? items : items.filter(({ creator }) => creator === curUser)
 
-      <FormControl fullWidth>
-        <InputLabel>User</InputLabel>
-        <Select
-          value={curUser}
-          label="By user"
-          onChange={onUserSelect}
-        >
-          <MenuItem value={''} key={-1}>All Users</MenuItem>
-          {users.map((user, i) =>
-            (<MenuItem value={user} key={i}>{user}</MenuItem>))}
-        </Select>
-      </FormControl>
-          {(curUser === '' ? items : items
-            .filter(({ creator }) => creator === curUser))
-            .map(({ score, votes, name }) =>
-            <div key={name}>{score} {votes} {name}</div>
-          )}
-        </AccordionDetails>
-      </Accordion>
+    return (
+        <Accordion sx={{ margin: '1rem' }}>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon/>}
+            >
+              <Typography>{title}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <FormControl fullWidth>
+                <InputLabel>User</InputLabel>
+                <Select
+                  value={curUser}
+                  label="By user"
+                  onChange={onUserSelect}
+                >
+                  <MenuItem value={''} key={-1}>All Users</MenuItem>
+                  {users.map((user, i) =>
+                    (<MenuItem value={user} key={i}>{user}</MenuItem>))}
+                </Select>
+              </FormControl>
+                <TagItemTable items={curItems} />
+            </AccordionDetails>
+        </Accordion>
+    )
 }
 
 // main tag page
