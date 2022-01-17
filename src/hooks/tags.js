@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
+import { useLogin } from './login'
+
 import useSWR from 'swr'
 import { getTagById, getTags, getNextVote } from '../api/tags'
-import { useLogin } from './login'
 
 function useTag(tagId) {
   const { data, error } = useSWR(`tag/${tagId}`, () => getTagById(tagId))
@@ -12,8 +14,11 @@ function useTag(tagId) {
   }
 }
 
-function useTags(user) {
-  const { data, error } = useSWR(`tags`, () => getTags(user))
+function useTags() {
+  const { user } = useLogin()
+  const { data, error, mutate } = useSWR(['tags', user], (_, tags) => getTags(user))
+
+  useEffect(mutate, [ user, mutate ])
 
   return {
     tags: data,
