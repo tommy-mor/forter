@@ -86,7 +86,9 @@ function TagAccordion( { name, items, users }) {
           value={curUser}
           label="By user"
           onChange={onUserSelect}
-        > {users.map((user, i) =>
+        >
+          <MenuItem value={''} key={-1}>All Users</MenuItem>
+          {users.map((user, i) =>
             (<MenuItem value={user} key={i}>{user}</MenuItem>))}
         </Select>
       </FormControl>
