@@ -1,5 +1,5 @@
 import { fakePromise } from './utils'
-import { Sorter } from 'jorter/api/tags'
+import { Sorter, Tag } from 'jorter/api/tags'
 import { axios_session } from './config'
 
 
@@ -9,8 +9,8 @@ function getTags(user) {
 	return new Sorter().getFrontpageTags(axios_session)
 }
 
-function getTagById(tagid) {
-	return new Sorter().getTagById(axios_session, { tagid })
+function getTagById(id) {
+	return new Tag({id}).get_sorted(axios_session)
 
   return fakePromise({
     id: tagId,

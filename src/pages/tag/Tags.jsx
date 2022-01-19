@@ -18,8 +18,6 @@ export default function Tags() {
 
   if (isLoading) return <div>loading</div>
 
-    console.log(tags);
-
   return (
     <Box>
         <TableContainer component={Paper}>

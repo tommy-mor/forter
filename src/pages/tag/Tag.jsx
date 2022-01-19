@@ -20,8 +20,8 @@ function TagTitle({ name, description, numItems, numVotes, numUsers, creator  })
            <Typography>{description}</Typography>
            <Typography component="div">
              Created by{' '}
-             <Link component={LocalLink} to={`/users/${creator}`} >
-               {creator}
+             <Link component={LocalLink} to={`/users/${creator.name}`} >
+               {creator.name}
              </Link>
            </Typography>
          </Card>
@@ -35,18 +35,25 @@ export default function Tag() {
 
   if (isLoading) return <div>loading</div>
 
-  const { name, description, contributors, votes, items, creator } = tag
+	console.log('tag', tag)
 
-  const numItems = items.ranked.length + items.unranked.length
+	const { tag: {description, title, creator},
+			sorted,
+			votelessitems,
+			votes,
+			users: {users, user} // all users, requested user
+		  } = tag
+
+  const numItems = sorted.length + votelessitems.length
 
   return (
     <Box>
       <TagTitle
-        name={name}
+        name={title}
         description={description}
         numItems={numItems}
         numVotes={votes.length}
-        numUsers={contributors.length}
+        numUsers={users.length}
         creator={creator}
       />
 
@@ -54,15 +61,15 @@ export default function Tag() {
 
       {/* TODO: only show if user can vote */}
       {!loggedOut && <PairwiseVote />}
-        {items.ranked && <TagAccordion
+        {sorted && <TagAccordion
           title="Ranked Items"
-          items={items.ranked}
-          users={contributors}
+          items={sorted}
+          users={users}
         />}
-        {items.unranked && <TagAccordion
+        {votelessitems && <TagAccordion
           title="Unranked Items"
-          items={items.unranked}
-          users={contributors}
+          items={votelessitems}
+          users={users}
         />}
     </Box>
   )
