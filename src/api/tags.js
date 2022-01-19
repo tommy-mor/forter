@@ -9,8 +9,8 @@ function getTags(user) {
 	return new Sorter().getFrontpageTags(axios_session)
 }
 
-function getTagById(tagId) {
-	return new Sorter().getTagById(axios_session)
+function getTagById(tagid) {
+	return new Sorter().getTagById(axios_session, { tagid })
 
   return fakePromise({
     id: tagId,

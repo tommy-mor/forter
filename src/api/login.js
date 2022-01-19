@@ -1,18 +1,19 @@
 // import { fakePromise } from './utils'
 
+import { Sorter } from 'jorter/api/tags'
+import { axios_session } from './config'
+
 const sessionToken = 0
 const SORTER_LOGIN_TOKEN = 'sorter-login-token'
 
 // add session cookie
 function login(username, password) {
-  console.log("logging in")
-  document.cookie = `${SORTER_LOGIN_TOKEN}=${sessionToken};`
+	return axios_session.post('api/users/login', {username, password})
 }
 
 // expire session cookie
 function logout() {
-  console.log("logging out")
-  document.cookie = `${SORTER_LOGIN_TOKEN}=; expires=Thu, 01 Jan 1970 00:00:01 GMT;`
+	console.log('logging out')
 }
 
 // add session cookie with username and password
