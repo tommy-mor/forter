@@ -26,7 +26,7 @@ async function getUser() {
 
   await new Promise(res => setTimeout(res, 500))
   if (document.cookie.includes(`${SORTER_LOGIN_TOKEN}=${sessionToken}`)) {
-      // authorized
+    // authorized
     return {
       name: "Shu",
       avatar: "https://github.com/shuding.png"
@@ -34,9 +34,8 @@ async function getUser() {
   }
 
   // not authorized
-  const error = new Error("Not authorized!")
-  error.status = 403
-  throw error
+  // should probably be real error
+  return "error"
 }
 
 export { login, logout, register, getUser }
