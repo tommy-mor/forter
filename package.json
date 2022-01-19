@@ -16,7 +16,8 @@
     "react-hook-form": "^7.23.0",
     "react-router-dom": "^6.2.1",
     "swr": "^1.1.2",
-    "web-vitals": "^2.1.3"
+    "web-vitals": "^2.1.3",
+	"jorter":"git+ssh://git@github.com/tommy-mor/jorter.git#master"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "1.1.4",

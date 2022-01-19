@@ -1,50 +1,17 @@
 import { fakePromise } from './utils'
+import { Sorter } from 'jorter/api/tags'
+import { axios_session } from './config'
+
 
 
 function getTags(user) {
-  // if the user is logged in, get their secret tags
-  if (user) {
-    return fakePromise([{
-      id: "a",
-      name: "a",
-      votes: 100,
-      items: 200,
-      creator: "tommy",
-    },
-    {
-      id: "b",
-      name: "b",
-      votes: 3,
-      items: 50,
-      creator: "jake"
-    },
-    {
-      id: "c",
-      name: "secret",
-      votes: 3,
-      items: 50,
-      creator: "jake"
-    }
-    ])
-  }
-  return fakePromise([{
-    id: "a",
-    name: "a",
-    votes: 100,
-    items: 200,
-    creator: "tommy",
-  },
-  {
-    id: "b",
-    name: "b",
-    votes: 3,
-    items: 50,
-    creator: "jake"
-  }
-  ])
+	// if the user is logged in, get their secret tags
+	return new Sorter().getFrontpageTags(axios_session)
 }
 
 function getTagById(tagId) {
+	return new Sorter().getTagById(axios_session)
+
   return fakePromise({
     id: tagId,
     name: tagId,

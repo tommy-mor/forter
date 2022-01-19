@@ -1,3 +1,6 @@
 node_modules/
 .direnv/*
 !.direnv/.git-keep
+src/gen
+public/js
+.shadow-cljs/

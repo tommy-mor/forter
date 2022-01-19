@@ -24,7 +24,7 @@ export default function Main() {
                 <Toolbar>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         <Link component={LocalLink} to="/" >
-                        Sorter
+                        sorter
                         </Link>
                     </Typography>
                     <Link component={NavLink} to="/users" >

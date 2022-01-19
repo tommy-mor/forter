@@ -15,7 +15,10 @@ import Paper from '@mui/material/Paper'
 export default function Tags() {
   const { tags, isLoading } = useTags()
 
+
   if (isLoading) return <div>loading</div>
+
+    console.log(tags);
 
   return (
     <Box>
@@ -30,7 +33,7 @@ export default function Tags() {
                 </TableRow>
             </TableHead>
             <TableBody>
-                {tags.map(({id, name, votes, items, creator}) => (
+                {tags.map(({json: {id, title, votes, items, user}}) => (
                     <TableRow
                         key={id}
                         >
@@ -38,12 +41,12 @@ export default function Tags() {
                         <TableCell>{items}</TableCell>
                         <TableCell>
                             <Link to={`/tags/view/${id}`} >
-                              <Typography>{name}</Typography>
+                              <Typography>{title}</Typography>
                             </Link>
                         </TableCell>
                         <TableCell>
-                            <Link to={`/users/${creator}`} >
-                              <Typography>{creator}</Typography>
+                            <Link to={`/users/${user.username}`} >
+                              <Typography>{user.username}</Typography>
                             </Link>
                         </TableCell>
                     </TableRow>
