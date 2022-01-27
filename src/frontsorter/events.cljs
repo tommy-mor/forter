@@ -12,35 +12,54 @@
  (fn [db _] default-db))
 
 
+(defn http-effect [m]
+  {:http-xhrio (merge (when (= :post (:method m))
+                        {:format (ajax/json-request-format)})
+                      {:response-format (ajax/json-response-format {:keywords? true})
+                       :on-failure [:failed-http-req]}
+                      (if (:dont-rehydrate m)
+                        m
+                        (assoc-in m [:params :rehydrate] true)))})
+
+
 (reg-event-fx
- :handler-with-http
- (fn [{:keys [db]} _]
-   {:db (assoc db :show-twirly true)
-    :http-xhrio {:method :get
-                 :uri "http://localhost:8080/api/tags/7ad13fcc-02a4-46cc-a45e-a5193c37e811"
-                 :timeout 8000
-                 :response-format (ajax/json-response-format {:keywords? true})
-                 :on-success [:good-http-result]
-                 :on-failure [:bad-http-result]
-                 }}))
+ :refresh-state
+ (fn [{:keys [db]} [_ params]]
+   (http-effect {:method :get
+                 :uri (str "/api/tags/" js/tag "/sorted")
+                 :params params
+                 :on-success [:handle-refresh (select-keys db [:left :right])]
+                 :dont-rehydrate true})))
+
+(reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep)))
+
 
 ;; ui events
-
-(reg-event-db
- :good-http-result
- (fn [db [_ result]]
-   (println "success result" result)
-   (assoc db :success-http-result result)))
 
 (reg-event-db
  :slide
  (fn [db [_ new-perc]]
    (assoc db :percent new-perc)))
 
-(reg-event-db
+(reg-event-fx
  :vote
- (fn [db _]
-   (println "todo")))
+ (fn [{:keys [db]} _]
+   (http-effect {:method :post
+                 :uri (str "/api/votes")
+                 :params {:tagid (-> db :tag :id)
+                          :left (-> db :left :id)
+                          :right (-> db :right :id)
+                          :mag (-> db :percent)}
+                 :on-success [:handle-refresh]}))) 
+
+(reg-event-fx
+ :user-selected
+ (fn [{:keys [db]}
+      [_ new-user]]
+   {:db (assoc-in db [:users :user] new-user)
+    :dispatch [:refresh-state (case new-user
+                                "all users" nil
+                                {:username new-user})]}))
 
 
 

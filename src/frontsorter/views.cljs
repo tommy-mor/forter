@@ -75,17 +75,15 @@
    [:td {:key 2} (:votecount item)]
    [:td {:key 3} (:name item)]])
 
-(defn only-users [a]
-  (println "todo" a))
-
-(defn sortedlist []
-  (let [size @(subscribe [:sorted-count])
-        sorted @(subscribe [:sorted])
+(defn sortedlist [sorted sorted-count]
+  (let [size @(subscribe [sorted-count])
+        sorted @(subscribe [sorted])
         all-users @(subscribe [:all-users])
         selected-user @(subscribe [:selected-user])]
+    
     [:div "by user "
      [:form {:autoComplete "off"}
-      [:select {:on-change #(only-users (.. % -target -value))
+      [:select {:on-change #(dispatch [:user-selected (.. % -target -value)])
                 :value selected-user
                 :autoComplete "nope"}  
        [:option {:value "all users"} "all users combined"]
@@ -110,7 +108,7 @@
 
      [tag-info]
      
-     (when (:add_items show)
+     (when (:add_items show) ;; TODO convert everything reading show dict to be a sub
        [c/collapsible-cage
         true
         "ADD"
@@ -123,15 +121,15 @@
        [c/collapsible-cage
         true
         "RANKING"
-        [sortedlist]])
+        [sortedlist :sorted :sorted-count]])
      
-     #_ (when @(subscribe [:unraked-not-empty])
+     (when @(subscribe [:unsorted-not-empty])
           [c/collapsible-cage
            true
            "UNRANKED ITEMS"
-           [ranklist badlist]])
+           [sortedlist :unsorted :unsorted-count]])
      
-     #_(when (:vote_edit show)
+     (when (:vote_edit show)
          [c/collapsible-cage
           false
           (str "MY VOTES (" (count @votes) ")")
