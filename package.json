@@ -8,6 +8,7 @@
     "shadow-cljs": "^2.12.1"
   },
   "dependencies": {
+    "jorter": "git+ssh://git@github.com/tommy-mor/jorter.git#master",
     "react": "17.0.1",
     "react-dom": "17.0.1"
   }

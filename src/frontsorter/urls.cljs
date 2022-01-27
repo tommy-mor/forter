@@ -1,4 +1,5 @@
-(ns frontsorter.urls)
+(ns frontsorter.urls
+  (:require ["jorter" :as j]))
 
 (defn sendstr [score]
   (let [left (:id (:left score))
@@ -27,3 +28,6 @@
 (defn tagitem [itemid] (str "/t/" js/tag "/" itemid))
 
 (defn tag [tagid] (str "/t/" tagid))
+
+;; SUCCESS we imported. now to translate entire thing to re-frame, cause I want all the model code in a different file anyway...
+(defn sss [uhh] j)
