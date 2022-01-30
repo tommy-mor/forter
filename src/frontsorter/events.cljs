@@ -53,7 +53,7 @@
                  :on-success [:handle-refresh (select-keys db [:left :right])]
                  :dont-rehydrate true})))
 
-(reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep)))
+(reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep {:errors []})))
 
 
 ;; ui events
@@ -102,9 +102,7 @@
                  :params (assoc item :tagid js/tagid)
                  :on-success [:handle-refresh]})))
 
-(def other 3)
-
-(defn dispatch [query-kw-str rest callback]
+(defn dispatch [query-kw-str rest]
   (re-frame.core/dispatch
-   (into [(keyword query-kw-str)] (js->clj rest :keywordize-keys true)))
-  (callback))
+   (into [(keyword query-kw-str)]
+         (js->clj rest :keywordize-keys true))))

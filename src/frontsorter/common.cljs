@@ -64,10 +64,10 @@
      (when (:url format)
        [url-displayer side])
      (when (:paragraph format)
-       [:fragment 
+       [:<> 
         [:br]
         [:pre {:style {:color "red"
-                       :white-space "pre-line"}} (:paragraph item)]])]))
+                       :white-space "pre-line"}} (:paragraph (:content item))]])]))
 
 (defn smallbutton [text fn & [style]]
   [:a {:on-click fn :style style :class "sideeffect" :href "#"} text])
@@ -126,7 +126,7 @@
     [:input.slider {:type "range" :value percent :min 0 :max 100
                     :on-change (fn [e]
                                  (let [new-value (js/parseInt (.. e -target -value))]
-                                   (dispatch-sync [:slide new-value])))}]))
+                                   (dispatch [:slide new-value])))}]))
 
 
 (defn button [text event & {:keys [class] :or {class "button"}}]

@@ -196,10 +196,10 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
   return (
     <div>
 		{inputList.map((inputName) => (
-        <Fragment key={inputName}>
+        <div key={inputName}>
           {inputElements[inputName]}
           <br/>
-        </Fragment>
+        </div>
       ))}
 		{(isDummy || editItem) ? null : <input type="submit" value="add item" onClick={handleSubmitItem} />}
 		{editItem ? <Fragment>
