@@ -1,7 +1,8 @@
 (ns frontsorter.events
   (:require
    [frontsorter.db :refer [default-db]]
-   [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx path after]]
+   [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx path after
+                          reg-fx]]
    [cljs.spec.alpha :as s]
    [ajax.core :as ajax]))
 
@@ -10,6 +11,21 @@
  :init-db
  ;; TODO add spec checking here
  (fn [db _] default-db))
+
+(reg-event-fx :failed-http-req
+              (fn [{:keys [db]} [_ result]]
+                (js/console.log result)
+                {:db (case (:status result)
+                       500 (assoc db :errors ["internal server error"])
+                           (assoc db :errors (:errors (:response result))))
+                 :delayed [:clear-errors]}))
+
+
+(reg-fx :delayed (fn [event]
+                   (js/setTimeout
+                    #(re-frame.core/dispatch event)
+                    3000)))
+(reg-event-db :clear-errors #(assoc % :errors []))
 
 
 (defn http-effect [m]
@@ -78,3 +94,17 @@
 
 
 
+(reg-event-fx
+ :add-item
+ (fn [{:keys [db]} [_ item]]
+   (http-effect {:method :post
+                 :uri "/api/items"
+                 :params (assoc item :tagid js/tagid)
+                 :on-success [:handle-refresh]})))
+
+(def other 3)
+
+(defn dispatch [query-kw-str rest callback]
+  (re-frame.core/dispatch
+   (into [(keyword query-kw-str)] (js->clj rest :keywordize-keys true)))
+  (callback))

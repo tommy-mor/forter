@@ -74,3 +74,5 @@
 
 (reg-sub :idtoname :<- [:sorted] #(into {} (map (juxt :id :name) %)))
 
+(reg-sub :errors #(or (:errors %) []))
+

@@ -93,12 +93,20 @@
                        [:td [c/smallbutton "delete" #(dispatch [:delete (:id i)])]])])
                   votes)))]])
 
+(defn errors []
+  (let [errors @(subscribe [:errors])]
+    [:div {:style {:color "red"}}
+     (doall
+      (for [error errors]
+        [:pre error]))]))
+
 
 (defn tag-page []
   (let [show @(subscribe [:show])]
     [:div
      
 
+     [errors]
      [tag-info]
      
      (when (:add_items show) ;; TODO convert everything reading show dict to be a sub

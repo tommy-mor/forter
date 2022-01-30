@@ -21,9 +21,6 @@ async function postData(url = {}, data = {}) {
 }
 
 export default function App() {
-	console.log('settings2')
-	console.log(settings)
-
 	return (
     <div className="App">
 		<TagCreator initstate={settings}/>
@@ -69,12 +66,13 @@ function TagCreator({initstate}) {
   };
 
   const handleSubmit = async () => {
-    data = {
-      title: title,
-      description: description,
-		  permissions: {perms: permissions, users: listOfUsers},
-      format: { ...format, url: format.url ? urlFormat : false }
-    };
+	  data = {title: title,
+			  description: description,
+			  permissions: {perms: permissions, users: listOfUsers},
+			  format: {...format,
+					   url: format.url ? urlFormat : false }
+			 };
+
 	  if(initstate["editing"]) {
 		  // tagid is global set by server in <script> tag
 		  data.tag_id = tagid;
@@ -155,17 +153,18 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
 
 	const handleSubmitItem = (event) => {
 		event.preventDefault() //otherwise it refreshes page?
-		frontsorter.core.add_item(form, ()=>setForm({}))
+		frontsorter.events.dispatch("add-item", [form], ()=>setForm({}))
+		//frontsorter.core.add_item(form, ()=>setForm({}))
 	}
 
 	const handleEditItem = (event) => {
 		event.preventDefault(); //otherwise it refreshes page?
-		frontsorter.item.edit_item(form, editCallback);
+		//frontsorter.item.edit_item(form, editCallback);
 	}
 
 	const handleDeleteItem = (event) => {
 		event.preventDefault(); //otherwise it refreshes page?
-		frontsorter.item.delete_item();
+		//frontsorter.item.delete_item();
 	}
 
   const inputElements = {
