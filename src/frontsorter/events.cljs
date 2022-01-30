@@ -25,6 +25,7 @@
                    (js/setTimeout
                     #(re-frame.core/dispatch event)
                     3000)))
+;; TODO make this only clear the correct error
 (reg-event-db :clear-errors #(assoc % :errors []))
 
 
@@ -54,6 +55,9 @@
                  :dont-rehydrate true})))
 
 (reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep {:errors []})))
+(reg-event-db :handle-refresh-callback (fn [db [_ callback result]]
+                                         (callback)
+                                         (merge db result {:errors []})))
 
 
 ;; ui events
@@ -96,13 +100,16 @@
 
 (reg-event-fx
  :add-item
- (fn [{:keys [db]} [_ item]]
+ (fn [{:keys [db]} [_ item callback]]
    (http-effect {:method :post
                  :uri "/api/items"
                  :params (assoc item :tagid js/tagid)
-                 :on-success [:handle-refresh]})))
+                 :on-success [:handle-refresh-callback callback]})))
 
 (defn dispatch [query-kw-str rest]
   (re-frame.core/dispatch
    (into [(keyword query-kw-str)]
          (js->clj rest :keywordize-keys true))))
+
+(defn ^:export add_item [item callback]
+  (re-frame.core/dispatch [:add-item (js->clj item :keywordize-keys true) callback]))

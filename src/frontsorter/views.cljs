@@ -8,7 +8,11 @@
 (defn addpanel []
   (let [fields (c/fields-from-format
                 @(subscribe [:format]))]
-    [:> foo/ItemCreator {:inputList fields}]))
+    (let [creator
+          [:> foo/ItemCreator {:inputList fields}]
+          ]
+      (js/console.log creator)
+      creator)))
 
 
 (defn tag-info []
