@@ -1,14 +1,10 @@
 /* eslint-disable */
 import React, { useState, useEffect, Fragment } from "react";
 
-async function postData(url = "", data = {}) {
+async function postData(url = {}, data = {}) {
 	// Default options are marked with *
-	console.log('form data')
-	console.log(data);
-	console.log('url')
-	console.log(url)
-  const response = await fetch(url, {
-    method: "POST", // *GET, POST, PUT, DELETE, etc.
+  const response = await fetch(url.url, {
+    method: url.method, // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     credentials: "same-origin", // include, *same-origin, omit
@@ -21,9 +17,7 @@ async function postData(url = "", data = {}) {
     body: JSON.stringify(data) // body data type must match "Content-Type" header
   })
 	const json = await response.json()
-	console.log('response')
-	console.log(json)
-	window.location.href = json.new_tag_url
+	return json
 }
 
 export default function App() {
@@ -65,14 +59,16 @@ function TagCreator({initstate}) {
 	  );
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
 	  if(confirm('delete this tag?')) {
-		  window.location.href = initstate["deleteurl"]
-		  //postData(initstate["deleteurl"], tagid);
+		  const data = await postData(initstate["deleteurl"], {})
+		  if (data) {
+			  window.location.href = "/"
+		  }
 	  }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     data = {
       title: title,
       description: description,
@@ -83,7 +79,9 @@ function TagCreator({initstate}) {
 		  // tagid is global set by server in <script> tag
 		  data.tag_id = tagid;
 	  }
-      postData(initstate["submiturl"], data);
+      const json = await postData(initstate["submiturl"], data);
+	  window.location.href = `/t/${json.id}`
+
   };
 
   // this is weird IDK what else to do

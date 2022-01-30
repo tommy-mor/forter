@@ -14,12 +14,12 @@
 (defn tag-info []
   (let [{:keys [title description
                 numusers numitems numvotes
-                creator]}
-        @(subscribe [:tag])]
+                creator]} @(subscribe [:tag])
+        {:keys [edit_tag]} @(subscribe [:show])]
     [c/editable-link
      "TAG"
-     true
-     "uhhhhh???"
+     edit_tag
+     (str "/t/" js/tagid "/edit")
      [:div {:style {:padding-left "10px"}}
       
       [:h1 title]
@@ -31,14 +31,6 @@
       [:b numvotes] " votes by " [:b numusers] " users"
       ;; TODO make this use correct plurality/inflection
       ]]))
-
-;; TODO replace with subscription/query
-#_(defn idtoname [itemid rank]
-  (let [a (filter (fn [i]
-                    (= (:id i) itemid)) rank)]
-    (:name (first a))))
-
-
 
 (defn item [item]
   [c/hoveritem ^{:key (:id item)} {:on-click #(let [url "https://google.com"]
@@ -83,8 +75,6 @@
 
 (defn votelist []
 
-  ;;(js/console.log "votes")
-  ;;(js/console.log (clj->js  @votes))
   [:table
    [:thead
     [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
@@ -137,7 +127,4 @@
         false
         (str "MY VOTES (" @(subscribe [:votes-count]) ")")
         [votelist]])]))
-
-
-
 

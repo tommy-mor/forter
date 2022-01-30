@@ -22,7 +22,7 @@
                         m
                         (-> m
                             (assoc-in [:params :rehydrate] true)
-                            (assoc-in [:params :tagid] js/tag)))
+                            (assoc-in [:params :tagid] js/tagid)))
 
                       {:response-format (ajax/json-response-format {:keywords? true})
                        :on-failure [:failed-http-req]})})
@@ -32,7 +32,7 @@
  :refresh-state
  (fn [{:keys [db]} [_ params]]
    (http-effect {:method :get
-                 :uri (str "/api/tags/" js/tag "/sorted")
+                 :uri (str "/api/tags/" js/tagid "/sorted")
                  :params params
                  :on-success [:handle-refresh (select-keys db [:left :right])]
                  :dont-rehydrate true})))

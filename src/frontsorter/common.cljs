@@ -93,11 +93,8 @@
        [:div.cagetitle title
         (if is-editable
           [:div.rightcorner {:on-click #(reset! edit true)} "edit"])]
-       (if @edit
-         [edit-body edit]
-         body)
-       ;; TODO get real user here
-       ])))
+       
+       (if @edit [edit-body edit] body)])))
 
 (defn editable-link [title is-editable url body]
   [:div.cageparent
