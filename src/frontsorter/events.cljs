@@ -13,13 +13,19 @@
 
 
 (defn http-effect [m]
-  {:http-xhrio (merge (when (= :post (:method m))
+  {:http-xhrio (merge (when (or
+                             (= :post (:method m))
+                             (= :delete (:method m)))
                         {:format (ajax/json-request-format)})
-                      {:response-format (ajax/json-response-format {:keywords? true})
-                       :on-failure [:failed-http-req]}
+
                       (if (:dont-rehydrate m)
                         m
-                        (assoc-in m [:params :rehydrate] true)))})
+                        (-> m
+                            (assoc-in [:params :rehydrate] true)
+                            (assoc-in [:params :tagid] js/tag)))
+
+                      {:response-format (ajax/json-response-format {:keywords? true})
+                       :on-failure [:failed-http-req]})})
 
 
 (reg-event-fx
@@ -44,13 +50,15 @@
 (reg-event-fx
  :vote
  (fn [{:keys [db]} _]
-   (http-effect {:method :post
-                 :uri (str "/api/votes")
-                 :params {:tagid (-> db :tag :id)
-                          :left (-> db :left :id)
-                          :right (-> db :right :id)
-                          :mag (-> db :percent)}
-                 :on-success [:handle-refresh]}))) 
+   (merge (http-effect {:method :post
+                        :uri (str "/api/votes")
+                        :params {:tagid (-> db :tag :id)
+                                 :left (-> db :left :id)
+                                 :right (-> db :right :id)
+                                 :mag (-> db :percent)}
+                        :on-success [:handle-refresh]})
+
+          {:db (assoc db :percent 50)}))) 
 
 (reg-event-fx
  :user-selected
@@ -60,6 +68,13 @@
     :dispatch [:refresh-state (case new-user
                                 "all users" nil
                                 {:username new-user})]}))
+
+(reg-event-fx
+ :delete
+ (fn [{:keys [db]} [_ voteid]]
+   (http-effect {:method :delete
+                 :uri (str "/api/votes/" voteid)
+                 :on-success [:handle-refresh]})))
 
 
 

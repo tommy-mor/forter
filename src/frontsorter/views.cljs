@@ -100,7 +100,7 @@
                      [:td (idtoname (:item_b i))]
                      [:td (:magnitude i)]
                      (if (:vote_edit @(subscribe [:show]))
-                       [:td [c/smallbutton "delete" #(println (:id i))]])])
+                       [:td [c/smallbutton "delete" #(dispatch [:delete (:id i)])]])])
                   votes)))]])
 
 
