@@ -40,25 +40,6 @@
 
 
 
-;; (defn votelist [votes]
-  
-;;   ;;(js/console.log "votes")
-;;   ;;(js/console.log (clj->js  @votes))
-;;   [:table
-;;    [:thead
-;;     [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
-;;    [:tbody
-    
-;;     (doall (map (fn [i]
-;;                   [:tr
-;;                    {:key (:id i)}
-;;                    [:td (idtoname (:item_a i))]
-;;                    [:td (- 100 (:magnitude i))]
-;;                    [:td (idtoname (:item_b i))]
-;;                    [:td (:magnitude i)]
-;;                    (if (:vote_edit show)
-;;                      [:td [c/smallbutton "delete" #(delvote (:id i))]])]) @votes))]])
-
 (defn item [item]
   [c/hoveritem ^{:key (:id item)} {:on-click #(let [url "https://google.com"]
                                                 (set! js/window.location.href url))
@@ -100,6 +81,28 @@
           (let [item-i (assoc item-i :key (:id item-i))]
             [item item-i])))]]]))
 
+(defn votelist []
+
+  ;;(js/console.log "votes")
+  ;;(js/console.log (clj->js  @votes))
+  [:table
+   [:thead
+    [:tr [:th "left"] [:th "pts"] [:th "right"] [:th "pts"]]]
+   [:tbody
+    (let [idtoname @(subscribe [:idtoname])
+          votes @(subscribe [:votes])]
+      
+      (doall (map (fn [i]
+                    [:tr
+                     {:key (:id i)}
+                     [:td (idtoname (:item_a i))]
+                     [:td (- 100 (:magnitude i))]
+                     [:td (idtoname (:item_b i))]
+                     [:td (:magnitude i)]
+                     (if (:vote_edit @(subscribe [:show]))
+                       [:td [c/smallbutton "delete" #(println (:id i))]])])
+                  votes)))]])
+
 
 (defn tag-page []
   (let [show @(subscribe [:show])]
@@ -130,10 +133,10 @@
            [sortedlist :unsorted :unsorted-count]])
      
      (when (:vote_edit show)
-         [c/collapsible-cage
-          false
-          (str "MY VOTES (" (count @votes) ")")
-          [votelist votes]])]))
+       [c/collapsible-cage
+        false
+        (str "MY VOTES (" @(subscribe [:votes-count]) ")")
+        [votelist]])]))
 
 
 
