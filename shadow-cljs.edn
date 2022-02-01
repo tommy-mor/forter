@@ -9,13 +9,18 @@
                       :output-dir "public/js"
                       :asset-path "/js"
                       :module-loader true
-                      :modules    {:shared {:entries [frontsorter.common]}
-                                   :spotify {:entries [frontsorter.spotify] :depends-on #{:shared}}
-                                   :item {:entries [frontsorter.item] :depends-on #{:shared}}
-                                   
-                                   :app {:entries [frontsorter.core]  :depends-on #{:shared}}
-                                   ;; :tag
-                                   ;; {:entries [frontsorter.tag] :depends-on #{:shared}}
+                      :modules    {:shared
+                                   {:entries [frontsorter.common]}
+                                   :spotify
+                                   {:entries [frontsorter.spotify] :depends-on #{:shared}}
+                                   :item
+                                   {:entries [frontsorter.item] :depends-on #{:shared}}
+                                   :create-tag
+                                   {:entries [frontsorter.tagform.create] :depends-on #{:shared}}
+                                   :edit-tag
+                                   {:entries [frontsorter.tagform.edit] :depends-on #{:shared}}
+                                   :app
+                                   {:entries [frontsorter.tag]  :depends-on #{:shared}}
                                    }
                       :devtools   {:after-load frontsorter.item/mount-root}}}
 

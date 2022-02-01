@@ -8,11 +8,7 @@
 (defn addpanel []
   (let [fields (c/fields-from-format
                 @(subscribe [:format]))]
-    (let [creator
-          [:> foo/ItemCreator {:inputList fields}]
-          ]
-      (js/console.log creator)
-      creator)))
+    [:> foo/ItemCreator {:inputList fields}]))
 
 
 (defn tag-info []
@@ -37,7 +33,7 @@
       ]]))
 
 (defn item [item]
-  [c/hoveritem ^{:key (:id item)} {:on-click #(let [url "https://google.com"]
+  [c/hoveritem ^{:key (:id item)} {:on-click #(let [url (str "/t/" js/tagid "/" (:id item))]
                                                 (set! js/window.location.href url))
                                    :key (:id item)}
    

@@ -42,13 +42,13 @@
       [:div {:style {:padding-bottom "56.25%"
                      :position "relative"
                      :width "100%"
-                     :height 0}}[:iframe {:src embedurl :style {:height "100%"
-                                                                :width "100%"
-                                                                :position "absolute"
-                                                                :top 0
-                                                                :left 0
-                                                                }
-                                          :allow-full-screen true}]]
+                     :height 0}} [:iframe {:src embedurl :style {:height "100%"
+                                                                 :width "100%"
+                                                                 :position "absolute"
+                                                                 :top 0
+                                                                 :left 0
+                                                                 }
+                                           :allow-full-screen true}]]
       ((keyword "spotify") format) [spotify-player embedurl]
       
       true [:span "unknown format"])))
@@ -57,7 +57,7 @@
   (let [format @(subscribe [:format])
         item @(subscribe [:item side])]
     [:div 
-     {:class (case side :right "rightitem" :left "leftitem")
+     {:class (case side :right "rightitem" :left "leftitem" "leftitem")
       :style {:transform (str "translateY(-" @(subscribe [:side-height side]) "px)")}}
      (when (:name format)
        [:h1 {:style {:margin-bottom "4px"}} (:name item)])
@@ -126,14 +126,23 @@
     [:input.slider {:type "range" :value percent :min 0 :max 100
                     :on-change (fn [e]
                                  (let [new-value (js/parseInt (.. e -target -value))]
-                                   (dispatch [:slide new-value])))}]))
+                                   (dispatch-sync [:slide new-value])
+                                   ;; if this doesn't work again, make it 
+                                   ))}]))
+(defn calcmag [vote leftid]
+  (if (not vote)
+    [50 50]
+    (let [mag (if (= (:item_a vote) leftid)
+                (- 100 (:magnitude vote))
+                (:magnitude vote))
+          mag2 (- 100 mag)]
+      [mag mag2])))
 
 
 (defn button [text event & {:keys [class] :or {class "button"}}]
   [:div {:class (str "button " class) :on-click #(dispatch [event])} text])
 
-
-(defn pairvoter []
+(defn pairvoter [& {:keys [cancelevent]}]
   (let []
     
     [collapsible-cage true "VOTE"
@@ -147,7 +156,6 @@
       
       [button "submit" :vote]
       
-      (comment
-        (when cancelfn
-          [button "cancel" cancelfn :class "cancelbutton"]))]]))
+      (when cancelevent
+        [button "cancel" :cancelvote :class "cancelbutton"])]]))
 

@@ -1,6 +1,5 @@
 (ns frontsorter.events
   (:require
-   [frontsorter.db :refer [default-db]]
    [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx path after
                           reg-fx]]
    [cljs.spec.alpha :as s]
@@ -10,14 +9,14 @@
 (reg-event-db
  :init-db
  ;; TODO add spec checking here
- (fn [db _] default-db))
+ (fn [db _] (assoc (js->clj js/init :keywordize-keys true)
+                   :percent 50)))
 
 (reg-event-fx :failed-http-req
               (fn [{:keys [db]} [_ result]]
-                (js/console.log result)
                 {:db (case (:status result)
                        500 (assoc db :errors ["internal server error"])
-                           (assoc db :errors (:errors (:response result))))
+                       (assoc db :errors (:errors (:response result))))
                  :delayed [:clear-errors]}))
 
 
@@ -113,3 +112,24 @@
 
 (defn ^:export add_item [item callback]
   (re-frame.core/dispatch [:add-item (js->clj item :keywordize-keys true) callback]))
+
+
+;; for item page
+(reg-event-db
+ :voteonpair
+ (fn [db [_ vote leftitem rightitem]]
+   (-> db
+       (assoc :left leftitem
+              :right rightitem
+              :percent (second
+                        (frontsorter.common/calcmag vote (:id leftitem))))
+       (dissoc :item))))
+
+(reg-event-db
+ :cancelvote
+ (fn [db _]
+   (-> db
+       (assoc :item (:left db))
+       (dissoc :left :right :percent))))
+
+

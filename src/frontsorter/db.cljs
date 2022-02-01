@@ -7,9 +7,7 @@
 (s/def ::db (s/keys :req
                     [::tag ::item ::sorted ::votes ::show ::users]))
 
-(def default-db (assoc
-                 (js->clj js/init :keywordize-keys true)
-                 :percent 50))
+(def default-db nil)
 
 
 

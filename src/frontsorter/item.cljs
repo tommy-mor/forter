@@ -1,55 +1,18 @@
 (ns frontsorter.item
-  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
-   [cljs-http.client :as http]
-   [cljs.core.async :refer [<!]]
-   [reagent.core :as r]
    [reagent.dom :as d]
+   [re-frame.core :as rf :refer [dispatch dispatch-sync subscribe]]
+   [day8.re-frame.http-fx]
+   [frontsorter.views :as views]
+   [frontsorter.events]
    [frontsorter.common :as c]
-   [frontsorter.urls :as url]
-   ["./../tagpage/CreateTagPage" :as foo]))
+   [frontsorter.subs]))
 
-(def tag (r/atom {}))
+(dispatch-sync [:init-db])
 
-(def item (r/atom {}))
-
-(def sorted (r/atom []))
-
-(def votes (r/atom {}))
-
-(def score (r/atom nil))
-
-(def show (r/atom nil))
-
-
-(defn handleresponse [response]
-  (if (:success response)
-    (let [body (:body response)]
-      (do
-        ;; question, does this rerender the body four times?
-        (reset! tag (:tag body))
-        (reset! item (:item body))
-        (reset! sorted (:sorted body))
-        (reset! votes (:votes body))
-        (reset! show (:show body))))))
-
-(defn initdata []
-  (handleresponse {:body (js->clj js/init :keywordize-keys true)
-                   :success
-                   true}))
-
-(defn sendvote []
-  (go (let [url (url/sendstr @score)
-            response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
-        (handleresponse response)
-        (reset! score nil))))
-
-(defn delvote [vid]
-  (go (let [url (url/delvotestr vid)
-            response (<! (http/post url {:form-params {:itemid (:id @item)}}))]
-        (handleresponse response))))
 
 ;; only called from js
+;; TODO move these
 (defn edit-item [newstate callback]
   (let [newstate (js->clj newstate :keywordize-keys true)]
     (go (let [url (url/edititemstr (:id @item))
@@ -64,47 +27,40 @@
 
 ;; views --
 
-(defn back [tag]
-  [:a {:href (str "/t/" (:id tag))} " << " (:title tag)])
+(defn back []
+  (let [tag @(subscribe [:tag])]
+    [:a {:href (str "/t/" (:id tag))} " << " (:title tag)]))
 
 (defn item-edit [show]
-  (let [callback (fn []
+  #_(let [callback (fn []
                    (reset! show false))]
     [:> foo/ItemCreator {:inputList (c/fields-from-format (-> @tag :settings :format))
                          :editItem @item
-                         :editCallback callback}]))
+                         :editCallback callback}])
+  [:h1 "hi"])
 
 (defn itemv []
-  [c/editable
+  #_[c/editable
    nil
    (:edit_item @show) ;; TODO
    item-edit
-   [c/itemview (:format (:settings @tag)) @item 10 false (:type (:settings @tag))]])
+     [c/itemview (:format (:settings @tag)) @item 10 false (:type (:settings @tag))]]
+  [c/editable
+   nil
+   (:edit_item @(subscribe [:show]))
+   item-edit
+   [c/itemview :item]])
 
-(defn calcmag [vote leftid]
-  (if (not vote)
-    [50 50]
-    (let [mag (if (= (:item_a vote) leftid)
-                (- 100 (:magnitude vote))
-                (:magnitude vote))
-          mag2 (- 100 mag)]
-      [mag mag2])))
-
-(defn voteonpair [vote leftitem rightitem]
-  (reset! score
-          {:percent (second (calcmag vote (:id leftitem)))
-           :left leftitem :right rightitem} ))
-
-(defn votepanel [rowitem ignoreitem]
-  (let [vote (get @votes (keyword (:id rowitem)))
-        [mag mag2] (calcmag vote (:id rowitem))
+(defn votepanel [rowitem]
+  (let [vote @(subscribe [:vote-on rowitem])
+        [mag mag2] (c/calcmag vote (:id rowitem))
+        ignoreitem @(subscribe [:item :item])
         editfn (fn [e]
                  (.stopPropagation e)
-                 (voteonpair vote ignoreitem rowitem))
+                 (dispatch [:voteonpair vote ignoreitem rowitem]))
         delfn (fn [e]
                 (.stopPropagation e)
-                (delvote (:id vote)))
-        ]
+                (dispatch [:delete-vote vote]))]
     (if vote
       [:<>
        [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name ignoreitem)]]
@@ -123,50 +79,63 @@
         (.toFixed (* 10 size elo)  2)]
     elo))
 
-(defn rowitem [rowitem size]
-  (fn [rowitem size] 
+(defn rowitem [rowitem]
+  (let [size @(subscribe [:sorted-count])
+        show @(subscribe [:show])]
     [:tr 
      [:td (fixelo (:elo rowitem) size)]
      ;; customize by type (display url for links?)
      
      [:td (:votecount rowitem)]
-     [:td (let [url (str "/t/" js/tag "/" (:id rowitem))
+     [:td (let [url (str "/t/" js/tagid "/" (:id rowitem))
                 name [:div
                       {:onClick (fn [] (set! js/window.location.href url))}
                       (:name rowitem)]
-                id (:id rowitem)]
+                id (:id rowitem)
+                item-id @(subscribe [:item-id])
+                right @(subscribe [:item :left])]
             (cond
-              (and (:right @score)
-                   (= id (:id (:right @score)))) [:b name]
-              (= id (:id @item)) [:b name]
+              (and right
+                   (= id (:id right))) [:b name]
+              (= id item-id) [:b name]
               true name))]
      
-     (if (:vote_edit @show)
-       [votepanel rowitem @item])]))
+     (if (:vote_edit show)
+       [votepanel rowitem])]))
 
 (defn ranklist []
   ;; (js/console.log "rank")
   ;; (js/console.log (clj->js  @rank))
   
-  (let [size (count @sorted)]
+  (let [sorted @(subscribe [:sorted])
+        count @(subscribe [:sorted-count])]
     [:table
      [:thead
-      [:tr [:th ""] [:th ""] [:th ""]]]
+      [:tr [:th "elo"] [:th "#votes"] [:th ""]]]
      [:tbody
-      (doall (for [n @sorted]
-         [rowitem (assoc n :key (:id n)) size]))]]))
+      (doall (for [n sorted]
+               [rowitem (-> n
+                            (assoc :key (:id n)))]))]]))
 
 (defn home-page []
-  (initdata)
-  (fn []
-    [:div
-     [back @tag]
-     (if @score
-       [c/pairvoter score (:format (:settings @tag)) sendvote :startopen true :cancelfn #(reset! score nil)]
-       [itemv])
-     [c/collapsible-cage true
-      "MATCHUPS"
-      [ranklist]]]))
+  #_ (fn []
+       [:div
+        [back @tag]
+        (if @score
+          [c/pairvoter score (:format (:settings @tag)) sendvote :startopen true :cancelfn #(reset! score nil)]
+          [itemv])
+        [c/collapsible-cage true
+         "MATCHUPS"
+         [ranklist]]])
+  [:div
+   [back]
+   (case @(subscribe [:item-stage])
+     :itemview [itemv]
+     :voting [c/pairvoter :cancelevent [:cancelvote]])
+   [c/collapsible-cage true
+    "MATCHUPS"
+    [ranklist]]
+   ])
 
 
 (defn mount-root []

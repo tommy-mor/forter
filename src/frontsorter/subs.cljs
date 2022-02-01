@@ -39,7 +39,8 @@
          (fn [percent [_ side]]
            (case side
              :right (/ (max 0 (- percent 50)) 2) 
-             :left (/ (max 0 (- 50 percent)) 2))))
+             :left (/ (max 0 (- 50 percent)) 2)
+             0)))
 
 (reg-sub :item (fn [db [_ side]] (side db)))
 
@@ -76,3 +77,21 @@
 
 (reg-sub :errors #(or (:errors %) []))
 
+;; only for item page
+(reg-sub :item-id #(:id (:item %)))
+(reg-sub :votes :votes)
+(reg-sub :vote-on
+         :<- [:votes]
+         (fn [votes [_ item]]
+           (get votes (keyword (:id item)))))
+
+(reg-sub :item-stage
+         (fn [db _]
+           (cond
+             (and (:left db)
+                  (:right db)
+                  (not (:item db))) :voting
+             (and (:item db)
+                  (not (:left db))
+                  (not (:right db))) :itemview
+             true (js/console.log "error !!!!!!!!!!!!!!!!!1111"))))

@@ -153,7 +153,6 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
 
 	const handleSubmitItem = (event) => {
 		event.preventDefault() //otherwise it refreshes page?
-		//frontsorter.events.dispatch("add-item", [form], ()=>setForm({}))
 		frontsorter.events.add_item(form, ()=>setForm({}))
 	}
 
