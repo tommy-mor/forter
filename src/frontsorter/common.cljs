@@ -57,8 +57,9 @@
   (let [format @(subscribe [:format])
         item @(subscribe [:item side])]
     [:div 
-     {:class (case side :right "rightitem" :left "leftitem" "leftitem")
-      :style {:transform (str "translateY(-" @(subscribe [:side-height side]) "px)")}}
+     {:class (case side :right "rightitem" :left "leftitem" "")
+      :style (when (not (= side :item))
+               {:transform (str "translateY(-" @(subscribe [:side-height side]) "px)")})}
      (when (:name format)
        [:h1 {:style {:margin-bottom "4px"}} (:name item)])
      (when (:url format)

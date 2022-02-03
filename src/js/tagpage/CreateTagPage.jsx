@@ -158,7 +158,7 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
 
 	const handleEditItem = (event) => {
 		event.preventDefault(); //otherwise it refreshes page?
-		//frontsorter.item.edit_item(form, editCallback);
+		frontsorter.events.edit_item(form, editCallback);
 	}
 
 	const handleDeleteItem = (event) => {

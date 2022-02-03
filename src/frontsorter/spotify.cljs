@@ -4,8 +4,7 @@
    [cljs-http.client :as http]
    [cljs.core.async :refer [<!]]
    [reagent.core :as r]
-   [reagent.dom :as d]
-   [frontsorter.urls :as url]))
+   [reagent.dom :as d]))
 
 (defn extract-key []
   (let [str (.-location.hash js/window)]
@@ -45,7 +44,7 @@
       (js/console.log userurl)
       (js/console.log finalresponse)
       (if (and (:success finalresponse) (-> finalresponse :body :newtagid))
-        (js/window.location.replace (url/tag (-> finalresponse :body :newtagid)))))))
+        (js/window.location.replace (-> finalresponse :body :newtagid))))))
 
 
 

@@ -31,7 +31,8 @@
 (defn http-effect [m]
   {:http-xhrio (merge (when (or
                              (= :post (:method m))
-                             (= :delete (:method m)))
+                             (= :delete (:method m))
+                             (= :put (:method m)))
                         {:format (ajax/json-request-format)})
 
                       (if (:dont-rehydrate m)
@@ -104,14 +105,26 @@
                  :uri "/api/items"
                  :params (assoc item :tagid js/tagid)
                  :on-success [:handle-refresh-callback callback]})))
+(reg-event-fx
+ :edit-item
+ (fn [{:keys [db]} [_ item callback]]
+   (js/console.log item)
+   (http-effect {:method :put
+                 :uri (str "/api/items/" (:id (:item db)))
+                 :params (assoc item :tagid js/tagid)
+                 :on-success [:handle-refresh-callback callback]})))
 
-(defn dispatch [query-kw-str rest]
+#_(defn dispatch [query-kw-str rest]
   (re-frame.core/dispatch
    (into [(keyword query-kw-str)]
          (js->clj rest :keywordize-keys true))))
 
 (defn ^:export add_item [item callback]
   (re-frame.core/dispatch [:add-item (js->clj item :keywordize-keys true) callback]))
+
+(defn ^:export edit_item [item callback]
+  (re-frame.core/dispatch [:edit-item (js->clj item :keywordize-keys true) callback]))
+
 
 
 ;; for item page

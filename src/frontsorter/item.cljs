@@ -6,25 +6,14 @@
    [frontsorter.views :as views]
    [frontsorter.events]
    [frontsorter.common :as c]
-   [frontsorter.subs]))
+   [frontsorter.subs]
+   ["./../tagpage/CreateTagPage" :as foo]))
 
 (dispatch-sync [:init-db])
 
 
 ;; only called from js
 ;; TODO move these
-(defn edit-item [newstate callback]
-  (let [newstate (js->clj newstate :keywordize-keys true)]
-    (go (let [url (url/edititemstr (:id @item))
-              response (<! (http/post url {:json-params {:itemid (:id @item)
-                                                         :content newstate}}))]
-          (if (handleresponse response)
-            (callback))))))
-
-(defn delete-item []
-  (if (js/confirm "are you sure you want to delete this item")
-    (set! js/window.location (url/deleteitemstr (:id @item)))))
-
 ;; views --
 
 (defn back []
@@ -32,12 +21,10 @@
     [:a {:href (str "/t/" (:id tag))} " << " (:title tag)]))
 
 (defn item-edit [show]
-  #_(let [callback (fn []
-                   (reset! show false))]
-    [:> foo/ItemCreator {:inputList (c/fields-from-format (-> @tag :settings :format))
-                         :editItem @item
-                         :editCallback callback}])
-  [:h1 "hi"])
+  (let [callback #(reset! show false)]
+    [:> foo/ItemCreator {:inputList (c/fields-from-format @(subscribe [:format]))
+                         :editItem @(subscribe [:item :item])
+                         :editCallback callback}]))
 
 (defn itemv []
   #_[c/editable
@@ -46,7 +33,7 @@
    item-edit
      [c/itemview (:format (:settings @tag)) @item 10 false (:type (:settings @tag))]]
   [c/editable
-   nil
+   nil ;; title
    (:edit_item @(subscribe [:show]))
    item-edit
    [c/itemview :item]])
