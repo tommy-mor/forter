@@ -94,4 +94,4 @@
              (and (:item db)
                   (not (:left db))
                   (not (:right db))) :itemview
-             true (js/console.log "error !!!!!!!!!!!!!!!!!1111"))))
+             true (js/console.log "bad state"))))

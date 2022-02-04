@@ -28,27 +28,30 @@
 (reg-event-db :clear-errors #(assoc % :errors []))
 
 
-(defn http-effect [m]
-  {:http-xhrio (merge (when (or
-                             (= :post (:method m))
-                             (= :delete (:method m))
-                             (= :put (:method m)))
-                        {:format (ajax/json-request-format)})
-
-                      (if (:dont-rehydrate m)
-                        m
-                        (-> m
-                            (assoc-in [:params :rehydrate] true)
-                            (assoc-in [:params :tagid] js/tagid)))
-
-                      {:response-format (ajax/json-response-format {:keywords? true})
-                       :on-failure [:failed-http-req]})})
+(defn http-effect [db m]
+  {:http-xhrio (cond-> m
+                 (or
+                  (= :post (:method m))
+                  (= :delete (:method m))
+                  (= :put (:method m)))
+                 (assoc :format (ajax/json-request-format))
+                 
+                 (not (:dont-rehydrate m))
+                 (cond->
+                     true (assoc-in [:params :rehydrate] true)
+                     true (assoc-in [:params :tagid] js/tagid)
+                     js/itemid (assoc-in [:params :itemid] js/itemid))
+                 
+                 true
+                 (assoc :response-format (ajax/json-response-format {:keywords? true})
+                        :on-failure [:failed-http-req]))
+   :db db})
 
 
 (reg-event-fx
  :refresh-state
  (fn [{:keys [db]} [_ params]]
-   (http-effect {:method :get
+   (http-effect db {:method :get
                  :uri (str "/api/tags/" js/tagid "/sorted")
                  :params params
                  :on-success [:handle-refresh (select-keys db [:left :right])]
@@ -67,19 +70,33 @@
  (fn [db [_ new-perc]]
    (assoc db :percent new-perc)))
 
+(defn voting->item [db]
+  (-> db
+      (assoc :item (:left db))
+      (dissoc :left :right :percent)))
+
 (reg-event-fx
  :vote
  (fn [{:keys [db]} _]
-   (merge (http-effect {:method :post
-                        :uri (str "/api/votes")
-                        :params {:tagid (-> db :tag :id)
-                                 :left (-> db :left :id)
-                                 :right (-> db :right :id)
-                                 :mag (-> db :percent)}
-                        :on-success [:handle-refresh]})
+   (http-effect (if js/itemid
+                  (voting->item db)
+                  (assoc db :percent 50))
+                
+                {:method :post
+                 :uri (str "/api/votes")
+                 :params {:tagid (-> db :tag :id)
+                          :left (-> db :left :id)
+                          :right (-> db :right :id)
+                          :mag (-> db :percent)}
+                 :on-success [:handle-refresh]}))) 
 
-          {:db (assoc db :percent 50)}))) 
-
+(reg-event-fx
+ :delete-vote 
+ (fn [{:keys [db]} [_ vote]]
+   (http-effect db {:method :delete
+                    :uri (str "/api/votes/" (:id vote))
+                    :params {:itemid (-> db :item :id)}
+                    :on-success [:handle-refresh]})))
 (reg-event-fx
  :user-selected
  (fn [{:keys [db]}
@@ -92,27 +109,26 @@
 (reg-event-fx
  :delete
  (fn [{:keys [db]} [_ voteid]]
-   (http-effect {:method :delete
-                 :uri (str "/api/votes/" voteid)
-                 :on-success [:handle-refresh]})))
+   (http-effect db {:method :delete
+                    :uri (str "/api/votes/" voteid)
+                    :on-success [:handle-refresh]})))
 
 
 
 (reg-event-fx
  :add-item
  (fn [{:keys [db]} [_ item callback]]
-   (http-effect {:method :post
-                 :uri "/api/items"
-                 :params (assoc item :tagid js/tagid)
-                 :on-success [:handle-refresh-callback callback]})))
+   (http-effect db {:method :post
+                    :uri "/api/items"
+                    :params (assoc item :tagid js/tagid)
+                    :on-success [:handle-refresh-callback callback]})))
 (reg-event-fx
  :edit-item
  (fn [{:keys [db]} [_ item callback]]
-   (js/console.log item)
-   (http-effect {:method :put
-                 :uri (str "/api/items/" (:id (:item db)))
-                 :params (assoc item :tagid js/tagid)
-                 :on-success [:handle-refresh-callback callback]})))
+   (http-effect db {:method :put
+                    :uri (str "/api/items/" (:id (:item db)))
+                    :params (assoc item :tagid js/tagid)
+                    :on-success [:handle-refresh-callback callback]})))
 
 #_(defn dispatch [query-kw-str rest]
   (re-frame.core/dispatch
@@ -141,8 +157,6 @@
 (reg-event-db
  :cancelvote
  (fn [db _]
-   (-> db
-       (assoc :item (:left db))
-       (dissoc :left :right :percent))))
+   (voting->item db)))
 
 
