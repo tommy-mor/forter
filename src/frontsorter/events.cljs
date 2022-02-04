@@ -29,6 +29,8 @@
 
 
 (defn http-effect [db m]
+  (if (not (:params m))
+    (js/console.error "request must have params, or api_respond_to will be confused"))
   {:http-xhrio (cond-> m
                  (or
                   (= :post (:method m))
@@ -95,7 +97,7 @@
  (fn [{:keys [db]} [_ vote]]
    (http-effect db {:method :delete
                     :uri (str "/api/votes/" (:id vote))
-                    :params {:itemid (-> db :item :id)}
+                    :params {:itemid js/itemid}
                     :on-success [:handle-refresh]})))
 (reg-event-fx
  :user-selected
@@ -105,15 +107,6 @@
     :dispatch [:refresh-state (case new-user
                                 "all users" nil
                                 {:username new-user})]}))
-
-(reg-event-fx
- :delete
- (fn [{:keys [db]} [_ voteid]]
-   (http-effect db {:method :delete
-                    :uri (str "/api/votes/" voteid)
-                    :on-success [:handle-refresh]})))
-
-
 
 (reg-event-fx
  :add-item
@@ -126,9 +119,23 @@
  :edit-item
  (fn [{:keys [db]} [_ item callback]]
    (http-effect db {:method :put
-                    :uri (str "/api/items/" (:id (:item db)))
+                    :uri (str "/api/items/" js/itemid)
                     :params (assoc item :tagid js/tagid)
                     :on-success [:handle-refresh-callback callback]})))
+(reg-event-fx
+ :delete-item
+ (fn [{:keys [db]} [_ voteid]]
+   (http-effect db {:method :delete
+                    :uri (str "/api/items/" js/itemid)
+                    :params {}
+                    :on-success [:delete-item-success]
+                    :dont-rehydrate true})))
+(reg-event-db
+ :delete-item-success
+ (fn [db _]
+   (set! js/window.location (str "/t/" js/tagid))
+   (js/console.log "should never get here")
+   db))
 
 #_(defn dispatch [query-kw-str rest]
   (re-frame.core/dispatch
@@ -140,6 +147,9 @@
 
 (defn ^:export edit_item [item callback]
   (re-frame.core/dispatch [:edit-item (js->clj item :keywordize-keys true) callback]))
+
+(defn ^:export delete_item [item callback]
+  (re-frame.core/dispatch [:delete-item (js->clj item :keywordize-keys true) callback]))
 
 
 

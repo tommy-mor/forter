@@ -123,10 +123,10 @@ function TagCreator({initstate}) {
         urlFormat={urlFormat}
       />
 
-		{!initstate["editing"] ? null
-		 : <input type="submit" value="delete this tag" onClick={handleDelete} />
-	    }
 		<input type="submit" value={initstate["editing"] ? "commit changes" : "create tag"} onClick={handleSubmit} />
+		{!initstate["editing"] ? null
+		 : <input type="submit" style = {{backgroundColor: "red"}} value="delete this tag" onClick={handleDelete} />
+	    }
     </div>
   );
 }
@@ -163,7 +163,9 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
 
 	const handleDeleteItem = (event) => {
 		event.preventDefault(); //otherwise it refreshes page?
-		//frontsorter.item.delete_item();
+		if (confirm("are you sure you want to delete this item")) {
+			frontsorter.events.delete_item();
+		}
 	}
 
   const inputElements = {
@@ -203,7 +205,7 @@ function ItemCreator({inputList, isDummy, editItem, editCallback}) {
 		{(isDummy || editItem) ? null : <input type="submit" value="add item" onClick={handleSubmitItem} />}
 		{editItem ? <Fragment>
 						<input type="submit" value="edit item" onClick={handleEditItem} />
-						<input type="submit" value="delete item" onClick={handleDeleteItem} />
+						<input type="submit" style={{backgroundColor: "red"}} value="delete item" onClick={handleDeleteItem} />
 				    </Fragment>
 		 : null}
     </div>
