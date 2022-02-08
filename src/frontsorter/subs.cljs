@@ -98,5 +98,5 @@
 
 ;; attribute system
 ; TODO make spec so this makes sense
-(reg-sub :attributes :<- [:votes] #(sort-by val (frequencies (map :attribute %))))
+(reg-sub :attributes #(sort-by val (:attributes %)))
 (reg-sub :current-attribute #(:current-attribute %))

@@ -62,7 +62,7 @@
    (http-effect db {:method :get
                     :uri (str "/api/tags")
                     :params {}
-                    :on-success [:handle-refresh (select-keys db [:left :right])]})))
+                    :on-success [:handle-refresh (select-keys db [:left :attributes :right])]})))
 
 (reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep {:errors []})))
 (reg-event-db :handle-refresh-callback (fn [db [_ callback result]]
@@ -175,6 +175,11 @@
 
 ;; attribute system
 
-(reg-event-db :attribute-selected (fn [db [_ attribute]] (assoc db :current-attribute attribute)))
+(reg-event-fx :attribute-selected
+              (fn [{:keys [db]} [_ attribute]]
+                {:db (-> db (assoc :current-attribute attribute)
+                         (assoc-in [:attributes (keyword attribute)] (or ((keyword attribute) (:attributes db))
+                                                                         0)))
+                 :dispatch [:refresh-state [:attributes]]}))
 
 

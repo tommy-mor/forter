@@ -2,7 +2,8 @@
   (:require [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [clojure.string :as str]
             [frontsorter.common :as c]
-            ["./../tagpage/CreateTagPage" :as foo]))
+            ["./../tagpage/CreateTagPage" :as foo]
+            [reagent.core :refer [atom]]))
 
 
 (defn addpanel []
@@ -11,26 +12,37 @@
     [:> foo/ItemCreator {:inputList fields}]))
 
 (defn attributes []
-  (let [current-attribute @(subscribe [:current-attribute])
-        attributes @(subscribe [:attributes])]
-    (js/console.log attributes)
-    [:div {:style {:display "flex"}} "you are voting on"
-     [:input {:type "text"
+  (let [editing (atom false)
+        new-attr-name (atom "")]
+    (fn []
+      (let [current-attribute @(subscribe [:current-attribute])
+            attributes @(subscribe [:attributes])]
+        (js/console.log attributes)
+        [:div {:style {:display "flex"}} "you are voting on"
+         (if @editing
+           [:<> [:input {:type "text"
 
-              :value current-attribute
-              :on-change #(dispatch-sync [:attribute-selected (.. % -target -value)])
-              :on-blur #(dispatch [:refresh-state {}])
-              :on-click #(set! (.. % -target -value) "")
-              :placeholder "default"
-              
-              :list "attribute-list"}]
-     [:datalist {:id "attribute-list"
-                 :style {:display "block"}}
-      (for [[attribute number] attributes]
-        [:option {:value attribute
-                  :key attribute
-                  :style {:display "none"}} attribute])]
-     "attribute"]))
+                         :value @new-attr-name
+                         :on-change #(reset! new-attr-name (.. % -target -value))
+                         :placeholder "default"}]
+            [:button
+             {:on-click #(do
+                           (dispatch-sync [:attribute-selected @new-attr-name])
+                           (reset! editing false)
+                           (reset! new-attr-name ""))}
+             "chose"]]
+           
+           [:select
+            {:on-change #(let [new-attr (.. % -target -value)]
+                           (case new-attr
+                             "[add new attribute]" (reset! editing true)
+                             (dispatch-sync [:attribute-selected new-attr])))
+             :value current-attribute}
+            (for [[attribute number] attributes]
+              [:option {:value attribute
+                        :key attribute} (str number "-" (name attribute))])
+            [:option {:key "add new"} "[add new attribute]"]])
+         "attribute"]))))
 
 
 (defn tag-info []
