@@ -1,5 +1,5 @@
 (ns frontsorter.views
-  (:require [re-frame.core :refer [subscribe dispatch]]
+  (:require [re-frame.core :refer [subscribe dispatch dispatch-sync]]
             [clojure.string :as str]
             [frontsorter.common :as c]
             ["./../tagpage/CreateTagPage" :as foo]))
@@ -9,6 +9,28 @@
   (let [fields (c/fields-from-format
                 @(subscribe [:format]))]
     [:> foo/ItemCreator {:inputList fields}]))
+
+(defn attributes []
+  (let [current-attribute @(subscribe [:current-attribute])
+        attributes @(subscribe [:attributes])]
+    (js/console.log attributes)
+    [:div {:style {:display "flex"}} "you are voting on"
+     [:input {:type "text"
+
+              :value current-attribute
+              :on-change #(dispatch-sync [:attribute-selected (.. % -target -value)])
+              :on-blur #(dispatch [:refresh-state {}])
+              :on-click #(set! (.. % -target -value) "")
+              :placeholder "default"
+              
+              :list "attribute-list"}]
+     [:datalist {:id "attribute-list"
+                 :style {:display "block"}}
+      (for [[attribute number] attributes]
+        [:option {:value attribute
+                  :key attribute
+                  :style {:display "none"}} attribute])]
+     "attribute"]))
 
 
 (defn tag-info []
@@ -90,7 +112,7 @@
                      [:td (idtoname (:item_b i))]
                      [:td (:magnitude i)]
                      (if (:vote_edit @(subscribe [:show]))
-                       [:td [c/smallbutton "delete" #(dispatch [:delete (:id i)])]])])
+                       [:td [c/smallbutton "delete" #(dispatch [:delete-vote i])]])])
                   votes)))]])
 
 (defn errors []
@@ -114,6 +136,12 @@
         true
         "ADD"
         [addpanel]])
+
+     (when true
+       [c/collapsible-cage
+        true
+        "ATTRIBUTE"
+        [attributes]])
 
      (when (:vote_panel show)
        [c/pairvoter])

@@ -9,8 +9,12 @@
 (reg-event-db
  :init-db
  ;; TODO add spec checking here
- (fn [db _] (assoc (js->clj js/init :keywordize-keys true)
-                   :percent 50)))
+ (fn [db _]
+   (let [db (js->clj js/init :keywordize-keys true)]
+     (assoc db
+            :percent 50
+            :current-attribute (key (apply max-key val
+                                           (frequencies (map :attribute (:votes db)))))))))
 
 (reg-event-fx :failed-http-req
               (fn [{:keys [db]} [_ result]]
@@ -40,9 +44,11 @@
                  
                  (not (:dont-rehydrate m))
                  (cond->
-                     true (assoc-in [:params :rehydrate] true)
-                     true (assoc-in [:params :tagid] js/tagid)
-                     js/itemid (assoc-in [:params :itemid] js/itemid))
+                     true (assoc-in [:params :rehydrate :tagid] js/tagid)
+                     js/itemid (assoc-in [:params :rehydrate :itemid] js/itemid)
+                     (:current-attribute db) (assoc-in [:params :rehydrate :attribute] (:current-attribute db))
+                     
+                     (not (= "all users" (-> db :users :user))) (assoc-in [:params :rehydrate :username] (-> db :users :user)))
                  
                  true
                  (assoc :response-format (ajax/json-response-format {:keywords? true})
@@ -52,12 +58,11 @@
 
 (reg-event-fx
  :refresh-state
- (fn [{:keys [db]} [_ params]]
+ (fn [{:keys [db]} _]
    (http-effect db {:method :get
-                 :uri (str "/api/tags/" js/tagid "/sorted")
-                 :params params
-                 :on-success [:handle-refresh (select-keys db [:left :right])]
-                 :dont-rehydrate true})))
+                    :uri (str "/api/tags")
+                    :params {}
+                    :on-success [:handle-refresh (select-keys db [:left :right])]})))
 
 (reg-event-db :handle-refresh (fn [db [_ keep result]] (merge db result keep {:errors []})))
 (reg-event-db :handle-refresh-callback (fn [db [_ callback result]]
@@ -86,10 +91,11 @@
                 
                 {:method :post
                  :uri (str "/api/votes")
-                 :params {:tagid (-> db :tag :id)
-                          :left (-> db :left :id)
-                          :right (-> db :right :id)
-                          :mag (-> db :percent)}
+                 :params (cond-> {:tagid (-> db :tag :id)
+                                  :left (-> db :left :id)
+                                  :right (-> db :right :id)
+                                  :mag (-> db :percent)}
+                           (-> db :current-attribute) (assoc :attribute (-> db :current-attribute)))
                  :on-success [:handle-refresh]}))) 
 
 (reg-event-fx
@@ -104,9 +110,7 @@
  (fn [{:keys [db]}
       [_ new-user]]
    {:db (assoc-in db [:users :user] new-user)
-    :dispatch [:refresh-state (case new-user
-                                "all users" nil
-                                {:username new-user})]}))
+    :dispatch [:refresh-state]}))
 
 (reg-event-fx
  :add-item
@@ -168,5 +172,9 @@
  :cancelvote
  (fn [db _]
    (voting->item db)))
+
+;; attribute system
+
+(reg-event-db :attribute-selected (fn [db [_ attribute]] (assoc db :current-attribute attribute)))
 
 

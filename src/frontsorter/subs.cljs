@@ -95,3 +95,8 @@
                   (not (:left db))
                   (not (:right db))) :itemview
              true (js/console.log "bad state"))))
+
+;; attribute system
+; TODO make spec so this makes sense
+(reg-sub :attributes :<- [:votes] #(sort-by val (frequencies (map :attribute %))))
+(reg-sub :current-attribute #(:current-attribute %))
