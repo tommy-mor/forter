@@ -3,47 +3,13 @@
             [clojure.string :as str]
             [frontsorter.common :as c]
             ["./../tagpage/CreateTagPage" :as foo]
-            [reagent.core :refer [atom]]))
+            [frontsorter.attributes :as attrs]))
 
 
 (defn addpanel []
   (let [fields (c/fields-from-format
                 @(subscribe [:format]))]
     [:> foo/ItemCreator {:inputList fields}]))
-
-(defn attributes []
-  (let [editing (atom false)
-        new-attr-name (atom "")]
-    (fn []
-      (let [current-attribute @(subscribe [:current-attribute])
-            attributes @(subscribe [:attributes])]
-        (js/console.log attributes)
-        [:div {:style {:display "flex"}} "you are voting on"
-         (if @editing
-           [:<> [:input {:type "text"
-
-                         :value @new-attr-name
-                         :on-change #(reset! new-attr-name (.. % -target -value))
-                         :placeholder "default"}]
-            [:button
-             {:on-click #(do
-                           (dispatch-sync [:attribute-selected @new-attr-name])
-                           (reset! editing false)
-                           (reset! new-attr-name ""))}
-             "chose"]]
-           
-           [:select
-            {:on-change #(let [new-attr (.. % -target -value)]
-                           (case new-attr
-                             "[add new attribute]" (reset! editing true)
-                             (dispatch-sync [:attribute-selected new-attr])))
-             :value current-attribute}
-            (for [[attribute number] attributes]
-              [:option {:value attribute
-                        :key attribute} (str number "-" (name attribute))])
-            [:option {:key "add new"} "[add new attribute]"]])
-         "attribute"]))))
-
 
 (defn tag-info []
   (let [{:keys [title description
@@ -153,7 +119,7 @@
        [c/collapsible-cage
         true
         "ATTRIBUTE"
-        [attributes]])
+        [attrs/attributes-panel]])
 
      (when (:vote_panel show)
        [c/pairvoter])
@@ -173,6 +139,8 @@
      (when (:vote_edit show)
        [c/collapsible-cage
         false
-        (str "MY VOTES (" @(subscribe [:votes-count]) ")")
+        (str "MY VOTES (" @(subscribe [:votes-count]) ") on attribute "
+             (or @(subscribe [:current-attribute])
+                 "default"))
         [votelist]])]))
 

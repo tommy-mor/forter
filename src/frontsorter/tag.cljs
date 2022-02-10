@@ -6,7 +6,8 @@
    [day8.re-frame.http-fx]
    [frontsorter.views :as views]
    [frontsorter.events]
-   [frontsorter.subs]))
+   [frontsorter.subs]
+   [frontsorter.attributes]))
 
 ;; println now does console.log
 (enable-console-print!)

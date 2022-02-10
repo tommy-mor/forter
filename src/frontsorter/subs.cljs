@@ -96,7 +96,3 @@
                   (not (:right db))) :itemview
              true (js/console.log "bad state"))))
 
-;; attribute system
-; TODO make spec so this makes sense
-(reg-sub :attributes #(sort-by val (:attributes %)))
-(reg-sub :current-attribute #(:current-attribute %))
