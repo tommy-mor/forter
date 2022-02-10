@@ -35,6 +35,7 @@
     (js/console.error "request must have params, or api_respond_to will be confused"))
 
   (let [current-attribute (attrs/current-attribute db)]
+    (js/console.log current-attribute)
     {:http-xhrio (cond-> m
                    (or
                     (= :post (:method m))
@@ -105,7 +106,8 @@
                                     :left (-> db :left :id)
                                     :right (-> db :right :id)
                                     :mag (-> db :percent)}
-                             (not= :default current-attribute)
+
+                             (not= "default" current-attribute)
                              (assoc :attribute current-attribute)))
                  :on-success [:handle-refresh]}))) 
 
@@ -114,7 +116,7 @@
  (fn [{:keys [db]} [_ vote]]
    (http-effect db {:method :delete
                     :uri (str "/api/votes/" (:id vote))
-                    :params {:itemid js/itemid}
+                    :params (if js/itemid {:itemid js/itemid} {})
                     :on-success [:handle-refresh]})))
 (reg-event-fx
  :user-selected

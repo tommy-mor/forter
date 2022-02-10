@@ -10,19 +10,18 @@
 
 (defn attributes [db]
   (sort-by val
-           (let [{:keys [chosen none _current]} (:attributes db)]
-             (if (empty? chosen)
-               {:default none}
-               (if (zero? none)
-                 chosen
-                 (merge  {:default none}  chosen))))))
+           (let [{:keys [chosen none current]} (:attributes db)]
+             (merge {(keyword current) 0} 
+                    (if (empty? chosen)
+                      {:default none}
+                      (if (zero? none)
+                        chosen
+                        (merge  {:default none}  chosen)))))))
 
 (reg-sub :attributes attributes) 
 
 (defn current-attribute [db]
-  (or (-> db :attributes :current)
-      ;; find  attribute
-      (key (apply max-key val (attributes db)))))
+  (-> db :attributes :current))
 
 (reg-sub :current-attribute current-attribute)
 
