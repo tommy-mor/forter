@@ -28,8 +28,6 @@
 (reg-event-fx :attribute-selected
               (fn [{:keys [db]} [_ attribute]]
                 (let [path [:attributes :chosen (keyword attribute)]]
-                  (js/console.log "path")
-                  (js/console.log attribute)
                   {:db (cond-> db
                          true (assoc-in [:attributes :current] attribute)
                          ;; because of lua empty table
@@ -46,8 +44,6 @@
     (fn []
       (let [current-attribute @(subscribe [:current-attribute])
             attributes @(subscribe [:attributes])]
-        (js/console.log attributes)
-        
         [:div {:style {:display "flex"}} "you are voting on"
          (if (and (not @editing) (not (= [:default] (keys attributes))))
            [:select

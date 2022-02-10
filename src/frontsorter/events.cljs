@@ -35,7 +35,6 @@
     (js/console.error "request must have params, or api_respond_to will be confused"))
 
   (let [current-attribute (attrs/current-attribute db)]
-    (js/console.log current-attribute)
     {:http-xhrio (cond-> m
                    (or
                     (= :post (:method m))
