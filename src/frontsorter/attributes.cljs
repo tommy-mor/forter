@@ -11,7 +11,7 @@
 (defn attributes [db]
   (sort-by val
            (let [{:keys [chosen none current]} (:attributes db)]
-             (merge {(keyword current) 0} 
+             (merge (when current {(keyword current) 0}) 
                     (if (empty? chosen)
                       {:default none}
                       (if (zero? none)
