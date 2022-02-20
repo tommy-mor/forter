@@ -54,7 +54,7 @@
              :value current-attribute}
             (for [[attribute number] attributes]
               [:option {:value attribute
-                        :key attribute} (str number "-" (name attribute))])
+                        :key attribute} (str (name attribute) " (" number " votes)")])
             [:option {:key "add new"} "[add new attribute]"]]
            
            [:<> [:input {:type "text"
