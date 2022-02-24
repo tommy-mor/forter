@@ -43,15 +43,18 @@
                    (assoc :format (ajax/json-request-format))
                    
                    (not (:dont-rehydrate m))
-                   (cond->
-                       true (assoc-in [:params :rehydrate :tagid] js/tagid)
-                       js/itemid (assoc-in [:params :rehydrate :itemid] js/itemid)
-                       
-                       (not (= "default" current-attribute))
-                       (assoc-in [:params :rehydrate :attribute] current-attribute)
-                       
-                       (not (= "all users" (-> db :users :user)))
-                       (assoc-in [:params :rehydrate :username] (-> db :users :user)))
+                   (cond-> 
+                       true
+                     (assoc-in [:params :rehydrate :tagid] js/tagid)
+                     
+                     js/itemid
+                     (assoc-in [:params :rehydrate :itemid] js/itemid)
+                     
+                     true
+                     (assoc-in [:params :rehydrate :attribute] current-attribute) ;; can be null...
+                     
+                     (not (= "all users" (-> db :users :user)))
+                     (assoc-in [:params :rehydrate :username] (-> db :users :user)))
                    
                    true
                    (assoc :response-format (ajax/json-response-format {:keywords? true})

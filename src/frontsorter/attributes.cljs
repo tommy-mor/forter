@@ -51,7 +51,7 @@
                            (case new-attr
                              "[add new attribute]" (reset! editing true)
                              (dispatch-sync [:attribute-selected new-attr])))
-             :value current-attribute}
+             :value (or current-attribute "default")}
             (for [[attribute number] attributes]
               [:option {:value attribute
                         :key attribute} (str (name attribute) " (" number " votes)")])
