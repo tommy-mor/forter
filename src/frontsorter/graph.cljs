@@ -17,9 +17,13 @@
         chart-data {:type "scatter"
                     :data {:datasets [{:data data
                                        :label "matchup"
-                                       :backgroundColor "#90EE90"}]}}
+                                       :backgroundColor "#90EE90"}]}
+                    :options {:interaction {:mode "nearest"}
+                              :plugins {:tooltip
+                                        {:callbacks
+                                         {:label
+                                          #(.. % -raw -name)}}}}}
         chart-data (clj->js chart-data)]
-    (js/console.log chart-data)
     (reset! chart (js/Chart. context chart-data))))
 
 (defn graph-data
