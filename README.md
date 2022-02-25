@@ -13,6 +13,3 @@ npx shadow-cljs browser-repl
 ```
 npx shadow-cljs release app
 ```
-
-
-Jake was here
