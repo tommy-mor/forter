@@ -9,18 +9,18 @@
 (def height 850)
 (def width 850)
 
+(def chart (atom nil))
+
 (defn show-revenue-chart
   [data]
   (let [context (.getContext (.getElementById js/document "rev-chartjs") "2d")
-        chart-data {:type "bar"
-                    :data {:labels ["2012" "2013" "2014" "2015" "2016"]
-                           :datasets [{:data [5 10 15 20 25]
-                                       :label "Rev in MM"
-                                       :backgroundColor "#90EE90"}
-                                      {:data [3 6 9 12 15]
-                                       :label "Cost in MM"
-                                       :backgroundColor "#F08080"}]}}]
-    (js/Chart. context (clj->js chart-data))))
+        chart-data {:type "scatter"
+                    :data {:datasets [{:data data
+                                       :label "matchup"
+                                       :backgroundColor "#90EE90"}]}}
+        chart-data (clj->js chart-data)]
+    (js/console.log chart-data)
+    (reset! chart (js/Chart. context chart-data))))
 
 (defn graph-data
   [data]
@@ -28,7 +28,12 @@
    {:component-did-mount #(show-revenue-chart data)
     :display-name        "chartjs-component"
     :reagent-render      (fn []
-                           [:canvas {:id "rev-chartjs" :width "700" :height "380"}])}))
+                           
+                           [:canvas {:id "rev-chartjs" :width "700" :height "380"}])
+    :key data}))
+
+(defn render-graph [data]
+  [graph-data @data])
 
 (defn attribute-selector [selected-atom attributes]
   [:select
@@ -42,19 +47,21 @@
                :key attribute}
       (str (name attribute) " (" number " votes)")])])
 
-(defn render-graph [x-attr, y-attr]
-  (let [data (atom nil)]
-    (fn [x-attr y-attr]
-      (GET (str "/t/" js/tagid "/graph/" x-attr "/" y-attr)
-           {:handler #(js/console.log %)})
-      [:h1 "render"])))
-
 
 (defn graph []
   (let [x-attr (atom false)
         y-attr (atom false)
-        attrs (c/attributes-not-db (js->clj js/attributes :keywordize-keys true))]
+        attrs (c/attributes-not-db (js->clj js/attributes :keywordize-keys true))
+        data (atom nil)]    
     (fn []
+      (GET (str "/t/" js/tagid "/graph/" @x-attr "/" @y-attr)
+           {:handler #(do
+                        (reset! data %)
+                        (set! (.. @chart -data) (clj->js
+                                                 {:datasets [{:data %
+                                                              :label "matchup2"
+                                                              :backgroundColor "#90EE90"}]}))
+                        (. @chart update))})
       [:div
        "x attribute"
        [attribute-selector x-attr attrs]
@@ -64,7 +71,7 @@
        (when (and @x-attr
                   @y-attr
                   (not (= @x-attr @y-attr)))
-         [render-graph @x-attr, @y-attr])])))
+         [render-graph data])])))
 
 (defn mount-root []
   (d/render [graph] (.getElementById js/document "app")))
