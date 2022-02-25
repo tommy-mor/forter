@@ -1,6 +1,4 @@
 (ns frontsorter.common
-  (:require-macros
-   [cljs.core.async.macros :refer [go]])
   (:require
    [re-frame.core :refer [subscribe dispatch dispatch-sync]]
    [reagent.core :refer [atom]]))
@@ -160,3 +158,14 @@
       (when cancelevent
         [button "cancel" :cancelvote :class "cancelbutton"])]]))
 
+
+;; not a view, a function for converting attributes dict to a list
+(defn attributes-not-db [smaller-db]
+  (sort-by val
+           (let [{:keys [chosen none current]} smaller-db]
+             (merge (when current {(keyword current) 0}) 
+                    (if (empty? chosen)
+                      {:default none}
+                      (if (zero? none)
+                        chosen
+                        (merge  {:default none}  chosen)))))))

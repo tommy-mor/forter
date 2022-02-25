@@ -3,20 +3,13 @@
    [re-frame.core :refer [reg-event-db reg-event-fx
                           reg-sub reg-fx
                           subscribe dispatch dispatch-sync]]
-   [reagent.core :refer [atom]]))
+   [reagent.core :refer [atom]]
+   [frontsorter.common :as c]))
 
 ;; inviariants : when no attribute is selected, :current-attribute is null
 ;; 
 
-(defn attributes [db]
-  (sort-by val
-           (let [{:keys [chosen none current]} (:attributes db)]
-             (merge (when current {(keyword current) 0}) 
-                    (if (empty? chosen)
-                      {:default none}
-                      (if (zero? none)
-                        chosen
-                        (merge  {:default none}  chosen)))))))
+(defn attributes [db] (c/attributes-not-db (:attributes db)))
 
 (reg-sub :attributes attributes) 
 

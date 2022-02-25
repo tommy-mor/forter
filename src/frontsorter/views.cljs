@@ -3,8 +3,7 @@
             [clojure.string :as str]
             [frontsorter.common :as c]
             ["./../tagpage/CreateTagPage" :as foo]
-            [frontsorter.attributes :as attrs]
-            [frontsorter.graph :as graph]))
+            [frontsorter.attributes :as attrs]))
 
 
 (defn addpanel []
@@ -101,10 +100,6 @@
       (for [error errors]
         [:pre error]))]))
 
-(defn graph []
-  [:div "uhh"])
-
-
 (defn tag-page []
   (let [show @(subscribe [:show])]
     [:div
@@ -135,10 +130,10 @@
         [sortedlist :sorted :sorted-count]])
      
      (when @(subscribe [:unsorted-not-empty])
-          [c/collapsible-cage
-           true
-           "UNRANKED ITEMS"
-           [sortedlist :unsorted :unsorted-count]])
+       [c/collapsible-cage
+        true
+        "UNRANKED ITEMS"
+        [sortedlist :unsorted :unsorted-count]])
      
      (when (:vote_edit show)
        [c/collapsible-cage
@@ -146,9 +141,5 @@
         (str "MY VOTES (" @(subscribe [:votes-count]) ") on attribute "
              (or @(subscribe [:current-attribute])
                  "default"))
-        [votelist]])
-
-     [c/collapsible-cage true
-      "GRAPH"
-      [graph/graph]]]))
+        [votelist]])]))
 
