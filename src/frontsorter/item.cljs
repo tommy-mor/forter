@@ -7,7 +7,8 @@
    [frontsorter.events]
    [frontsorter.common :as c]
    [frontsorter.subs]
-   ["./../tagpage/CreateTagPage" :as foo]))
+   ["./../tagpage/CreateTagPage" :as foo]
+   [frontsorter.attributes :as attrs]))
 
 (dispatch-sync [:init-db])
 
@@ -119,8 +120,9 @@
    (case @(subscribe [:item-stage])
      :itemview [itemv]
      :voting [c/pairvoter :cancelevent [:cancelvote]])
-   [c/collapsible-cage true
-    "MATCHUPS"
+   [c/collapsible-cage true "ATTRIBUTES"
+    [attrs/attributes-panel]]
+   [c/collapsible-cage true "MATCHUPS"
     [ranklist]]
    ])
 
