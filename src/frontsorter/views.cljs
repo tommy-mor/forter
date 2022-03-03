@@ -17,6 +17,7 @@
                 creator]} @(subscribe [:tag])
         {:keys [edit_tag]} @(subscribe [:show])]
     [c/editable-link
+     
      "TAG"
      edit_tag
      (str "/t/" js/tagid "/edit")
@@ -83,7 +84,7 @@
           votes @(subscribe [:votes])]
       
       (doall (map (fn [i]
-                    [:tr
+                    [:tr.vote 
                      {:key (:id i)}
                      [:td (idtoname (:item_a i))]
                      [:td (- 100 (:magnitude i))]
@@ -112,12 +113,14 @@
        [c/collapsible-cage
         true
         "ADD"
+        "itempanel"
         [addpanel]])
 
      (when true
        [c/collapsible-cage
         true
         "ATTRIBUTE"
+        ""
         [attrs/attributes-panel]])
 
      (when (:vote_panel show)
@@ -127,12 +130,14 @@
        [c/collapsible-cage
         true
         "RANKING"
+        "itemranking"
         [sortedlist :sorted :sorted-count]])
      
      (when @(subscribe [:unsorted-not-empty])
        [c/collapsible-cage
         true
         "UNRANKED ITEMS"
+        "itemranking"
         [sortedlist :unsorted :unsorted-count]])
      
      (when (:vote_edit show)
@@ -141,5 +146,6 @@
         (str "MY VOTES (" @(subscribe [:votes-count]) ") on attribute "
              (or @(subscribe [:current-attribute])
                  "default"))
+        "votinglistpanel"
         [votelist]])]))
 

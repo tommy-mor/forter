@@ -50,7 +50,7 @@
                 (.stopPropagation e)
                 (dispatch [:delete-vote vote]))]
     (if vote
-      [:<>
+      [:div.vote
        [:td [:<> "" [:b mag] " vs " [:b mag2] "  " (:name ignoreitem)]]
        [:td 
         [c/smallbutton "edit " editfn]]
@@ -120,10 +120,10 @@
    (case @(subscribe [:item-stage])
      :itemview [itemv]
      :voting [c/pairvoter :cancelevent [:cancelvote]])
-   [c/collapsible-cage true "ATTRIBUTES"
+   [c/collapsible-cage true "ATTRIBUTES" ""
     [attrs/attributes-panel]]
-   [c/collapsible-cage true "MATCHUPS"
-    [ranklist]]
+   [c/collapsible-cage true "MATCHUPS" "itemranking"
+    [ranklist]] 
    ])
 
 

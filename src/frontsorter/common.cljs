@@ -3,15 +3,17 @@
    [re-frame.core :refer [subscribe dispatch dispatch-sync]]
    [reagent.core :refer [atom]]))
 
-(defn collapsible-cage [open title & children]
+(defn collapsible-cage [open title cls & children]
   (let [collapsed (atom (not open))]
-    (fn [open title children]
+    (fn [open title cls & children]
       [:div.cageparent
+       {:class cls}
+       
        [:div.cagetitle
         {:on-click (fn [e] (swap! collapsed not))}
         (if @collapsed
-          (str title " >>")
-          (str title " <<"))]
+          (str "[+]  " title)
+          (str "[  ]  " title))]
        (if @collapsed
          nil
          children)])))
@@ -54,7 +56,7 @@
 (defn itemview [side]
   (let [format @(subscribe [:format])
         item @(subscribe [:item side])]
-    [:div 
+    [:div.item 
      {:class (case side :right "rightitem" :left "leftitem" "")
       :style (when (not (= side :item))
                {:transform (str "translateY(-" @(subscribe [:side-height side]) "px)")})}
@@ -66,7 +68,7 @@
        [:<> 
         [:br]
         [:pre {:style {:color "red"
-                       :white-space "pre-line"}} (:paragraph (:content item))]])]))
+                       :white-space "pre-line"}} (:paragraph (:content item))]])] ))
 
 (defn smallbutton [text fn & [style]]
   [:a {:on-click fn :style style :class "sideeffect" :href "#"} text])
@@ -96,11 +98,11 @@
        (if @edit [edit-body edit] body)])))
 
 (defn editable-link [title is-editable url body]
-  [:div.cageparent
+  [:div.cageparent.tag
    [:div.cagetitle title
     (if is-editable
       [:div.rightcorner {:on-click #(set! js/window.location.href url)} "edit"])]
-   body])
+   body] )
 
 (defn editpage [stateatom showatom submitfn deletefn]
   
@@ -144,7 +146,7 @@
 (defn pairvoter [& {:keys [cancelevent]}]
   (let []
     
-    [collapsible-cage true "VOTE"
+    [collapsible-cage true "VOTE" "votingaddpanel"
      [:div.votearena
       {:style @(subscribe [:pair-arena-style])}
       
@@ -156,7 +158,7 @@
       [button "submit" :vote]
       
       (when cancelevent
-        [button "cancel" :cancelvote :class "cancelbutton"])]]))
+        [button "cancel" :cancelvote :class "cancelbutton"])]] ))
 
 
 ;; not a view, a function for converting attributes dict to a list
