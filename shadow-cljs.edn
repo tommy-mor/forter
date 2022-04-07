@@ -7,7 +7,7 @@
                 [day8.re-frame/http-fx "0.2.4"]]
  
  :builds       {:app {:target     :browser
-                      :output-dir "public/js"
+                      :output-dir "../dtorter/resources/public/js"
                       :asset-path "/js"
                       :module-loader true
                       :modules {:shared

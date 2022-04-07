@@ -6,12 +6,15 @@
    [ajax.core :as ajax]
    [frontsorter.attributes :as attrs]))
 
+(def stest (atom nil))
+
 ;; fill db with default db
 (reg-event-db
  :init-db
  ;; TODO add spec checking here
  (fn [db _]
    (let [db (js->clj js/init :keywordize-keys true)]
+     (reset! stest db)
      (assoc db :percent 50))))
 
 (reg-event-fx :failed-http-req

@@ -12,7 +12,7 @@
     [:> foo/ItemCreator {:inputList fields}]))
 
 (defn tag-info []
-  (let [{:keys [title description
+  (let [{:keys [name description
                 numusers numitems numvotes
                 creator]} @(subscribe [:tag])
         {:keys [edit_tag]} @(subscribe [:show])]
@@ -23,10 +23,10 @@
      (str "/t/" js/tagid "/edit")
      [:div {:style {:padding-left "10px"}}
       
-      [:h1 title]
+      [:h1 name]
       [:i description]
       [:br]
-      "created by user " [:a {:href (creator :url)} (creator :name)]
+      "created by user " [:a {:href (:url creator)} (:name creator)]
       [:br]
       [:b numitems] " items "
       [:b numvotes] " votes by " [:b numusers] " users"
